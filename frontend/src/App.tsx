@@ -91,7 +91,8 @@ function Shell() {
 export default function App() {
   return (
     <StoreProvider>
-      <BrowserRouter>
+      {/* BASE_URL is '/' locally and '/instaiq/' on GitHub Pages (set by the build) */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Shell />
       </BrowserRouter>
     </StoreProvider>

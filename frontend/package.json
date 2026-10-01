@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "generate:influencers": "node scripts/generate-influencers.mjs"
+    "generate:influencers": "node scripts/generate-influencers.mjs",
+    "build:pages": "tsc -b && vite build --base=/instaiq/ && cp dist/index.html dist/404.html"
   },
   "dependencies": {
     "lucide-react": "^1.49.0",
