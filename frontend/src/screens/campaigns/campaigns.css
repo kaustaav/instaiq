@@ -41,3 +41,9 @@
   color: var(--cs-fg-3);
   cursor: not-allowed;
 }
+
+.camp-picker { display: none; }
+@media (max-width: 768px) {
+  .camp-list { display: none; }
+  .camp-picker { display: block; padding: 10px 12px 0; background: white; }
+}

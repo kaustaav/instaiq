@@ -1,10 +1,10 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { LayoutGrid, List, Plus, Search, SearchX, X } from 'lucide-react'
+import { LayoutGrid, List, Plus, Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { fmt, freshness } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
-import { applyFilters, SEARCH_PAGE_SIZE, searchFromParams, searchToParams, type Filters, type SearchState } from '../../lib/search'
+import { activeFilterCount, applyFilters, SEARCH_PAGE_SIZE, searchFromParams, searchToParams, type Filters, type SearchState } from '../../lib/search'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
@@ -25,6 +25,15 @@ export function SearchScreen({ onShortlist }: Props) {
   const state = searchFromParams(params)
   const { filters, page, view } = state
   const onOpenProfile = useOpenProfile('Search Results')
+  const [filtersOpen, setFiltersOpen] = useState(false) // phones only
+  const nFilters = activeFilterCount(filters)
+
+  useEffect(() => {
+    if (!filtersOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFiltersOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [filtersOpen])
 
   // Discrete changes (chips, pages) add a history entry so Back undoes them;
   // typing replaces the current entry so Back doesn't replay every keystroke.
@@ -46,7 +55,8 @@ export function SearchScreen({ onShortlist }: Props) {
 
   return (
     <div className="screen">
-      <FilterPanel filters={filters} onChange={onFiltersChange} />
+      <FilterPanel filters={filters} onChange={onFiltersChange} resultCount={results.total}
+        mobileOpen={filtersOpen} onMobileClose={() => setFiltersOpen(false)} />
 
       <div className="screen-col">
         <div className="results-head">
@@ -65,6 +75,10 @@ export function SearchScreen({ onShortlist }: Props) {
               </button>
             )}
           </div>
+          <button type="button" className="btn btn-ghost filters-btn" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}>
+            <SlidersHorizontal size={13} />Filters
+            {nFilters > 0 && <span className="filters-badge">{nFilters}</span>}
+          </button>
           <div className="results-count">{results.total} influencer{results.total !== 1 ? 's' : ''}</div>
           <div className="view-toggle" role="group" aria-label="View">
             <button type="button" aria-label="Grid view" aria-pressed={view === 'grid'} className={view === 'grid' ? 'on' : ''} onClick={() => onViewChange('grid')}>
@@ -118,14 +132,14 @@ export function SearchScreen({ onShortlist }: Props) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Influencer</th><th>Location</th><th>Category</th>
+                    <th className="pin">Influencer</th><th>Location</th><th>Category</th>
                     <th className="r">Followers</th><th className="r">Eng. Rate</th><th>Language</th><th />
                   </tr>
                 </thead>
                 <tbody>
                   {results.items.map(i => (
                     <tr key={i.id} className="clickable" onClick={() => onOpenProfile(i.id)}>
-                      <td><PersonCell inf={i} /></td>
+                      <td className="pin"><PersonCell inf={i} /></td>
                       <td>
                         <div className="sub">{locationLine(i)}</div>
                         <div className="muted" style={{ fontSize: 11, marginTop: 1 }}>{statesOf(loc, i).join(', ')}</div>

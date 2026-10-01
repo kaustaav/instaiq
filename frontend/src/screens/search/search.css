@@ -172,3 +172,47 @@
 .inf-card-stats .mono.up { color: var(--cs-up); }
 .stat-label { font-size: 9px; color: var(--cs-fg-3); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
 .inf-card-foot { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
+.filters-head { display: flex; align-items: center; justify-content: space-between; }
+.filters-close, .filters-done, .filters-btn { display: none !important; }
+.filters-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--cs-blueberry-500);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 768px) {
+  /* filters become a full-screen sheet */
+  .filters {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    width: auto;
+    min-width: 0;
+    border-right: none;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    gap: 18px;
+    transform: translateY(100%);
+    transition: transform 240ms var(--cs-ease-out);
+    visibility: hidden;
+  }
+  .filters.open { transform: none; visibility: visible; }
+  .filters-close { display: inline-flex !important; padding: 6px; }
+  .filters-done { display: flex !important; justify-content: center; padding: 11px; font-size: 14px; margin-top: auto; }
+  .filters-btn { display: inline-flex !important; }
+  .filters .chip { padding: 6px 12px; font-size: 13px; }
+
+  .results-head { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+  .results-head .search-box { flex-basis: 100% !important; }
+  .results-count { margin-left: auto; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}

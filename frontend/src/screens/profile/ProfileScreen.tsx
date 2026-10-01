@@ -72,7 +72,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                 </div>
                 <div style={{ marginTop: 8 }}><CategoryBadges cats={inf.cats} large /></div>
               </div>
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <div className="profile-actions">
                 <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>
                 <a className="btn btn-ghost" href={igUrl(inf.handle)} target="_blank" rel="noopener">
                   <ExternalLink size={12} />View on Instagram

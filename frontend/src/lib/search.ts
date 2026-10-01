@@ -22,6 +22,10 @@ export const emptyFilters = (): Filters => ({ q: '', loc: [], cats: [], langs: [
 export const hasActiveFilters = (f: Filters) =>
   f.loc.length + f.cats.length + f.langs.length > 0 || f.eMin > 0 || f.fMin > F_LO || f.fMax < F_HI
 
+/** Number of active filter groups, for the phone "Filters (3)" button. Search text isn't counted. */
+export const activeFilterCount = (f: Filters) =>
+  f.loc.length + f.cats.length + f.langs.length + (f.eMin > 0 ? 1 : 0) + (f.fMin > F_LO || f.fMax < F_HI ? 1 : 0)
+
 export type ViewMode = 'grid' | 'list'
 
 /** Everything the search screen keeps in the URL. */

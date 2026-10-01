@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link, Navigate, useParams, useSearchParams } from 'react-router'
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import { Bookmark, Download, History, Plus, Share2, Trash2 } from 'lucide-react'
 import { useStore } from '../../store'
 import { fmt, igUrl, uniq } from '../../lib/format'
@@ -46,6 +46,7 @@ export function CampaignsScreen() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const active = campaigns.find(c => String(c.id) === id)
   const onOpenProfile = useOpenProfile(active?.name ?? 'Campaigns')
+  const navigate = useNavigate()
   // one influencer appears once per campaign, even if the data says otherwise
   const members = active
     ? uniq(active.iids).map(id => infs.find(i => i.id === id)).filter((i): i is Influencer => !!i)
@@ -81,6 +82,13 @@ export function CampaignsScreen() {
       </div>
 
       <div className="screen-col" style={{ background: 'var(--cs-ink-50)' }}>
+        {/* phones: the campaign list column is hidden, so pick from a dropdown */}
+        <div className="camp-picker">
+          <select className="input" aria-label="Campaign" value={active?.id ?? ''} onChange={e => navigate(`/campaigns/${e.target.value}`)}>
+            {!active && <option value="">Choose a campaign…</option>}
+            {campaigns.map(c => <option key={c.id} value={c.id}>{c.name} ({uniq(c.iids).length})</option>)}
+          </select>
+        </div>
         <div className="screen-head">
           <div>
             <div className="screen-title">{active?.name ?? 'Campaigns'}</div>
@@ -100,15 +108,15 @@ export function CampaignsScreen() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: 32 }}>#</th><th>Influencer</th><th>Location</th><th>Category</th>
+                    <th className="hide-mobile" style={{ width: 32 }}>#</th><th className="pin">Influencer</th><th>Location</th><th>Category</th>
                     <th className="r">Followers</th><th className="r">Eng. Rate</th><th>Languages</th><th />
                   </tr>
                 </thead>
                 <tbody>
                   {rows.items.map((i, idx) => (
                     <tr key={i.id}>
-                      <td className="muted" style={{ fontSize: 11, paddingBlock: 10 }}>{rows.from + idx}</td>
-                      <td><PersonCell inf={i} onView={() => onOpenProfile(i.id)} /></td>
+                      <td className="muted hide-mobile" style={{ fontSize: 11, paddingBlock: 10 }}>{rows.from + idx}</td>
+                      <td className="pin"><PersonCell inf={i} onView={() => onOpenProfile(i.id)} /></td>
                       <td>
                         <div className="sub">{[...i.cities, ...i.states].join(', ')}</div>
                         <div className="muted" style={{ fontSize: 11, marginTop: 1 }}>{statesOf(loc, i).join(', ')}</div>

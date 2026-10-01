@@ -16,6 +16,7 @@
   gap: 12px;
 }
 .profile-head { border-radius: 10px; padding: 20px 22px; }
+.profile-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .profile-name { font-size: 19px; font-weight: 600; color: var(--cs-fg-1); letter-spacing: -0.01em; }
 .profile-loc {
   display: flex;
@@ -41,8 +42,9 @@
 .profile-stats .mono.up { color: var(--cs-up); }
 .profile-stat-label { font-size: 10px; color: var(--cs-fg-3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-.profile-cols { display: grid; grid-template-columns: 1fr 300px; gap: 12px; align-items: start; }
-@media (max-width: 860px) { .profile-cols { grid-template-columns: 1fr; } }
+/* minmax(0, …) so the campaign table scrolls inside its card instead of widening the page */
+.profile-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; align-items: start; }
+@media (max-width: 860px) { .profile-cols { grid-template-columns: minmax(0, 1fr); } }
 
 .profile-bio { font-size: 13px; line-height: 1.65; color: var(--cs-fg-2); margin: 0; }
 .profile-note { font-size: 12px; line-height: 1.6; color: var(--cs-fg-2); margin: 0; white-space: pre-wrap; }
@@ -80,4 +82,18 @@
   color: var(--cs-fg-3);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 768px) {
+  .crumbs { padding: 8px 12px; }
+  .profile { padding: 12px; }
+  .profile-head { padding: 16px; }
+  .profile-actions { width: 100%; flex-wrap: wrap; }
+  .profile-actions > * { flex: 1; justify-content: center; }
+  .profile-stats { grid-template-columns: repeat(2, 1fr); }
+  .profile-stats > div + div { border-left: none; }
+  .profile-stats > div:nth-child(even) { border-left: 1px solid var(--cs-border); }
+  .profile-stats > div:nth-child(n + 3) { border-top: 1px solid var(--cs-border); }
+  .profile-stats .mono { font-size: 18px; }
 }
