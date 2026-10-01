@@ -31,6 +31,8 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - React Router, library mode. URLs: `/search?…`, `/influencers/:id`, `/campaigns/:id`, `/manage?q=&tier=&page=`.
 - Search query params (`q`, repeated `loc=city:X|state:Y`, `cat`, `lang`, `fmin`, `fmax`, `er`, `page`, `view`) are defined in `frontend/src/lib/search.ts` and are the contract for the search API.
 - Deployment: whatever serves the frontend must fall back to `index.html` for unknown paths, or refreshing a deep link 404s.
+- Deployments, rollback, teardown and console-only settings: see `docs/DEPLOYMENT.md`. Verify any deploy with `scripts/smoke-test.sh <url>`.
+- AWS Amplify: https://main.d360lwuskrbgul.amplifyapp.com (auto-deploys on push to `main`; build spec `amplify.yml`, headers `customHttp.yml`).
 - Public demo: https://kaustaav.github.io/instaiq/ (GitHub Pages, served from the `gh-pages` branch; repo is public). No CI. To redeploy:
   `cd frontend && npm run build:pages && touch dist/.nojekyll`, then force-push the contents of `dist/` to the `gh-pages` branch.
 
