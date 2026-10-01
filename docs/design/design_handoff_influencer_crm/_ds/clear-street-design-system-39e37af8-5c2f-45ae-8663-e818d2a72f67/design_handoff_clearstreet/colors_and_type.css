@@ -1,0 +1,292 @@
+/* =====================================================================
+   Clear Street — Design System Tokens
+   Colors & Typography foundation.
+   Source of truth: clearstreet.io + Büro design system notes.
+   ===================================================================== */
+
+/* ---------- Brand fonts ----------
+   Reyhan (display) ships in assets/fonts/ (Reyhan-Light.ttf, Reyhan-Black.ttf).
+   Declare its @font-face in the target app's own stylesheet, e.g.:
+     @font-face { font-family:"Reyhan"; src:url("assets/fonts/Reyhan-Light.ttf"); font-weight:300 }
+     @font-face { font-family:"Reyhan"; src:url("assets/fonts/Reyhan-Black.ttf"); font-weight:900 }
+   Inter + JetBrains Mono are OFL and load from CDN below. */
+
+/* ---------- Inter (OFL) — UI / body face ---------- */
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- JetBrains Mono (OFL) — numerics / code ---------- */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---------- Brand / Primary ---------- */
+  /* Blueberry blue — the hero institutional color */
+  --cs-blueberry-50:  #EBEBFF;
+  --cs-blueberry-100: #C8C8FF;
+  --cs-blueberry-200: #9696FF;
+  --cs-blueberry-300: #5E5EFF;
+  --cs-blueberry-400: #2D2DFB;
+  --cs-blueberry-500: #0000F5; /* PRIMARY — Clear Street blue */
+  --cs-blueberry-600: #0000C8;
+  --cs-blueberry-700: #00009E;
+  --cs-blueberry-800: #00007A;
+  --cs-blueberry-900: #000055;
+
+  /* ---------- Neutrals (Product / Marketing) ---------- */
+  --cs-ink-0:    #FFFFFF;
+  --cs-ink-25:   #FAFAFA;   /* surface-50 */
+  --cs-ink-50:   #F4F4F5;   /* page bg (light) */
+  --cs-ink-100:  #E8E8EA;
+  --cs-ink-200:  #D4D4D8;
+  --cs-ink-300:  #A6A6AE;
+  --cs-ink-400:  #71717A;
+  --cs-ink-500:  #52525B;
+  --cs-ink-600:  #3F3F46;
+  --cs-ink-700:  #27272A;
+  --cs-ink-800:  #18181B;   /* dark product surface */
+  --cs-ink-900:  #0E0E10;   /* darkest — trading platform bg */
+  --cs-ink-1000: #000000;   /* black — used sparingly */
+
+  /* ---------- Semantic — Trading / Finance ---------- */
+  --cs-up:       #00A96B;   /* gain / positive */
+  --cs-up-bg:    #E7F7EF;
+  --cs-down:     #E5484D;   /* loss / negative */
+  --cs-down-bg:  #FDECEC;
+  --cs-warn:     #E8A317;
+  --cs-warn-bg:  #FBF3DF;
+  --cs-info:     var(--cs-blueberry-500);
+  --cs-info-bg:  var(--cs-blueberry-50);
+
+  /* ---------- Surface & Foreground (Light mode) ---------- */
+  --cs-bg:        var(--cs-ink-0);
+  --cs-bg-subtle: var(--cs-ink-50);
+  --cs-bg-muted:  var(--cs-ink-100);
+  --cs-surface:   var(--cs-ink-0);
+  --cs-surface-raised: var(--cs-ink-0);
+
+  --cs-fg-1:      var(--cs-ink-900);   /* primary text */
+  --cs-fg-2:      var(--cs-ink-600);   /* secondary text */
+  --cs-fg-3:      var(--cs-ink-400);   /* tertiary / metadata */
+  --cs-fg-muted:  var(--cs-ink-300);
+  --cs-fg-inverse: var(--cs-ink-0);
+
+  --cs-border:    var(--cs-ink-100);
+  --cs-border-strong: var(--cs-ink-200);
+  --cs-border-focus:  var(--cs-blueberry-500);
+
+  /* ---------- Product-dark surfaces (Studio trading UI) ---------- */
+  --cs-dark-bg:        var(--cs-ink-900);
+  --cs-dark-surface:   var(--cs-ink-800);
+  --cs-dark-surface-2: #1F1F23;
+  --cs-dark-border:    #2A2A2F;
+  --cs-dark-fg-1:      #F4F4F5;
+  --cs-dark-fg-2:      #A6A6AE;
+  --cs-dark-fg-3:      #71717A;
+
+  /* ---------- Typography ---------- */
+  /* Sans UI: Inter — used for body, UI, tables, small sizes */
+  --cs-font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* Display: Reyhan — brand display face (uploaded) */
+  --cs-font-display: "Reyhan", "Inter Tight", "Inter", serif;
+  /* Monospace: JetBrains Mono */
+  --cs-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale (fluid-ish, px-based). Line-heights: @kind font */
+  --cs-fs-display-xl: 80px;  --cs-lh-display-xl: 0.95; /* @kind font */
+  --cs-fs-display-lg: 64px;  --cs-lh-display-lg: 1.00; /* @kind font */
+  --cs-fs-display-md: 48px;  --cs-lh-display-md: 1.05; /* @kind font */
+  --cs-fs-h1:         40px;  --cs-lh-h1:         1.10; /* @kind font */
+  --cs-fs-h2:         32px;  --cs-lh-h2:         1.15; /* @kind font */
+  --cs-fs-h3:         24px;  --cs-lh-h3:         1.25; /* @kind font */
+  --cs-fs-h4:         20px;  --cs-lh-h4:         1.30; /* @kind font */
+  --cs-fs-h5:         16px;  --cs-lh-h5:         1.40; /* @kind font */
+  --cs-fs-body-lg:    18px;  --cs-lh-body-lg:    1.55; /* @kind font */
+  --cs-fs-body:       15px;  --cs-lh-body:       1.55; /* @kind font */
+  --cs-fs-body-sm:    13px;  --cs-lh-body-sm:    1.50; /* @kind font */
+  --cs-fs-caption:    11px;  --cs-lh-caption:    1.40; /* @kind font */
+  --cs-fs-micro:      10px;  --cs-lh-micro:      1.30; /* @kind font */
+
+  --cs-fw-regular:  400; /* @kind font */
+  --cs-fw-medium:   500; /* @kind font */
+  --cs-fw-semibold: 600; /* @kind font */
+  --cs-fw-bold:     700; /* @kind font */
+
+  --cs-tracking-tight:  -0.02em; /* @kind font */
+  --cs-tracking-normal:  0em;     /* @kind font */
+  --cs-tracking-wide:    0.04em;  /* @kind font */
+  --cs-tracking-caps:    0.08em;  /* @kind font */
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --cs-space-0:  0;
+  --cs-space-1:  2px;
+  --cs-space-2:  4px;
+  --cs-space-3:  8px;
+  --cs-space-4:  12px;
+  --cs-space-5:  16px;
+  --cs-space-6:  20px;
+  --cs-space-7:  24px;
+  --cs-space-8:  32px;
+  --cs-space-9:  40px;
+  --cs-space-10: 48px;
+  --cs-space-11: 64px;
+  --cs-space-12: 80px;
+  --cs-space-13: 96px;
+  --cs-space-14: 128px;
+
+  /* ---------- Radii ---------- */
+  /* Fully rounded system — NO sharp corners. Smallest is 4px. */
+  --cs-radius-0:   4px;       /* legacy alias — kept for back-compat, now the 4px floor */
+  --cs-radius-xs:  4px;       /* chips, tags, small controls (floor) */
+  --cs-radius-sm:  6px;       /* product tables, inputs, buttons */
+  --cs-radius-md:  8px;       /* cards, panels, dropdowns */
+  --cs-radius-lg:  10px;      /* large cards, modals, hero blocks */
+  --cs-radius-xl:  16px;      /* oversized feature surfaces */
+  --cs-radius-pill: 999px;    /* pills, avatars, status dots */
+
+  /* ---------- Elevation / Shadow ---------- */
+  --cs-shadow-0: none;
+  --cs-shadow-1: 0 1px 2px rgba(14, 14, 16, 0.04), 0 1px 1px rgba(14, 14, 16, 0.03);
+  --cs-shadow-2: 0 2px 8px rgba(14, 14, 16, 0.06), 0 1px 2px rgba(14, 14, 16, 0.04);
+  --cs-shadow-3: 0 8px 24px rgba(14, 14, 16, 0.08), 0 2px 6px rgba(14, 14, 16, 0.04);
+  --cs-shadow-4: 0 24px 64px rgba(14, 14, 16, 0.14), 0 4px 12px rgba(14, 14, 16, 0.06);
+  --cs-shadow-focus: 0 0 0 3px rgba(0, 0, 245, 0.25);
+
+  /* ---------- Motion ---------- */
+  --cs-ease-out:    cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --cs-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);     /* @kind other */
+  --cs-ease-in:     cubic-bezier(0.64, 0, 0.78, 0);     /* @kind other */
+  --cs-dur-fast:  120ms; /* @kind other */
+  --cs-dur-base:  200ms; /* @kind other */
+  --cs-dur-slow:  360ms; /* @kind other */
+  --cs-dur-page:  600ms; /* @kind other */
+
+  /* ---------- Layout ---------- */
+  --cs-container-max: 1440px;
+  --cs-container-pad: 24px;
+  --cs-grid-columns:  12; /* @kind other */
+  --cs-grid-gap:      24px;
+}
+
+/* =====================================================================
+   Semantic element defaults
+   ===================================================================== */
+
+html { -webkit-text-size-adjust: 100%; font-feature-settings: "ss01","cv11"; }
+
+body {
+  font-family: var(--cs-font-sans);
+  font-size: var(--cs-fs-body);
+  line-height: var(--cs-lh-body);
+  font-weight: var(--cs-fw-regular);
+  color: var(--cs-fg-1);
+  background: var(--cs-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .cs-h1 {
+  font-family: var(--cs-font-display);
+  font-size: var(--cs-fs-h1);
+  line-height: var(--cs-lh-h1);
+  font-weight: var(--cs-fw-medium);
+  letter-spacing: var(--cs-tracking-tight);
+  color: var(--cs-fg-1);
+  margin: 0;
+}
+h2, .cs-h2 {
+  font-size: var(--cs-fs-h2);
+  line-height: var(--cs-lh-h2);
+  font-weight: var(--cs-fw-medium);
+  letter-spacing: var(--cs-tracking-tight);
+  margin: 0;
+}
+h3, .cs-h3 {
+  font-size: var(--cs-fs-h3);
+  line-height: var(--cs-lh-h3);
+  font-weight: var(--cs-fw-medium);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+h4, .cs-h4 {
+  font-size: var(--cs-fs-h4);
+  line-height: var(--cs-lh-h4);
+  font-weight: var(--cs-fw-medium);
+  margin: 0;
+}
+h5, .cs-h5 {
+  font-size: var(--cs-fs-h5);
+  line-height: var(--cs-lh-h5);
+  font-weight: var(--cs-fw-semibold);
+  margin: 0;
+}
+p, .cs-body {
+  font-size: var(--cs-fs-body);
+  line-height: var(--cs-lh-body);
+  color: var(--cs-fg-2);
+  margin: 0;
+}
+.cs-display-xl { font-family: var(--cs-font-display); font-size: var(--cs-fs-display-xl); line-height: var(--cs-lh-display-xl); letter-spacing: var(--cs-tracking-tight); font-weight: var(--cs-fw-medium); }
+.cs-display-lg { font-family: var(--cs-font-display); font-size: var(--cs-fs-display-lg); line-height: var(--cs-lh-display-lg); letter-spacing: var(--cs-tracking-tight); font-weight: var(--cs-fw-medium); }
+.cs-display-md { font-family: var(--cs-font-display); font-size: var(--cs-fs-display-md); line-height: var(--cs-lh-display-md); letter-spacing: var(--cs-tracking-tight); font-weight: var(--cs-fw-medium); }
+.cs-eyebrow {
+  font-size: var(--cs-fs-caption);
+  letter-spacing: var(--cs-tracking-caps);
+  text-transform: uppercase;
+  font-weight: var(--cs-fw-medium);
+  color: var(--cs-fg-3);
+}
+code, pre, .cs-mono {
+  font-family: var(--cs-font-mono);
+  font-size: 0.92em;
+}
+.cs-numeric { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+a { color: var(--cs-blueberry-500); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }

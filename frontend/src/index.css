@@ -1,0 +1,33 @@
+@import './styles/tokens.css';
+@import './styles/ui.css';
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--cs-ink-50);
+  font-family: var(--cs-font-sans);
+  font-size: 13px;
+  color: var(--cs-fg-1);
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cs-ink-200); border-radius: 999px; }
+
+a { color: var(--cs-blueberry-500); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

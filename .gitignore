@@ -1,0 +1,17 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets and local config (never commit)
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Duplicates of docs/design/ (the original handoff upload)
+/design_handoff_influencer_crm/
+/*.zip
+
+# backend/ and frontend/ have their own .gitignore for build output (target/, node_modules/, dist/)

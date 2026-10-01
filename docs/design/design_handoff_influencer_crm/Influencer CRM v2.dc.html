@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/clear-street-design-system-39e37af8-5c2f-45ae-8663-e818d2a72f67/colors_and_type.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; background: var(--cs-ink-50); }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--cs-ink-200); border-radius: 999px; }
+    input[type=range] { -webkit-appearance: none; width: 100%; height: 3px; border-radius: 999px; background: var(--cs-border); outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 999px; background: var(--cs-blueberry-500); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+    .dual input[type=range] { position:absolute; left:0; right:0; top:0; width:100%; height:18px; margin:0; background:transparent; pointer-events:none; -webkit-appearance:none; appearance:none; }
+    .dual input[type=range]::-webkit-slider-thumb { pointer-events:auto; }
+    .dual input[type=range]::-moz-range-thumb { pointer-events:auto; width:14px; height:14px; border-radius:999px; background:var(--cs-blueberry-500); border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.25); cursor:pointer; }
+    .dual input[type=range]::-moz-range-track { background:transparent; }
+    .dual input[type=range]:focus-visible::-webkit-slider-thumb { outline:2px solid var(--cs-blueberry-500); outline-offset:2px; }
+    input:focus, textarea:focus { border-color: var(--cs-blueberry-500) !important; }
+    .nav-item:hover { background: rgba(255,255,255,0.07) !important; }
+    .inf-card { transition: box-shadow 180ms var(--cs-ease-out), transform 180ms var(--cs-ease-out); cursor: pointer; }
+    .inf-card:hover { box-shadow: var(--cs-shadow-3); transform: translateY(-1px); }
+    .chip { cursor: pointer; user-select: none; transition: opacity 120ms; }
+    .chip:hover { opacity: 0.78; }
+    .btn-ghost { cursor: pointer; transition: background 100ms; }
+    .btn-ghost:hover { background: var(--cs-ink-100) !important; }
+    .btn-blue { cursor: pointer; transition: background 100ms; }
+    .btn-blue:hover { background: #0000C8 !important; }
+    .btn-blue:active { transform: scale(0.98); }
+    .sl-item { cursor: pointer; transition: background 100ms; }
+    .sl-item:hover { background: var(--cs-ink-50) !important; }
+    .trow:hover td { background: var(--cs-ink-25) !important; }
+    a { color: var(--cs-blueberry-500); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</helmet>
+
+<div style="display:flex;height:100vh;overflow:hidden;font-family:var(--cs-font-sans);font-size:13px;color:var(--cs-fg-1)">
+
+  <aside style="width:{{ sbW }};min-width:{{ sbW }};background:var(--cs-ink-900);display:flex;flex-direction:column;border-right:1px solid var(--cs-dark-border);transition:width 280ms cubic-bezier(0.32,0.72,0,1),min-width 280ms cubic-bezier(0.32,0.72,0,1);overflow:hidden;will-change:width">
+    <div style="padding:12px 10px 12px 10px;border-bottom:1px solid var(--cs-dark-border);display:flex;align-items:center;gap:0;min-height:58px">
+        <div style="flex:1;min-width:0;overflow:hidden;opacity:{{ sbOp }};transition:opacity {{ sbOpT }}"><div style="padding-left:6px">
+          <div style="font-family:var(--cs-font-display);font-weight:900;font-size:16px;color:white;letter-spacing:-0.02em;white-space:nowrap">InfluenceIQ</div>
+          <div style="font-size:10px;color:var(--cs-dark-fg-3);margin-top:2px;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;white-space:nowrap">Influencer CRM</div>
+        </div></div>
+      <div class="nav-item" onClick="{{ onToggleSb }}" title="{{ sbToggleTitle }}" style="width:32px;height:32px;border-radius:6px;color:var(--cs-dark-fg-2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto">
+        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/panel-left.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/panel-left.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:17px;height:17px"></span>
+      </div>
+    </div>
+    <nav style="flex:1;padding:8px 6px;display:flex;flex-direction:column;gap:1px">
+      <sc-for list="{{ navItems }}" as="ni" hint-placeholder-count="3">
+        <div class="nav-item" onClick="{{ ni.onClick }}" title="{{ ni.title }}" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;cursor:pointer;color:{{ ni.color }};background:{{ ni.bg }};font-size:13px;font-weight:{{ ni.weight }};border-left:{{ ni.bl }};transition:background 100ms;user-select:none;white-space:nowrap;min-height:30px;overflow:hidden">
+          <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:{{ ni.mask }};mask-image:{{ ni.mask }};-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:14px;height:14px;flex-shrink:0"></span>
+          <span style="flex:1;display:flex;align-items:center;gap:9px;opacity:{{ sbOp }};transition:opacity {{ sbOpT }}">
+            <span style="flex:1">{{ ni.label }}</span>
+            <sc-if value="{{ ni.badge }}">
+              <span style="font-size:11px;background:rgba(255,255,255,0.13);color:var(--cs-dark-fg-2);padding:1px 7px;border-radius:999px;font-weight:500">{{ ni.badge }}</span>
+            </sc-if>
+          </span>
+        </div>
+      </sc-for>
+      <div style="margin-top:8px;margin-bottom:4px;padding:0 10px">
+        <div style="height:1px;background:var(--cs-dark-border)"></div>
+      </div>
+      <div style="overflow:hidden;max-height:{{ sbHeadH }};transition:max-height 280ms cubic-bezier(0.32,0.72,0,1),opacity {{ sbOpT }};opacity:{{ sbOp }}"><div style="padding:6px 10px;font-size:10px;color:var(--cs-dark-fg-3);letter-spacing:0.07em;text-transform:uppercase;font-weight:500;white-space:nowrap">Coming soon</div></div>
+      <div title="Analytics (coming soon)" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;color:var(--cs-dark-fg-3);font-size:13px;opacity:0.5;white-space:nowrap;min-height:30px;overflow:hidden">
+        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bar-chart-3.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bar-chart-3.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:14px;height:14px;flex-shrink:0"></span>
+        <span style="opacity:{{ sbOp }};transition:opacity {{ sbOpT }}">Analytics</span>
+      </div>
+      <div title="Outreach (coming soon)" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;color:var(--cs-dark-fg-3);font-size:13px;opacity:0.5;white-space:nowrap;min-height:30px;overflow:hidden">
+        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/send.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/send.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:14px;height:14px;flex-shrink:0"></span>
+        <span style="opacity:{{ sbOp }};transition:opacity {{ sbOpT }}">Outreach</span>
+      </div>
+    </nav>
+    <div style="padding:10px 12px;border-top:1px solid var(--cs-dark-border);display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap">
+      <div title="Aisha Khan" style="width:28px;height:28px;border-radius:999px;background:var(--cs-blueberry-500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">AK</div>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;opacity:{{ sbOp }};transition:opacity {{ sbOpT }}">
+        <div style="min-width:0">
+          <div style="font-size:12px;font-weight:500;color:var(--cs-dark-fg-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Aisha Khan</div>
+          <div style="font-size:11px;color:var(--cs-dark-fg-3);white-space:nowrap">Campaign Manager</div>
+        </div>
+        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/settings.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/settings.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px;color:var(--cs-dark-fg-3);margin-left:auto;cursor:pointer;flex-shrink:0"></span>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+    <!-- SEARCH -->
+    <sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;overflow:hidden">
+        <div style="width:220px;min-width:220px;background:white;border-right:1px solid var(--cs-border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.08em;text-transform:uppercase">Filters</div>
+            <sc-if value="{{ hasFilters }}">
+              <div class="btn-ghost" onClick="{{ onClearFilters }}" style="font-size:11px;color:var(--cs-blueberry-500);cursor:pointer;padding:2px 6px;border-radius:4px">Clear all</div>
+            </sc-if>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Location</div>
+            <div style="position:relative">
+              <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--cs-border);border-radius:6px;padding:0 8px;background:var(--cs-ink-50)">
+                <span style="display:inline-block;flex-shrink:0;background:var(--cs-fg-3);-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;width:12px;height:12px"></span>
+                <input type="text" value="{{ locQ }}" onChange="{{ onLocQ }}" onKeyDown="{{ onLocKey }}" onFocus="{{ onLocFFocus }}" onBlur="{{ onLocFBlur }}" placeholder="City or state" role="combobox" aria-label="Filter by city or state" aria-autocomplete="list" aria-controls="loc-listbox" aria-expanded="{{ locExpanded }}" aria-activedescendant="{{ locActiveId }}" style="flex:1;min-width:0;border:none;padding:6px 0;font-size:12px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:transparent">
+              </div>
+              <sc-if value="{{ showLocResults }}">
+                <div id="loc-listbox" role="listbox" aria-label="Locations" style="position:absolute;left:0;right:0;top:calc(100% + 4px);background:white;border:1px solid var(--cs-border);border-radius:8px;box-shadow:var(--cs-shadow-3);z-index:5;max-height:260px;overflow-y:auto">
+                  <sc-for list="{{ locResults }}" as="r" hint-placeholder-count="4">
+                    <div id="{{ r.optId }}" role="option" aria-selected="{{ r.sel }}" onMouseDown="{{ r.onPick }}" onMouseEnter="{{ r.onHover }}" style="cursor:pointer;display:flex;flex-direction:column;gap:1px;padding:7px 10px;background:{{ r.bg }}">
+                      <span style="font-size:12px;color:var(--cs-fg-1);font-weight:{{ r.weight }}">{{ r.name }}</span>
+                      <span style="font-size:11px;color:var(--cs-fg-3)">{{ r.sub }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ noLocResults }}">
+                    <div style="padding:8px 10px;font-size:12px;color:var(--cs-fg-3)">No matching city or state</div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasLocF }}">
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+                <sc-for list="{{ locFTags }}" as="t" hint-placeholder-count="1">
+                  <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 5px 3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:var(--cs-blueberry-500);color:white">
+                    {{ t.label }}
+                    <button type="button" onClick="{{ t.onRemove }}" aria-label="{{ t.aria }}" title="Remove" style="all:unset;cursor:pointer;display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:999px;font-size:13px;line-height:1;color:white;outline-offset:1px" style-focus="outline:2px solid white">×</button>
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Category</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              <sc-for list="{{ catChips }}" as="ch" hint-placeholder-count="5">
+                <div class="chip" onClick="{{ ch.onClick }}" style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }};border:{{ ch.border }}">{{ ch.label }}</div>
+              </sc-for>
+              <sc-if value="{{ hasCatMore }}">
+                <button type="button" onClick="{{ onToggleCatMore }}" aria-expanded="{{ catMoreExpanded }}" style="all:unset;cursor:pointer;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;color:var(--cs-blueberry-500);border:1px dashed var(--cs-border)">{{ catMoreLabel }}</button>
+              </sc-if>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Followers</div>
+              <div style="font-size:12px;font-weight:600;color:var(--cs-blueberry-500);font-family:var(--cs-font-mono)">{{ fRangeLabel }}</div>
+            </div>
+            <div class="dual" style="position:relative;height:18px">
+              <div style="position:absolute;left:0;right:0;top:7px;height:3px;border-radius:999px;background:var(--cs-border)"></div>
+              <div style="position:absolute;top:7px;height:3px;border-radius:999px;background:var(--cs-blueberry-500);left:{{ fPctMin }};width:{{ fPctW }}"></div>
+              <input type="range" min="0" max="1000" step="1" value="{{ fPosMin }}" onChange="{{ onFMin }}" aria-label="Minimum followers" aria-valuetext="{{ fMinText }}" style="z-index:{{ fZMin }}">
+              <input type="range" min="0" max="1000" step="1" value="{{ fPosMax }}" onChange="{{ onFMax }}" aria-label="Maximum followers" aria-valuetext="{{ fMaxText }}" style="z-index:3">
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:10px;color:var(--cs-fg-3)">1K</span>
+              <span style="font-size:10px;color:var(--cs-fg-3)">10K</span>
+              <span style="font-size:10px;color:var(--cs-fg-3)">100K</span>
+              <span style="font-size:10px;color:var(--cs-fg-3)">1M</span>
+              <span style="font-size:10px;color:var(--cs-fg-3)">10M</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Min Eng. Rate</div>
+            <div style="display:flex;gap:4px">
+              <sc-for list="{{ engChips }}" as="ch" hint-placeholder-count="4">
+                <div class="chip" onClick="{{ ch.onClick }}" style="padding:3px 0;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }};flex:1;text-align:center">{{ ch.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Language</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              <sc-for list="{{ langChips }}" as="ch" hint-placeholder-count="5">
+                <div class="chip" onClick="{{ ch.onClick }}" style="padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }}">{{ ch.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:12px 16px;background:white;border-bottom:1px solid var(--cs-border);display:flex;align-items:center;gap:10px">
+            <div style="flex:1;display:flex;align-items:center;gap:7px;background:var(--cs-ink-50);border:1px solid var(--cs-border);border-radius:6px;padding:6px 10px">
+              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px;color:var(--cs-fg-3);flex-shrink:0"></span>
+              <input type="text" placeholder="Search name, bio, hashtag, handle..." value="{{ searchQ }}" onChange="{{ onSearchChange }}" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--cs-fg-1);outline:none;font-family:var(--cs-font-sans)">
+              <sc-if value="{{ hasSearchQ }}">
+                <div onClick="{{ onClearSearch }}" style="cursor:pointer;color:var(--cs-fg-3);line-height:1;padding:1px">
+                  <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/x.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/x.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px"></span>
+                </div>
+              </sc-if>
+            </div>
+            <div style="font-size:12px;color:var(--cs-fg-3);font-weight:500;white-space:nowrap">{{ resultCount }}</div>
+            <div style="display:flex;gap:1px;border:1px solid var(--cs-border);border-radius:6px;overflow:hidden">
+              <div class="btn-ghost" onClick="{{ onSetGrid }}" style="padding:6px 8px;background:{{ gridBtnBg }};color:{{ gridBtnColor }}">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/layout-grid.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/layout-grid.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:14px;height:14px"></span>
+              </div>
+              <div class="btn-ghost" onClick="{{ onSetList }}" style="padding:6px 8px;background:{{ listBtnBg }};color:{{ listBtnColor }}">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/list.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/list.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:14px;height:14px"></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;overflow-y:auto;padding:14px 16px">
+            <sc-if value="{{ isGrid }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:10px">
+                <sc-for list="{{ infCards }}" as="inf" hint-placeholder-count="9">
+                  <div class="inf-card" onClick="{{ inf.onView }}" style="background:white;border:1px solid var(--cs-border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+                    <div style="padding:12px 12px 8px;display:flex;align-items:flex-start;gap:9px">
+                      <div style="width:38px;height:38px;border-radius:999px;background:{{ inf.avBg }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;letter-spacing:0.04em">{{ inf.avTxt }}</div>
+                      <div style="min-width:0;flex:1">
+                        <div style="display:flex;align-items:center;gap:6px"><div style="flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--cs-fg-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ inf.name }}</div><span title="{{ inf.fr.label }}" style="width:7px;height:7px;border-radius:999px;background:{{ inf.fr.dot }};flex-shrink:0"></span></div>
+                        <div style="font-size:11px;color:var(--cs-fg-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="{{ inf.igUrl }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="color:var(--cs-blueberry-500)">{{ inf.handle }}</a> · {{ inf.cityStr }}</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">
+                          <sc-for list="{{ inf.badges }}" as="b" hint-placeholder-count="2">
+                            <span style="padding:2px 7px;border-radius:999px;font-size:11px;font-weight:500;background:{{ b.bg }};color:{{ b.fg }}">{{ b.label }}</span>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--cs-border);border-bottom:1px solid var(--cs-border)">
+                      <div style="padding:6px 0;text-align:center;border-right:1px solid var(--cs-border)">
+                        <div style="font-size:13px;font-weight:600;color:var(--cs-fg-1);font-family:var(--cs-font-mono)">{{ inf.fStr }}</div>
+                        <div style="font-size:9px;color:var(--cs-fg-3);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px">Followers</div>
+                      </div>
+                      <div style="padding:6px 0;text-align:center;border-right:1px solid var(--cs-border)">
+                        <div style="font-size:13px;font-weight:600;color:var(--cs-up);font-family:var(--cs-font-mono)">{{ inf.eStr }}</div>
+                        <div style="font-size:9px;color:var(--cs-fg-3);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px">Eng. Rate</div>
+                      </div>
+                      <div style="padding:6px 0;text-align:center">
+                        <div style="font-size:13px;font-weight:600;color:var(--cs-fg-1);font-family:var(--cs-font-mono)">{{ inf.lStr }}</div>
+                        <div style="font-size:9px;color:var(--cs-fg-3);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px">Avg Likes</div>
+                      </div>
+                    </div>
+                    <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px">
+                      <div style="display:flex;gap:3px;flex-wrap:wrap;min-width:0;overflow:hidden">
+                        <sc-for list="{{ inf.tags }}" as="t" hint-placeholder-count="2">
+                          <span style="font-size:11px;color:var(--cs-blueberry-500);background:var(--cs-blueberry-50);padding:2px 6px;border-radius:4px;white-space:nowrap">{{ t }}</span>
+                        </sc-for>
+                      </div>
+                      <div class="btn-ghost" onClick="{{ inf.onAdd }}" style="flex-shrink:0;display:flex;align-items:center;gap:3px;padding:4px 8px;border-radius:6px;border:1px solid var(--cs-border);font-size:11px;font-weight:500;color:var(--cs-fg-2);white-space:nowrap">
+                        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>Shortlist
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isList }}">
+              <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse">
+                  <thead>
+                    <tr style="background:var(--cs-ink-50);border-bottom:1px solid var(--cs-border)">
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Influencer</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Location</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Category</th>
+                      <th style="text-align:right;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Followers</th>
+                      <th style="text-align:right;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Eng. Rate</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Language</th>
+                      <th style="padding:9px 14px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ infCards }}" as="inf" hint-placeholder-count="12">
+                      <tr class="trow" onClick="{{ inf.onView }}" style="border-bottom:1px solid var(--cs-border);cursor:pointer">
+                        <td style="padding:9px 14px">
+                          <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:28px;height:28px;border-radius:999px;background:{{ inf.avBg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">{{ inf.avTxt }}</div>
+                            <div>
+                              <div style="font-size:13px;font-weight:500;color:var(--cs-fg-1)">{{ inf.name }}</div>
+                              <a href="{{ inf.igUrl }}" target="_blank" rel="noopener" onClick="{{ stop }}" style="font-size:11px;color:var(--cs-blueberry-500)">{{ inf.handle }}</a>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:9px 14px">
+                          <div style="font-size:12px;color:var(--cs-fg-2)">{{ inf.cityStr }}</div>
+                          <div style="font-size:11px;color:var(--cs-fg-3);margin-top:1px">{{ inf.stateStr }}</div>
+                        </td>
+                        <td style="padding:9px 14px">
+                          <div style="display:flex;gap:3px;flex-wrap:wrap">
+                            <sc-for list="{{ inf.badges }}" as="b" hint-placeholder-count="1">
+                              <span style="padding:2px 7px;border-radius:999px;font-size:11px;font-weight:500;background:{{ b.bg }};color:{{ b.fg }}">{{ b.label }}</span>
+                            </sc-for>
+                          </div>
+                        </td>
+                        <td style="padding:9px 14px;text-align:right;font-family:var(--cs-font-mono);font-size:12px;font-weight:500;color:var(--cs-fg-1)">{{ inf.fStr }}</td>
+                        <td style="padding:9px 14px;text-align:right;font-family:var(--cs-font-mono);font-size:12px;font-weight:600;color:var(--cs-up)">{{ inf.eStr }}</td>
+                        <td style="padding:9px 14px;font-size:12px;color:var(--cs-fg-2)">{{ inf.langStr }}</td>
+                        <td style="padding:9px 14px;text-align:right">
+                          <div class="btn-ghost" onClick="{{ inf.onAdd }}" style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:4px;font-size:11px;color:var(--cs-fg-2);border:1px solid var(--cs-border)">
+                            <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>Shortlist
+                          </div>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ noResults }}">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 0;color:var(--cs-fg-3)">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search-x.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search-x.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:32px;height:32px;margin-bottom:10px;opacity:0.4"></span>
+                <div style="font-size:14px;font-weight:500">No influencers match</div>
+                <div style="font-size:13px;margin-top:4px">Try adjusting the filters</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- PROFILE -->
+    <sc-if value="{{ showProfile }}">
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:10px 20px;background:white;border-bottom:1px solid var(--cs-border);display:flex;align-items:center;gap:6px">
+          <div class="btn-ghost" onClick="{{ onBack }}" style="display:flex;align-items:center;gap:4px;color:var(--cs-fg-2);cursor:pointer;padding:4px 8px;border-radius:6px;font-size:13px">
+            <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/arrow-left.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/arrow-left.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px"></span>
+            Search Results
+          </div>
+          <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/chevron-right.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/chevron-right.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px;color:var(--cs-fg-3)"></span>
+          <span style="font-size:13px;font-weight:500;color:var(--cs-fg-1)">{{ prof.name }}</span>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;background:var(--cs-ink-50)">
+          <div style="max-width:1080px;margin:0 auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+            <div style="background:white;border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px">
+              <div style="display:flex;align-items:flex-start;gap:14px">
+                <div style="width:58px;height:58px;border-radius:999px;background:{{ prof.avBg }};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;flex-shrink:0;letter-spacing:0.04em">{{ prof.avTxt }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font-size:19px;font-weight:600;color:var(--cs-fg-1);letter-spacing:-0.01em">{{ prof.name }}</span>
+                    <a href="{{ prof.igUrl }}" target="_blank" rel="noopener" style="font-size:13px;color:var(--cs-blueberry-500)">{{ prof.handle }}</a>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:5px;margin-top:4px;color:var(--cs-fg-3);font-size:12px;flex-wrap:wrap">
+                    <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>
+                    <span>{{ prof.locStr }}</span>
+                    <span style="margin:0 3px">·</span>
+                    <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/languages.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/languages.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>
+                    <span>{{ prof.langs }}</span>
+                  </div>
+                  <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+                    <sc-for list="{{ prof.badges }}" as="b" hint-placeholder-count="2">
+                      <span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500;background:{{ b.bg }};color:{{ b.fg }}">{{ b.label }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0">
+                  <div class="btn-ghost" onClick="{{ onProfEdit }}" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;font-weight:500;color:var(--cs-fg-2)">
+                    <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>
+                    Edit
+                  </div>
+                  <a class="btn-ghost" href="{{ prof.igUrl }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;font-weight:500;color:var(--cs-fg-2);text-decoration:none">
+                    <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/external-link.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/external-link.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>
+                    View on Instagram
+                  </a>
+                  <div class="btn-blue" onClick="{{ onProfAddSl }}" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;background:var(--cs-blueberry-500);font-size:12px;font-weight:500;color:white">
+                    <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bookmark-plus.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bookmark-plus.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>
+                    Add to Campaign
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:16px;border:1px solid var(--cs-border);border-radius:8px;overflow:hidden">
+                <div style="padding:11px 12px;text-align:center;border-right:1px solid var(--cs-border)">
+                  <div style="font-size:20px;font-weight:700;color:var(--cs-fg-1);font-family:var(--cs-font-mono);letter-spacing:-0.02em">{{ prof.fStr }}</div>
+                  <div style="font-size:10px;color:var(--cs-fg-3);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em">Followers</div>
+                </div>
+                <div style="padding:11px 12px;text-align:center;border-right:1px solid var(--cs-border)">
+                  <div style="font-size:20px;font-weight:700;color:var(--cs-up);font-family:var(--cs-font-mono);letter-spacing:-0.02em">{{ prof.eStr }}</div>
+                  <div style="font-size:10px;color:var(--cs-fg-3);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em">Eng. Rate</div>
+                </div>
+                <div style="padding:11px 12px;text-align:center;border-right:1px solid var(--cs-border)">
+                  <div style="font-size:20px;font-weight:700;color:var(--cs-fg-1);font-family:var(--cs-font-mono);letter-spacing:-0.02em">{{ prof.lStr }}</div>
+                  <div style="font-size:10px;color:var(--cs-fg-3);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em">Avg Likes</div>
+                </div>
+                <div style="padding:11px 12px;text-align:center">
+                  <div style="font-size:20px;font-weight:700;color:var(--cs-fg-1);font-family:var(--cs-font-mono);letter-spacing:-0.02em">{{ prof.cStr }}</div>
+                  <div style="font-size:10px;color:var(--cs-fg-3);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em">Avg Comments</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap">
+                <span style="font-size:11px;color:var(--cs-fg-3)">Metrics</span>
+                <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;background:{{ prof.fr.bg }};color:{{ prof.fr.fg }}"><span style="width:6px;height:6px;border-radius:999px;background:{{ prof.fr.dot }}"></span>{{ prof.fr.label }}</span>
+                <span style="font-size:11px;color:var(--cs-fg-3);font-family:var(--cs-font-mono)">{{ prof.updDate }}</span>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:16px">
+                  <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px">About</div>
+                  <p style="font-size:13px;line-height:1.65;color:var(--cs-fg-2);margin:0">{{ prof.bio }}</p>
+                </div>
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:16px">
+                  <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px">Campaign History</div>
+                  <sc-if value="{{ prof.hasCamps }}">
+                    <table style="width:100%;border-collapse:collapse;font-size:12px">
+                      <thead>
+                        <tr style="border-bottom:1px solid var(--cs-border)">
+                          <th style="text-align:left;padding:0 0 7px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.05em;text-transform:uppercase">Campaign</th>
+                          <th style="text-align:left;padding:0 12px 7px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.05em;text-transform:uppercase">Brand</th>
+                          <th style="text-align:left;padding:0 12px 7px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.05em;text-transform:uppercase">Date</th>
+                          <th style="text-align:left;padding:0 12px 7px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.05em;text-transform:uppercase">Deliverable</th>
+                          <th style="text-align:left;padding:0 0 7px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.05em;text-transform:uppercase">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <sc-for list="{{ prof.camps }}" as="c" hint-placeholder-count="2">
+                          <tr style="border-bottom:1px solid var(--cs-border)">
+                            <td style="padding:8px 0;font-weight:500;color:var(--cs-fg-1)">{{ c.name }}</td>
+                            <td style="padding:8px 12px;color:var(--cs-fg-2)">{{ c.brand }}</td>
+                            <td style="padding:8px 12px;color:var(--cs-fg-3);font-family:var(--cs-font-mono);font-size:11px">{{ c.date }}</td>
+                            <td style="padding:8px 12px;color:var(--cs-fg-2)">{{ c.deliverable }}</td>
+                            <td style="padding:8px 0">
+                              <span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;background:{{ c.sBg }};color:{{ c.sFg }}">{{ c.status }}</span>
+                            </td>
+                          </tr>
+                        </sc-for>
+                      </tbody>
+                    </table>
+                  </sc-if>
+                  <sc-if value="{{ prof.noCamps }}">
+                    <div style="padding:16px 0;text-align:center;color:var(--cs-fg-3);font-size:13px">No campaigns on record</div>
+                  </sc-if>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:14px">
+                  <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:10px">Contact</div>
+                  <div style="display:flex;flex-direction:column;gap:7px">
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/mail.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/mail.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px;color:var(--cs-fg-3);flex-shrink:0"></span>
+                      <span style="font-size:13px;color:var(--cs-fg-1)">{{ prof.email }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/phone.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/phone.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px;color:var(--cs-fg-3);flex-shrink:0"></span>
+                      <span style="font-size:13px;color:var(--cs-fg-1)">{{ prof.phone }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+                    <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Pricing (INR)</div>
+                    <span title="{{ prof.rfr.label }}" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:{{ prof.rfr.fg }}"><span style="width:6px;height:6px;border-radius:999px;background:{{ prof.rfr.dot }}"></span>{{ prof.rateAsOf }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:0">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--cs-border)">
+                      <span style="font-size:12px;color:var(--cs-fg-2)">Story</span>
+                      <span style="font-size:13px;font-weight:600;color:var(--cs-fg-1);font-family:var(--cs-font-mono)">{{ prof.pStory }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--cs-border)">
+                      <span style="font-size:12px;color:var(--cs-fg-2)">Reel</span>
+                      <span style="font-size:13px;font-weight:600;color:var(--cs-fg-1);font-family:var(--cs-font-mono)">{{ prof.pReel }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+                      <span style="font-size:12px;color:var(--cs-fg-2)">Post</span>
+                      <span style="font-size:13px;font-weight:600;color:var(--cs-fg-1);font-family:var(--cs-font-mono)">{{ prof.pPost }}</span>
+                    </div>
+                  </div>
+                  <sc-if value="{{ prof.hasRateHist }}">
+                    <div class="btn-ghost" onClick="{{ onToggleRateHist }}" style="display:flex;align-items:center;gap:4px;margin-top:8px;padding:3px 6px;margin-left:-6px;border-radius:4px;font-size:11px;color:var(--cs-blueberry-500);width:max-content">{{ rateHistLabel }}</div>
+                    <sc-if value="{{ rateHistOpen }}">
+                      <div style="margin-top:6px;border:1px solid var(--cs-border);border-radius:6px;overflow:hidden">
+                        <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;gap:4px;padding:6px 8px;background:var(--cs-ink-50);font-size:9px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">
+                          <span>From</span><span style="text-align:right">Story</span><span style="text-align:right">Reel</span><span style="text-align:right">Post</span>
+                        </div>
+                        <sc-for list="{{ prof.rateHist }}" as="rh" hint-placeholder-count="2">
+                          <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;gap:4px;padding:6px 8px;border-top:1px solid var(--cs-border);font-size:11px;font-family:var(--cs-font-mono);color:{{ rh.color }}">
+                            <span style="font-family:var(--cs-font-sans)">{{ rh.date }}</span><span style="text-align:right">{{ rh.story }}</span><span style="text-align:right">{{ rh.reel }}</span><span style="text-align:right">{{ rh.post }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                </div>
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:14px">
+                  <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px">Top Hashtags</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:4px">
+                    <sc-for list="{{ prof.hashtags }}" as="t" hint-placeholder-count="5">
+                      <span style="font-size:12px;color:var(--cs-blueberry-500);background:var(--cs-blueberry-50);padding:3px 8px;border-radius:4px">{{ t }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;padding:14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Notes</div>
+                    <sc-if value="{{ showNoteEdit }}">
+                      <div style="display:flex;gap:5px">
+                        <div class="btn-ghost" onClick="{{ onCancelNote }}" style="font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid var(--cs-border);color:var(--cs-fg-2);cursor:pointer">Cancel</div>
+                        <div class="btn-blue" onClick="{{ onSaveNote }}" style="font-size:11px;padding:2px 7px;border-radius:4px;background:var(--cs-blueberry-500);color:white;cursor:pointer">Save</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ showNoteBtn }}">
+                      <div class="btn-ghost" onClick="{{ onEditNote }}" style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--cs-fg-3);cursor:pointer;padding:2px 6px;border-radius:4px">
+                        <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:10px;height:10px"></span>Edit
+                      </div>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ showNoteEdit }}">
+                    <textarea onChange="{{ onNoteDraft }}" value="{{ noteDraft }}" rows="4" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:8px 10px;font-size:12px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);resize:vertical;min-height:72px;outline:none;box-sizing:border-box;line-height:1.55"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ showNoteBtn }}">
+                    <p style="font-size:12px;line-height:1.6;color:var(--cs-fg-2);margin:0">{{ profNote }}</p>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- CAMPAIGNS -->
+    <sc-if value="{{ showShortlists }}">
+      <div style="flex:1;display:flex;overflow:hidden">
+        <div style="width:252px;min-width:252px;background:white;border-right:1px solid var(--cs-border);display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--cs-border);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:13px;font-weight:600;color:var(--cs-fg-1)">Campaigns</div>
+            <div class="btn-ghost" style="display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;border:1px solid var(--cs-border);font-size:11px;color:var(--cs-fg-2);cursor:pointer">
+              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/plus.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>New
+            </div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:6px">
+            <sc-for list="{{ slList }}" as="sl" hint-placeholder-count="3">
+              <div class="sl-item" onClick="{{ sl.onClick }}" style="padding:9px 10px;border-radius:6px;border-left:{{ sl.bl }};background:{{ sl.bg }};margin-bottom:2px">
+                <div style="font-size:13px;font-weight:500;color:var(--cs-fg-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</div>
+                <div style="display:flex;gap:6px;margin-top:3px">
+                  <span style="font-size:11px;color:var(--cs-fg-3)">{{ sl.count }} influencers</span>
+                  <span style="font-size:11px;color:var(--cs-fg-3)">· {{ sl.created }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid var(--cs-border);padding:10px 14px 12px">
+            <div title="Previous campaigns are coming soon" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:1px dashed var(--cs-border);color:var(--cs-fg-3);cursor:not-allowed">
+              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/history.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/history.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px"></span>
+              <span style="flex:1;font-size:13px;font-weight:500">Previous campaigns</span>
+              <span style="font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;background:var(--cs-ink-100);color:var(--cs-fg-2);padding:1px 6px;border-radius:999px">Soon</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cs-ink-50)">
+          <div style="padding:12px 18px;background:white;border-bottom:1px solid var(--cs-border);display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--cs-fg-1)">{{ activSlName }}</div>
+              <div style="font-size:11px;color:var(--cs-fg-3);margin-top:2px">{{ activSlCount }} influencers · {{ activSlDate }}</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <div class="btn-ghost" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;font-weight:500;color:var(--cs-fg-2);cursor:pointer">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/share-2.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/share-2.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>Share
+              </div>
+              <div class="btn-blue" onClick="{{ onExport }}" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;background:var(--cs-blueberry-500);color:white;font-size:12px;font-weight:500;cursor:pointer">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/download.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/download.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>Export CSV
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:14px 18px">
+            <sc-if value="{{ hasSlInfs }}">
+              <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;font-size:13px">
+                  <thead>
+                    <tr style="background:var(--cs-ink-50);border-bottom:1px solid var(--cs-border)">
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase;width:32px">#</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Influencer</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Location</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Category</th>
+                      <th style="text-align:right;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Followers</th>
+                      <th style="text-align:right;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Eng. Rate</th>
+                      <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Languages</th>
+                      <th style="padding:9px 14px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ slInfs }}" as="row" hint-placeholder-count="5">
+                      <tr class="trow" style="border-bottom:1px solid var(--cs-border)">
+                        <td style="padding:10px 14px;color:var(--cs-fg-3);font-size:11px">{{ row.num }}</td>
+                        <td style="padding:10px 14px">
+                          <div style="display:flex;align-items:center;gap:7px">
+                            <div style="width:26px;height:26px;border-radius:999px;background:{{ row.avBg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">{{ row.avTxt }}</div>
+                            <div>
+                              <div onClick="{{ row.onView }}" style="font-size:13px;font-weight:500;color:var(--cs-fg-1);cursor:pointer">{{ row.name }}</div>
+                              <a href="{{ row.igUrl }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--cs-blueberry-500)">{{ row.handle }}</a>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding:10px 14px">
+                          <div style="font-size:12px;color:var(--cs-fg-2)">{{ row.cityStr }}</div>
+                          <div style="font-size:11px;color:var(--cs-fg-3);margin-top:1px">{{ row.stateStr }}</div>
+                        </td>
+                        <td style="padding:10px 14px;font-size:12px;color:var(--cs-fg-2)">{{ row.catStr }}</td>
+                        <td style="padding:10px 14px;text-align:right;font-family:var(--cs-font-mono);font-size:12px;font-weight:500;color:var(--cs-fg-1)">{{ row.fStr }}</td>
+                        <td style="padding:10px 14px;text-align:right;font-family:var(--cs-font-mono);font-size:12px;font-weight:600;color:var(--cs-up)">{{ row.eStr }}</td>
+                        <td style="padding:10px 14px;font-size:12px;color:var(--cs-fg-2)">{{ row.langStr }}</td>
+                        <td style="padding:10px 14px;text-align:right">
+                          <div class="btn-ghost" onClick="{{ row.onRemove }}" style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:4px;font-size:11px;color:var(--cs-down);cursor:pointer">
+                            <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/trash-2.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/trash-2.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>Remove
+                          </div>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noSlInfs }}">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 0;color:var(--cs-fg-3)">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bookmark.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/bookmark.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:32px;height:32px;margin-bottom:10px;opacity:0.3"></span>
+                <div style="font-size:14px;font-weight:500">Campaign is empty</div>
+                <div style="font-size:13px;margin-top:4px">Add influencers from Search</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- MANAGE -->
+    <sc-if value="{{ showManage }}">
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cs-ink-50)">
+        <div style="padding:12px 18px;background:white;border-bottom:1px solid var(--cs-border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--cs-fg-1)">Manage data</div>
+              <div style="font-size:11px;color:var(--cs-fg-3);margin-top:2px">{{ manageSub }}</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <div title="CSV import is coming soon" style="display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:6px;border:1px dashed var(--cs-border);font-size:12px;font-weight:500;color:var(--cs-fg-3);cursor:not-allowed">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/upload.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/upload.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>Import CSV
+                <span style="font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;background:var(--cs-ink-100);color:var(--cs-fg-2);padding:1px 6px;border-radius:999px">Soon</span>
+              </div>
+              <div class="btn-blue" onClick="{{ onOpenAdd }}" style="display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:6px;background:var(--cs-blueberry-500);color:white;font-size:12px;font-weight:500">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/user-plus.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/user-plus.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>Add influencer
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:14px 18px">
+          <sc-if value="{{ showPeopleTab }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="display:flex;align-items:center;gap:7px;background:white;border:1px solid var(--cs-border);border-radius:6px;padding:6px 10px;flex:1;max-width:360px;min-width:200px">
+              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/search.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:13px;height:13px;color:var(--cs-fg-3);flex-shrink:0"></span>
+              <input type="text" placeholder="Find by name or handle" value="{{ mq }}" onChange="{{ onMq }}" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--cs-fg-1);outline:none;font-family:var(--cs-font-sans)">
+            </div>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <sc-for list="{{ freshChips }}" as="ch" hint-placeholder-count="4">
+                  <div class="chip" onClick="{{ ch.onClick }}" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }};border:1px solid var(--cs-border)"><span style="width:6px;height:6px;border-radius:999px;background:{{ ch.dot }}"></span>{{ ch.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:white;border:1px solid var(--cs-border);border-radius:8px;overflow-x:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                  <tr style="background:var(--cs-ink-50);border-bottom:1px solid var(--cs-border)">
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Influencer</th>
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Cities</th>
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">States</th>
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Niches</th>
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Languages</th>
+                    <th style="text-align:right;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Followers</th>
+                    <th style="text-align:left;padding:9px 14px;font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.06em;text-transform:uppercase">Last updated</th>
+                    <th style="padding:9px 14px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ mRows }}" as="row" hint-placeholder-count="8">
+                    <tr class="trow" style="border-bottom:1px solid var(--cs-border)">
+                      <td style="padding:9px 14px">
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <div style="width:28px;height:28px;border-radius:999px;background:{{ row.avBg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">{{ row.avTxt }}</div>
+                          <div>
+                            <div onClick="{{ row.onView }}" style="font-size:13px;font-weight:500;color:var(--cs-fg-1);cursor:pointer">{{ row.name }}</div>
+                            <a href="{{ row.igUrl }}" target="_blank" rel="noopener" style="font-size:11px;color:var(--cs-blueberry-500)">{{ row.handle }}</a>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="padding:9px 14px;font-size:12px;color:{{ row.citiesColor }}">{{ row.citiesOnly }}</td>
+                      <td style="padding:9px 14px;font-size:12px;color:var(--cs-fg-2)">{{ row.stateStr }}</td>
+                      <td style="padding:9px 14px">
+                        <div style="display:flex;gap:3px;flex-wrap:wrap">
+                          <sc-for list="{{ row.badges }}" as="b" hint-placeholder-count="1">
+                            <span style="padding:2px 7px;border-radius:999px;font-size:11px;font-weight:500;background:{{ b.bg }};color:{{ b.fg }}">{{ b.label }}</span>
+                          </sc-for>
+                        </div>
+                      </td>
+                      <td style="padding:9px 14px;font-size:12px;color:var(--cs-fg-2)">{{ row.langStr }}</td>
+                      <td style="padding:9px 14px;text-align:right;font-family:var(--cs-font-mono);font-size:12px;font-weight:500;color:var(--cs-fg-1)">{{ row.fStr }}</td>
+                      <td style="padding:9px 14px;white-space:nowrap">
+                        <span title="{{ row.fr.label }}" style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;background:{{ row.fr.bg }};color:{{ row.fr.fg }}"><span style="width:6px;height:6px;border-radius:999px;background:{{ row.fr.dot }}"></span>{{ row.fr.short }}</span>
+                        <div style="font-size:10px;color:var(--cs-fg-3);margin-top:3px">Rates: {{ row.rateAsOf }}</div>
+                      </td>
+                      <td style="padding:9px 14px;text-align:right;white-space:nowrap">
+                        <sc-if value="{{ row.confirming }}">
+                          <div style="display:inline-flex;gap:4px;align-items:center">
+                            <span style="font-size:11px;color:var(--cs-fg-3)">Delete?</span>
+                            <div class="btn-ghost" onClick="{{ row.onCancelDel }}" style="padding:3px 8px;border-radius:4px;border:1px solid var(--cs-border);font-size:11px;color:var(--cs-fg-2)">No</div>
+                            <div onClick="{{ row.onConfirmDel }}" style="padding:3px 8px;border-radius:4px;background:var(--cs-down);font-size:11px;color:white;cursor:pointer">Yes</div>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ row.idle }}">
+                          <div style="display:inline-flex;gap:2px">
+                            <div class="btn-ghost" onClick="{{ row.onEdit }}" title="Edit" style="padding:5px 7px;border-radius:4px;color:var(--cs-fg-2)">
+                              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/pencil.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>
+                            </div>
+                            <div class="btn-ghost" onClick="{{ row.onDel }}" title="Delete" style="padding:5px 7px;border-radius:4px;color:var(--cs-down)">
+                              <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/trash-2.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/trash-2.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:12px;height:12px"></span>
+                            </div>
+                          </div>
+                        </sc-if>
+                      </td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+
+                  </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+<!-- ADD-TO-CAMPAIGN MODAL -->
+<sc-if value="{{ showModal }}">
+  <div onClick="{{ onModalBg }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.38);display:flex;align-items:center;justify-content:center;z-index:200">
+    <div style="background:white;border-radius:10px;width:360px;box-shadow:var(--cs-shadow-4);overflow:hidden">
+      <div style="padding:16px 18px 12px;border-bottom:1px solid var(--cs-border)">
+        <div style="font-size:14px;font-weight:600;color:var(--cs-fg-1)">Add to Campaign</div>
+        <div style="font-size:12px;color:var(--cs-fg-3);margin-top:2px">{{ modalInfName }}</div>
+      </div>
+      <div style="padding:8px">
+        <sc-for list="{{ modalOpts }}" as="opt" hint-placeholder-count="3">
+          <div class="sl-item" onClick="{{ opt.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:6px;background:{{ opt.bg }};margin-bottom:2px">
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--cs-fg-1)">{{ opt.name }}</div>
+              <div style="font-size:11px;color:var(--cs-fg-3);margin-top:2px">{{ opt.count }} influencers</div>
+            </div>
+            <sc-if value="{{ opt.has }}">
+              <span style="display:flex;align-items:center;gap:3px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:500;background:var(--cs-blueberry-50);color:var(--cs-blueberry-500)">
+                <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/check.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/check.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:11px;height:11px"></span>Added
+              </span>
+            </sc-if>
+            <sc-if value="{{ opt.notHas }}">
+              <span style="padding:3px 8px;border-radius:999px;font-size:11px;font-weight:500;border:1px solid var(--cs-border);color:var(--cs-fg-3)">Add</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:8px 14px 14px;display:flex;justify-content:flex-end">
+        <div class="btn-ghost" onClick="{{ onCloseModal }}" style="padding:6px 14px;border-radius:6px;border:1px solid var(--cs-border);font-size:13px;font-weight:500;color:var(--cs-fg-2);cursor:pointer">Done</div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ADD / EDIT INFLUENCER DRAWER -->
+<sc-if value="{{ showForm }}">
+  <div onClick="{{ onFormBg }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:210;display:flex;justify-content:flex-end">
+    <div style="width:560px;max-width:100%;height:100%;background:white;display:flex;flex-direction:column;box-shadow:var(--cs-shadow-4)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--cs-border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:600;color:var(--cs-fg-1)">{{ formTitle }}</div>
+        <div class="btn-ghost" onClick="{{ onCloseForm }}" style="padding:4px;border-radius:4px;color:var(--cs-fg-3);display:flex">
+          <span style="display:inline-block;flex-shrink:0;background:currentColor;-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/x.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/x.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;width:16px;height:16px"></span>
+        </div>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:20px">
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Basics</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Full name *</span>
+              <input type="text" value="{{ f.name }}" onChange="{{ on.name }}" placeholder="Full name" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Instagram handle *</span>
+              <div style="display:flex;align-items:center;border:1px solid var(--cs-border);border-radius:6px;overflow:hidden">
+                <span style="padding:7px 0 7px 10px;color:var(--cs-fg-3);font-size:13px">@</span>
+                <input type="text" value="{{ f.handle }}" onChange="{{ on.handle }}" placeholder="handle" style="flex:1;min-width:0;border:none;padding:7px 10px 7px 2px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+              </div>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Email</span>
+              <input type="email" value="{{ f.email }}" onChange="{{ on.email }}" placeholder="Email address" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Phone</span>
+              <input type="tel" value="{{ f.phone }}" onChange="{{ on.phone }}" placeholder="Phone number" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Location *</div>
+          <div style="font-size:12px;color:var(--cs-fg-3)">Search a city or a state. If you only know the state, pick the state on its own.</div>
+          <sc-if value="{{ hasFormCities }}">
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              <sc-for list="{{ formCityTags }}" as="ct" hint-placeholder-count="2">
+                <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 6px 3px 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--cs-blueberry-50);color:var(--cs-blueberry-500);border:1px solid var(--cs-blueberry-500)">
+                  {{ ct.city }}<span style="font-weight:400;color:var(--cs-fg-3)">{{ ct.state }}</span>
+                  <span onClick="{{ ct.onRemove }}" title="Remove" style="cursor:pointer;display:inline-flex;width:14px;height:14px;align-items:center;justify-content:center;border-radius:999px;font-size:13px;line-height:1;color:var(--cs-blueberry-500)">×</span>
+                </span>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="position:relative">
+            <div style="display:flex;align-items:center;gap:7px;border:1px solid var(--cs-border);border-radius:6px;padding:0 10px;background:white">
+              <span style="display:inline-block;flex-shrink:0;background:var(--cs-fg-3);-webkit-mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);mask-image:url(https://unpkg.com/lucide-static@0.400.0/icons/map-pin.svg);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;width:13px;height:13px"></span>
+              <input type="text" value="{{ f.cityQ }}" onChange="{{ on.cityQ }}" onKeyDown="{{ onCityKey }}" onFocus="{{ onLocFocus }}" onBlur="{{ onLocBlur }}" placeholder="City or state" style="flex:1;min-width:0;border:none;padding:7px 0;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:transparent">
+            </div>
+            <sc-if value="{{ showCityResults }}">
+              <div style="position:absolute;left:0;right:0;top:calc(100% + 4px);background:white;border:1px solid var(--cs-border);border-radius:8px;box-shadow:var(--cs-shadow-3);z-index:5;overflow:hidden;max-height:320px;overflow-y:auto">
+                <sc-for list="{{ locTree }}" as="g" hint-placeholder-count="3">
+                  <div class="sl-item" onMouseDown="{{ g.onPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:{{ g.bg }};border-top:1px solid var(--cs-border)">
+                    <span style="font-size:13px;font-weight:600;color:var(--cs-fg-1)">{{ g.state }}</span>
+                    <span style="font-size:11px;color:{{ g.hintColor }};font-weight:500">{{ g.hint }}</span>
+                  </div>
+                  <sc-for list="{{ g.cities }}" as="c" hint-placeholder-count="3">
+                    <div class="sl-item" onMouseDown="{{ c.onPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px 6px 28px;background:{{ c.bg }}">
+                      <span style="font-size:13px;color:{{ c.color }}">{{ c.name }}</span>
+                      <span style="font-size:12px;color:var(--cs-blueberry-500);font-weight:600">{{ c.mark }}</span>
+                    </div>
+                  </sc-for>
+                </sc-for>
+                <sc-if value="{{ noLocTree }}">
+                  <div style="padding:8px 12px;font-size:12px;color:var(--cs-fg-3)">No matching city or state</div>
+                </sc-if>
+                <sc-if value="{{ showCustomCity }}">
+                  <div style="padding:10px 12px;border-top:1px solid var(--cs-border);display:flex;flex-direction:column;gap:6px;background:var(--cs-ink-25)">
+                    <div style="font-size:12px;color:var(--cs-fg-2)">{{ customCityMsg }}</div>
+                    <div style="display:flex;gap:6px">
+                      <select value="{{ f.customState }}" onChange="{{ on.customState }}" style="flex:1;min-width:0;border:1px solid var(--cs-border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);background:white">
+                        <option value="">Choose state…</option>
+                        <sc-for list="{{ allStates }}" as="st" hint-placeholder-count="5">
+                          <option value="{{ st }}">{{ st }}</option>
+                        </sc-for>
+                      </select>
+                      <div class="btn-ghost" onClick="{{ onAddCustomCity }}" style="padding:5px 10px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;color:var(--cs-fg-2);background:white;white-space:nowrap">Add city</div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Niches *</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            <sc-for list="{{ formCatChips }}" as="ch" hint-placeholder-count="7">
+              <div class="chip" onClick="{{ ch.onClick }}" style="padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }};border:{{ ch.border }}">{{ ch.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:5px;max-width:300px">
+            <input type="text" placeholder="Add a new niche" value="{{ f.newCat }}" onChange="{{ on.newCat }}" onKeyDown="{{ onNewCatKey }}" style="flex:1;min-width:0;border:1px solid var(--cs-border);border-radius:6px;padding:5px 9px;font-size:12px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            <div class="btn-ghost" onClick="{{ onAddCat }}" style="padding:5px 10px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;color:var(--cs-fg-2)">Add</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Languages</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            <sc-for list="{{ formLangChips }}" as="ch" hint-placeholder-count="5">
+              <div class="chip" onClick="{{ ch.onClick }}" style="padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;background:{{ ch.bg }};color:{{ ch.color }}">{{ ch.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:5px;max-width:300px">
+            <input type="text" placeholder="Add a new language" value="{{ f.newLang }}" onChange="{{ on.newLang }}" onKeyDown="{{ onNewLangKey }}" style="flex:1;min-width:0;border:1px solid var(--cs-border);border-radius:6px;padding:5px 9px;font-size:12px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            <div class="btn-ghost" onClick="{{ onAddLang }}" style="padding:5px 10px;border-radius:6px;border:1px solid var(--cs-border);font-size:12px;color:var(--cs-fg-2)">Add</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px"><span>Metrics</span><span style="text-transform:none;letter-spacing:0;font-weight:500">{{ formMetricsUpd }}</span></div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Followers *</span>
+              <input type="number" min="0" value="{{ f.followers }}" onChange="{{ on.followers }}" placeholder="0" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Eng. rate %</span>
+              <input type="number" min="0" step="0.1" value="{{ f.eng }}" onChange="{{ on.eng }}" placeholder="0.0" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Avg likes</span>
+              <input type="number" min="0" value="{{ f.likes }}" onChange="{{ on.likes }}" placeholder="0" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Avg comments</span>
+              <input type="number" min="0" value="{{ f.comments }}" onChange="{{ on.comments }}" placeholder="0" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px"><span>Pricing (INR)</span><span style="text-transform:none;letter-spacing:0;font-weight:500">{{ formRatesUpd }}</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Story</span>
+              <input type="number" min="0" value="{{ f.story }}" onChange="{{ on.story }}" placeholder="₹" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Reel</span>
+              <input type="number" min="0" value="{{ f.reel }}" onChange="{{ on.reel }}" placeholder="₹" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Post</span>
+              <input type="number" min="0" value="{{ f.post }}" onChange="{{ on.post }}" placeholder="₹" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-mono);color:var(--cs-fg-1);outline:none;background:white">
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;font-weight:600;color:var(--cs-fg-3);letter-spacing:0.07em;text-transform:uppercase">Profile</div>
+          <label style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Bio</span>
+            <textarea rows="3" value="{{ f.bio }}" onChange="{{ on.bio }}" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;resize:vertical;line-height:1.5"></textarea>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:11px;font-weight:500;color:var(--cs-fg-2)">Top hashtags</span>
+            <input type="text" value="{{ f.tags }}" onChange="{{ on.tags }}" placeholder="#hashtag, #hashtag" style="width:100%;border:1px solid var(--cs-border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--cs-font-sans);color:var(--cs-fg-1);outline:none;background:white">
+            <span style="font-size:11px;color:var(--cs-fg-3)">Separate with commas</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="padding:12px 18px;border-top:1px solid var(--cs-border);display:flex;align-items:center;gap:8px">
+        <div style="flex:1;font-size:12px;color:var(--cs-down)">{{ formErr }}</div>
+        <div class="btn-ghost" onClick="{{ onCloseForm }}" style="padding:7px 14px;border-radius:6px;border:1px solid var(--cs-border);font-size:13px;font-weight:500;color:var(--cs-fg-2)">Cancel</div>
+        <div class="btn-blue" onClick="{{ onSaveForm }}" style="padding:7px 14px;border-radius:6px;background:var(--cs-blueberry-500);font-size:13px;font-weight:500;color:white">{{ formSaveLabel }}</div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  SEED = [
+    { id:1,  name:'Priya Sharma',     handle:'@priyajewels',     cities:['Chandigarh','Mohali'], cats:['Jewellery','Fashion'],   followers:8400,  eng:6.2, likes:521, comments:43, bio:'Handcrafted jewellery lover from Chandigarh. Bridal & everyday wear. Collaborating with local artisans since 2021 — specialising in polki and meenakari sets.', email:'priya.sharma@gmail.com',   phone:'+91 98765 43210', pricing:{story:'₹2,000',reel:'₹5,000',post:'₹3,500'}, tags:['#bridaljewellery','#chandigarhfashion','#goldearrings','#punjabibrideaesthetic','#ethnicwear'], langs:['Hindi','Punjabi'], camps:[{name:'Meenakari Summer',brand:'Razia Jewellers',date:'Apr 2025',del:'2 Reels + 4 Stories',status:'Completed'},{name:'Bridal Edit',brand:'Tanishq',date:'Dec 2024',del:'1 Post + 3 Stories',status:'Completed'}], av:'PS' },
+    { id:2,  name:'Ananya Bedi',      handle:'@ananyaeats',      cities:['Chandigarh'], cats:['Food','Lifestyle'],      followers:14200, eng:4.8, likes:682, comments:58, bio:'Chandigarh foodie & home baker. Exploring the best dhabas and cafes across Sector 17 and beyond. Honest reviews, no filters.', email:'ananya.bedi@gmail.com',     phone:'+91 97654 32109', pricing:{story:'₹1,500',reel:'₹4,000',post:'₹2,800'}, tags:['#chandigarhfoodie','#punjabikhana','#homekitchen','#sectorseventeen','#cafechandigarh'], langs:['Hindi','Punjabi','English'], camps:[{name:'Winter Feast',brand:'Haldirams',date:'Jan 2025',del:'3 Reels',status:'Completed'}], av:'AB' },
+    { id:3,  name:'Meera Kapoor',     handle:'@meerastyle',      cities:['Delhi','Gurugram'], cats:['Fashion','Beauty'],      followers:18700, eng:3.9, likes:729, comments:62, bio:'Delhi-based fashion & beauty creator. Street style meets ethnic. I review everything from drugstore to designer. DM for collabs.', email:'meera.kapoor@gmail.com',    phone:'+91 99887 76655', pricing:{story:'₹2,500',reel:'₹7,000',post:'₹5,000'}, tags:['#delhifashion','#streetstyleindia','#ootdindia','#delhigirl','#desibeauty'], langs:['Hindi','English'], camps:[{name:'Festive Glam',brand:'Nykaa',date:'Oct 2024',del:'2 Posts + 5 Stories',status:'Completed'},{name:'Summer Essentials',brand:'Lakme',date:'May 2025',del:'1 Reel',status:'Ongoing'}], av:'MK' },
+    { id:4,  name:'Simran Grewal',    handle:'@simranjewelry',   cities:['Chandigarh'], cats:['Jewellery'],             followers:5600,  eng:8.1, likes:454, comments:71, bio:'Obsessed with Punjabi bridal jewellery — kaleere, chooda, polki sets. Helping brides find the perfect look since 2022.', email:'simran.grewal@gmail.com',   phone:'+91 95544 33221', pricing:{story:'₹1,200',reel:'₹3,500',post:'₹2,500'}, tags:['#kaleere','#bridallook','#polkijewellery','#chandigarhweddings','#punjabijewellery'], langs:['Punjabi','Hindi'], camps:[{name:'Bridal Season',brand:'Tanishq',date:'Feb 2025',del:'4 Reels + 8 Stories',status:'Completed'}], av:'SG' },
+    { id:5,  name:'Kavya Nair',       handle:'@kavyafitlife',    cities:['Mumbai','Pune'], cats:['Fitness','Lifestyle'],   followers:12300, eng:5.4, likes:664, comments:49, bio:'Mumbai fitness coach & wellness advocate. Yoga, pilates, and clean eating — making wellness accessible to everyone.', email:'kavya.nair@gmail.com',      phone:'+91 96543 21098', pricing:{story:'₹1,800',reel:'₹5,500',post:'₹3,800'}, tags:['#mumbaifitness','#yogamumbai','#fitindian','#wellnessindia','#pilates'], langs:['English','Hindi'], camps:[{name:'Clean Protein',brand:'Oziva',date:'Mar 2025',del:'2 Reels + 3 Stories',status:'Completed'}], av:'KN' },
+    { id:6,  name:'Divya Mehta',      handle:'@divyajewels',     cities:['Jaipur'], cats:['Jewellery','Travel'],    followers:7800,  eng:7.2, likes:562, comments:65, bio:'Jaipur-based jewellery creator. Kundan, meenakari & polki. Documenting the heritage jewellers of Rajasthan one piece at a time.', email:'divya.mehta@gmail.com',     phone:'+91 94433 22110', pricing:{story:'₹1,500',reel:'₹4,500',post:'₹3,000'}, tags:['#jaipurjewellery','#kundanjewellery','#rajasthaniheritage','#meenakari','#pinkcityjewels'], langs:['Hindi','Rajasthani'], camps:[{name:'Heritage Edit',brand:'Jaipur Gems',date:'Apr 2025',del:'3 Posts + 6 Stories',status:'Completed'},{name:'Royal Look',brand:'Amrapali Jewels',date:'Nov 2024',del:'2 Reels',status:'Completed'}], av:'DM' },
+    { id:7,  name:'Riya Khanna',      handle:'@riyafoodstories', cities:['Delhi'], cats:['Food','Lifestyle'],      followers:9100,  eng:5.7, likes:519, comments:47, bio:'Home cook & street food enthusiast from Delhi. Documenting every bite across Old Delhi — from Paranthe Wali Gali to Chandni Chowk.', email:'riya.khanna@gmail.com',     phone:'+91 93322 11009', pricing:{story:'₹1,200',reel:'₹3,800',post:'₹2,600'}, tags:['#olddelhifood','#delhifoodie','#streetfooddelhi','#galiparantha','#delhifoodwalks'], langs:['Hindi','English'], camps:[{name:'Monsoon Specials',brand:'Maggi',date:'Jul 2024',del:'2 Reels + 4 Stories',status:'Completed'}], av:'RK' },
+    { id:8,  name:'Neha Joshi',       handle:'@nehabelook',      cities:['Mumbai'], cats:['Beauty','Fashion'],      followers:16500, eng:4.1, likes:677, comments:54, bio:'Mumbai-based beauty creator. Skincare routines, makeup tutorials, brutally honest reviews. Marathi girl navigating the city.', email:'neha.joshi@gmail.com',      phone:'+91 92211 00987', pricing:{story:'₹2,200',reel:'₹6,500',post:'₹4,500'}, tags:['#mumbaibeauty','#skincarehindu','#makeupindia','#glassskin','#mumbaigirl'], langs:['Hindi','English','Marathi'], camps:[{name:'Glow Up',brand:'Plum',date:'Feb 2025',del:'3 Reels + 5 Stories',status:'Completed'},{name:'Natural Beauty',brand:'Mamaearth',date:'Sep 2024',del:'2 Posts',status:'Completed'}], av:'NJ' },
+    { id:9,  name:'Gurpreet Kaur',    handle:'@gurpreettravel',  cities:['Chandigarh','Amritsar','Ludhiana'], cats:['Travel','Lifestyle'],    followers:11200, eng:4.9, likes:549, comments:41, bio:'Exploring India one city at a time. Based in Chandigarh. Solo female traveller on a mission to show Punjab beyond the usual.', email:'gurpreet.kaur@gmail.com',   phone:'+91 91100 99876', pricing:{story:'₹1,500',reel:'₹4,200',post:'₹2,900'}, tags:['#solotravel','#indiabyheart','#travelgirl','#chandigarhtraveller','#incredibleindia'], langs:['Punjabi','Hindi','English'], camps:[{name:'Explore Punjab',brand:'MakeMyTrip',date:'Jan 2025',del:'3 Reels + 6 Stories',status:'Completed'}], av:'GK' },
+    { id:10, name:'Ishita Verma',     handle:'@ishitafashion',   cities:['Jaipur'], cats:['Fashion','Lifestyle'],   followers:13600, eng:4.5, likes:612, comments:53, bio:'Ethnic fashion advocate from Jaipur. Block prints, bandhani & everything handloom. Championing slow fashion before it was cool.', email:'ishita.verma@gmail.com',    phone:'+91 90098 87765', pricing:{story:'₹2,000',reel:'₹5,500',post:'₹3,800'}, tags:['#jaipurfashion','#ethnicwear','#handloomindia','#blockprint','#rajasthanistyle'], langs:['Hindi','English'], camps:[{name:'Handloom Week',brand:'Fab India',date:'Aug 2024',del:'2 Reels + 3 Posts',status:'Completed'}], av:'IV' },
+    { id:11, name:'Sonal Patel',      handle:'@sonalbeauty',     cities:['Mumbai'], cats:['Beauty','Lifestyle'],    followers:6200,  eng:7.8, likes:484, comments:69, bio:'Affordable beauty finds for Indian skin tones. Marathi girl, Mumbai life. I test it before I post it — always honest, never sponsored without disclosure.', email:'sonal.patel@gmail.com',     phone:'+91 89987 76654', pricing:{story:'₹1,000',reel:'₹3,200',post:'₹2,200'}, tags:['#affordablebeauty','#indianskin','#mumbaibeauty','#marathigirl','#drugstorebeauty'], langs:['Marathi','Hindi','English'], camps:[], av:'SP' },
+    { id:12, name:'Ritika Arora',     handle:'@ritikacooks',     cities:['Delhi'], cats:['Food'],                  followers:4800,  eng:9.3, likes:447, comments:78, bio:'Home cook from Delhi. Sharing maa ke haath ka khana recipes. Pure vegetarian. Old family recipes that deserve to be saved.', email:'ritika.arora@gmail.com',    phone:'+91 88876 65543', pricing:{story:'₹900', reel:'₹2,800',post:'₹2,000'}, tags:['#homecooking','#indianrecipes','#delhicooks','#vegetarianfood','#gharkakhana'], langs:['Hindi'], camps:[{name:'Pure Veg Festival',brand:'Aashirvaad',date:'Mar 2025',del:'4 Reels',status:'Completed'}], av:'RA' },
+    { id:13, name:'Tanya Singh',      handle:'@tanyajewels',     cities:['Jaipur'], cats:['Jewellery','Fashion'],   followers:9700,  eng:6.4, likes:621, comments:56, bio:'Jewellery styling from Jaipur. Mixing contemporary with traditional. Bridal styling consultant helping families plan the full jewellery trousseau.', email:'tanya.singh@gmail.com',     phone:'+91 87765 54432', pricing:{story:'₹1,800',reel:'₹4,800',post:'₹3,400'}, tags:['#jaipurstyle','#jewelleryoftheday','#bridalstyling','#contemporaryjewellery','#odjd'], langs:['Hindi','English'], camps:[{name:'Bridal Collections',brand:'Kalyan Jewellers',date:'Dec 2024',del:'3 Reels + 6 Stories',status:'Completed'}], av:'TS' },
+    { id:14, name:'Pooja Bhatt',      handle:'@poojafitness',    cities:['Chandigarh','Panchkula'], cats:['Fitness','Lifestyle'],   followers:7300,  eng:6.8, likes:497, comments:55, bio:'Personal trainer from Chandigarh. Weight loss journeys, home workouts, meal prep. Real results, real people.', email:'pooja.bhatt@gmail.com',     phone:'+91 86654 43321', pricing:{story:'₹1,200',reel:'₹3,600',post:'₹2,600'}, tags:['#chandigarhfitness','#weightlosstips','#homeworkout','#mealprep','#fitpunjabi'], langs:['Hindi','Punjabi','English'], camps:[], av:'PB' },
+    { id:15, name:'Aditi Rao',        handle:'@aditifood',       cities:['Mumbai'], cats:['Food','Travel'],         followers:19200, eng:3.7, likes:710, comments:48, bio:'Food traveller. Eating my way across India, one state at a time. Mumbai base. 15 states done, 13 to go.', email:'aditi.rao@gmail.com',       phone:'+91 85543 32210', pricing:{story:'₹3,000',reel:'₹8,000',post:'₹5,500'}, tags:['#foodtravel','#mumbaifoodie','#tasteofindia','#eatingacrossindia','#traveleat'], langs:['English','Hindi','Marathi'], camps:[{name:'Taste of Maharashtra',brand:'Tourism Maharashtra',date:'Apr 2025',del:'5 Reels + 10 Stories',status:'Ongoing'}], av:'AR' },
+    { id:16, name:'Manpreet Kaur',    handle:'@manpreetjewels',  cities:['Chandigarh'], cats:['Jewellery'],             followers:3900,  eng:10.2,likes:398, comments:83, bio:'Traditional Punjabi jewellery. Gold sets, meenakari. Helping Chandigarh brides choose the right set for every ceremony. Certified gemologist.', email:'manpreet.k@gmail.com',      phone:'+91 84432 21109', pricing:{story:'₹800', reel:'₹2,500',post:'₹1,800'}, tags:['#punjabijewellery','#goldset','#chandigarhbride','#meenakari','#jewellerylovers'], langs:['Punjabi','Hindi'], camps:[], av:'MK' },
+    { id:17, name:'Shruti Malhotra',  handle:'@shrutistyles',    cities:['Delhi'], cats:['Fashion','Lifestyle'],   followers:15800, eng:4.3, likes:679, comments:51, bio:'Delhi fashionista. Budget fashion finds, thrift hauls, sustainable style. Proving you can look good without breaking the bank.', email:'shruti.malhotra@gmail.com', phone:'+91 83321 10098', pricing:{story:'₹2,200',reel:'₹6,000',post:'₹4,200'}, tags:['#delhifashion','#budgetfashion','#thriftindia','#sustainablefashion','#ootd'], langs:['Hindi','English'], camps:[{name:'Sustainable Style',brand:'H&M India',date:'Mar 2025',del:'2 Reels + 4 Stories',status:'Completed'}], av:'SM' },
+    { id:18, name:'Jasleen Dhillon',  handle:'@jasleenkitchen',  cities:[], states:['Punjab'], cats:['Food','Lifestyle'],      followers:6700,  eng:7.5, likes:503, comments:67, bio:'Punjabi home cook. Sharing family recipes — makki di roti, sarson da saag and more. Keeping the heirloom recipes alive.', email:'jasleen.dhillon@gmail.com', phone:'+91 82210 09987', pricing:{story:'₹1,000',reel:'₹3,000',post:'₹2,200'}, tags:['#punjabikhana','#homecooking','#makkidiroti','#chandigarhfood','#desirecipes'], langs:['Punjabi','Hindi'], camps:[{name:'Desi Tadka',brand:'Fortune Foods',date:'Feb 2025',del:'3 Reels + 4 Stories',status:'Completed'}], av:'JD' },
+    { id:19, name:'Roshni Chopra',    handle:'@roshnibeauty',    cities:['Delhi'], cats:['Beauty','Fashion'],      followers:11400, eng:5.1, likes:582, comments:57, bio:'Delhi beauty blogger. Skincare obsessed. Reviewing everything from drugstore to luxury — always with before/afters.', email:'roshni.chopra@gmail.com',   phone:'+91 81109 98876', pricing:{story:'₹1,800',reel:'₹5,200',post:'₹3,600'}, tags:['#delhibeauty','#skincareobsessed','#beautybloggerindia','#makeuplook','#selfcareroutine'], langs:['Hindi','English'], camps:[{name:'Hydration Heroes',brand:'Cetaphil India',date:'Jan 2025',del:'2 Reels + 3 Stories',status:'Completed'}], av:'RC' },
+    { id:20, name:'Vandana Tyagi',    handle:'@vandanatyagi',    cities:['Jaipur','Udaipur'], cats:['Lifestyle','Travel'],    followers:8900,  eng:5.9, likes:526, comments:47, bio:'Jaipur lifestyle creator. Heritage, culture, food and travel across Rajasthan. Pink City is never boring when you know where to look.', email:'vandana.tyagi@gmail.com',   phone:'+91 80098 87765', pricing:{story:'₹1,400',reel:'₹4,000',post:'₹2,800'}, tags:['#jaipur','#rajasthanilife','#pinkcityliving','#heritagetravel','#rajasthani'], langs:['Hindi','English'], camps:[{name:'Rajasthan Tourism',brand:'Incredible India',date:'May 2025',del:'4 Reels + 8 Stories',status:'Ongoing'}], av:'VT' },
+  ];
+
+  ENG_O = [{l:'Any',v:0},{l:'3%+',v:3},{l:'5%+',v:5},{l:'7%+',v:7}];
+  CC = { Jewellery:{bg:'#EBEBFF',fg:'#00007A'}, Fashion:{bg:'#EEE9FF',fg:'#3D2F99'}, Beauty:{bg:'#FEF4E4',fg:'#8B5E00'}, Food:{bg:'#E7F7EF',fg:'#005E3B'}, Fitness:{bg:'#E4F3F8',fg:'#1A6480'}, Travel:{bg:'#E4F5F4',fg:'#1A7070'}, Lifestyle:{bg:'#F4F4F5',fg:'#3F3F46'} };
+  AVC = ['#2E21DE','#573EBB','#3488A3','#007B4D','#D97706','#7C2D12','#18181B'];
+
+  DAY = 864e5;
+  AGO  = [4,12,45,2,130,20,75,9,33,160,6,1,58,210,15,98,27,40,3,120];
+  RAGO = [60,200,45,90,300,30,150,20,400,180,10,70,120,250,35,98,60,40,15,365];
+  ago(d) { return Date.now() - d*this.DAY; }
+  mon(ts) { return new Date(ts).toLocaleString('en-GB',{month:'short',year:'numeric'}); }
+  dstr(ts) { return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+  scaleP(p,f) { const n=+String(p).replace(/[^0-9]/g,''); return '₹'+(Math.round(n*f/100)*100).toLocaleString('en-IN'); }
+  hydrate(i, idx) {
+    const cur = { date:this.ago(this.RAGO[idx]), ...i.pricing };
+    const rates = [cur];
+    if (idx%3!==2) rates.push({ date:this.ago(this.RAGO[idx]+180), story:this.scaleP(cur.story,0.8), reel:this.scaleP(cur.reel,0.8), post:this.scaleP(cur.post,0.8) });
+    if (idx%4===0) rates.push({ date:this.ago(this.RAGO[idx]+420), story:this.scaleP(cur.story,0.65), reel:this.scaleP(cur.reel,0.65), post:this.scaleP(cur.post,0.65) });
+    return { ...i, states:i.states||[], updatedAt:this.ago(this.AGO[idx]), rates };
+  }
+  fresh(ts) {
+    const d = Math.max(0, Math.floor((Date.now()-ts)/this.DAY)); const mo = this.mon(ts);
+    if (d<=30) return { tier:'fresh', label:d===0?'Updated today':d===1?'Updated yesterday':`Updated ${d} days ago`, short:d===0?'Today':`${d}d ago`, bg:'#E7F7EF', fg:'#005E3B', dot:'#12A363' };
+    if (d<=90) return { tier:'ageing', label:`Updated in ${mo}`, short:mo, bg:'#FEF4E4', fg:'#8B5E00', dot:'#D97706' };
+    return { tier:'stale', label:`Stale · last updated ${mo}`, short:`Stale · ${mo}`, bg:'#FDECEC', fg:'#9F1D1D', dot:'#DC2626' };
+  }
+
+  state = {
+    screen:'search', selId:null, q:'',
+    locF:[], locQ:'', locIdx:0, locOpenF:false, catMore:false, cF:[], fMin:1000, fMax:10000000, eMin:0, lF:[],
+    slId:1,
+    sls:[
+      { id:1, name:'Bridal Jewellery Q2 2025', created:'12 May 2025', iids:[1,4,6,13,16] },
+      { id:2, name:'Chandigarh Food Fest',     created:'3 Jun 2025',  iids:[2,7,12,18] },
+      { id:3, name:'Diwali Beauty Push',       created:'20 Aug 2025', iids:[3,8,11,19] },
+    ],
+    modalId:null,
+    note:'Strong bridal content — consistently high ER for jewellery category. Very responsive to briefs, no revision rounds needed on last two campaigns. Works well with premium brands. Has declined FMCG; prefers lifestyle-aligned partnerships.',
+    editNote:false, noteDraft:'', viewMode:'grid',
+    infs:this.SEED.map((i,idx)=>this.hydrate(i,idx)),
+    rateHistOpen:false, mFresh:'all',
+    loc:'Andhra Pradesh:Visakhapatnam,Vijayawada,Guntur,Nellore,Kurnool,Tirupati,Kakinada,Rajahmundry,Anantapur|Arunachal Pradesh:Itanagar,Naharlagun,Pasighat,Tawang|Assam:Guwahati,Silchar,Dibrugarh,Jorhat,Tezpur,Nagaon|Bihar:Patna,Gaya,Bhagalpur,Muzaffarpur,Darbhanga,Purnia|Chhattisgarh:Raipur,Bhilai,Bilaspur,Korba,Durg|Goa:Panaji,Margao,Vasco da Gama,Mapusa|Gujarat:Ahmedabad,Surat,Vadodara,Rajkot,Bhavnagar,Jamnagar,Gandhinagar,Anand|Haryana:Gurugram,Faridabad,Panchkula,Ambala,Karnal,Panipat,Rohtak,Hisar,Sonipat|Himachal Pradesh:Shimla,Dharamshala,Manali,Mandi,Solan,Kullu|Jharkhand:Ranchi,Jamshedpur,Dhanbad,Bokaro|Karnataka:Bengaluru,Mysuru,Mangaluru,Hubballi,Belagavi,Udupi,Davanagere|Kerala:Kochi,Thiruvananthapuram,Kozhikode,Thrissur,Kannur,Kollam,Alappuzha|Madhya Pradesh:Indore,Bhopal,Gwalior,Jabalpur,Ujjain,Sagar|Maharashtra:Mumbai,Pune,Nagpur,Nashik,Thane,Navi Mumbai,Aurangabad,Kolhapur,Solapur,Amravati|Manipur:Imphal|Meghalaya:Shillong,Tura|Mizoram:Aizawl|Nagaland:Kohima,Dimapur|Odisha:Bhubaneswar,Cuttack,Rourkela,Puri,Sambalpur|Punjab:Ludhiana,Amritsar,Jalandhar,Patiala,Mohali,Bathinda,Pathankot,Hoshiarpur|Rajasthan:Jaipur,Jodhpur,Udaipur,Kota,Ajmer,Bikaner,Alwar,Jaisalmer,Pushkar|Sikkim:Gangtok|Tamil Nadu:Chennai,Coimbatore,Madurai,Tiruchirappalli,Salem,Tirunelveli,Vellore,Ooty|Telangana:Hyderabad,Secunderabad,Warangal,Nizamabad,Karimnagar|Tripura:Agartala|Uttar Pradesh:Lucknow,Noida,Greater Noida,Ghaziabad,Kanpur,Agra,Varanasi,Prayagraj,Meerut,Bareilly,Aligarh,Mathura|Uttarakhand:Dehradun,Haridwar,Rishikesh,Nainital,Haldwani,Mussoorie|West Bengal:Kolkata,Howrah,Siliguri,Durgapur,Asansol,Darjeeling|Andaman and Nicobar Islands:Port Blair|Chandigarh:Chandigarh|Dadra and Nagar Haveli and Daman and Diu:Daman,Silvassa,Diu|Delhi:Delhi,New Delhi|Jammu and Kashmir:Srinagar,Jammu,Anantnag,Baramulla|Ladakh:Leh,Kargil|Lakshadweep:Kavaratti|Puducherry:Puducherry,Karaikal'.split('|').map(x=>{ const [state,c]=x.split(':'); return { state, cities:c.split(',') }; }),
+    cats:['Jewellery','Fashion','Beauty','Food','Fitness','Travel','Lifestyle'],
+    langs:['Hindi','Punjabi','English','Marathi','Rajasthani'],
+    mTab:'people', mq:'', delId:null,
+    form:null, formErr:'', newState:'', newCityBy:{},
+    sbOpen:(()=>{ try{ return localStorage.getItem('iiq-sb')!=='0'; }catch(e){ return true; } })(),
+  };
+
+  go(s, id=null) { this.setState({ screen:s, selId:id }); }
+  tog(arr, v) { return arr.includes(v) ? arr.filter(x=>x!==v) : [...arr,v]; }
+  fmt(n) { const t=(v,u)=>(v>=100?Math.round(v):+v.toFixed(1))+u; return n>=1e6 ? t(n/1e6,'M') : n>=1000 ? t(n/1000,'K') : String(n); }
+  F_LO = 1000; F_HI = 10000000;
+  pos2f(p) { const v = Math.pow(10, 3 + 4*p/1000); const mag = Math.pow(10, Math.floor(Math.log10(v))-1); return Math.min(this.F_HI, Math.max(this.F_LO, Math.round(v/mag)*mag)); }
+  f2pos(v) { return Math.round((Math.log10(Math.min(this.F_HI,Math.max(this.F_LO,v)))-3)/4*1000); }
+  avc(id) { return this.AVC[(id-1)%this.AVC.length]; }
+  cc(c) { return this.CC[c] || {bg:'#F4F4F5',fg:'#3F3F46'}; }
+  badges(cats) { return cats.map(c=>({ label:c, ...this.cc(c) })); }
+  ig(h) { return 'https://www.instagram.com/'+String(h).replace(/^@/,'')+'/'; }
+  initials(n) { return n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+  stateOf(c) { const l=this.state.loc.find(x=>x.cities.includes(c)); return l?l.state:null; }
+  statesOf(i) { return [...new Set([...i.cities.map(c=>this.stateOf(c)).filter(Boolean), ...(i.states||[])])]; }
+  locSearch(raw, exC=[], exS=[]) {
+    const q = String(raw||'').trim().toLowerCase(); if (!q) return [];
+    const rk = n=>{ n=n.toLowerCase(); return n.startsWith(q)?0:n.includes(q)?1:9; };
+    const sts = this.state.loc.filter(l=>!exS.includes(l.state) && rk(l.state)<9).map(l=>({ type:'state', name:l.state, sub:'Whole state · any city', r:rk(l.state), t:0 }));
+    const cts = this.state.loc.flatMap(l=>l.cities.map(c=>{ const r=Math.min(rk(c), rk(l.state)<9?3:9); return { type:'city', name:c, sub:l.state, r, t:1 }; })).filter(x=>x.r<9 && !exC.includes(x.name));
+    return [...sts, ...cts].sort((a,b)=>a.r-b.r || a.t-b.t || a.name.localeCompare(b.name)).slice(0,8)
+      .map((m,k)=>({ ...m, weight:m.type==='state'?600:400, bg:k===0?'var(--cs-ink-50)':'white' }));
+  }
+  citiesOfStates(sts) { return this.state.loc.filter(l=>sts.includes(l.state)).flatMap(l=>l.cities); }
+  onEnter(fn) { return e=>{ if(e.key==='Enter'){ e.preventDefault(); fn(); } }; }
+
+  filtered() {
+    const {q,locF,cF,fMin,fMax,eMin,lF,infs} = this.state;
+    const ql = q.toLowerCase();
+    return infs.filter(i => {
+      if (q && ![i.name,i.handle,i.bio,...i.tags].some(s=>s.toLowerCase().includes(ql))) return false;
+      if (locF.length && !locF.some(l=>l.type==='city' ? i.cities.includes(l.name) : this.statesOf(i).includes(l.name))) return false;
+      if (cF.length && !cF.some(c=>i.cats.includes(c))) return false;
+      if (fMin>this.F_LO && i.followers < fMin) return false;
+      if (fMax<this.F_HI && i.followers > fMax) return false;
+      if (i.eng < eMin) return false;
+      if (lF.length && !lF.some(l=>i.langs.includes(l))) return false;
+      return true;
+    });
+  }
+
+  uniq(a) { return [...new Set(a)]; }
+  addToSl(slId, infId) { this.setState(s=>({ sls:s.sls.map(sl=>sl.id===slId?{...sl,iids:this.uniq([...sl.iids,infId])}:sl) })); }
+  removeFromSl(slId, infId) { this.setState(s=>({ sls:s.sls.map(sl=>sl.id===slId?{...sl,iids:sl.iids.filter(i=>i!==infId)}:sl) })); }
+
+  exportCsv() {
+    const sl = this.state.sls.find(s=>s.id===this.state.slId);
+    if (!sl) return;
+    const rows = this.uniq(sl.iids).map(id=>this.state.infs.find(i=>i.id===id)).filter(Boolean);
+    const lines = rows.map(r=>`"${r.name}","${r.handle}","${this.ig(r.handle)}","${r.cities.join('/')}","${this.statesOf(r).join('/')}","${r.cats.join('/')}","${this.fmt(r.followers)}","${r.eng}%","${r.langs.join('/')}","${r.pricing.reel}"`);
+    const csv = ['Name,Handle,Instagram URL,Cities,States,Categories,Followers,Eng Rate,Languages,Reel Rate',...lines].join('\n');
+    const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:`${sl.name}.csv`});
+    a.click();
+  }
+
+  // locations
+  addCity(st, raw) {
+    const name = String(raw||'').trim();
+    if (!name) return null;
+    const owner = this.stateOf(name);
+    if (owner && owner!==st) return `${name} already belongs to ${owner}`;
+    if (!owner) this.setState(s=>({ loc:s.loc.map(l=>l.state===st?{...l,cities:[...l.cities,name]}:l) }));
+    return null;
+  }
+  addState() {
+    const name = this.state.newState.trim();
+    if (!name || this.state.loc.some(l=>l.state.toLowerCase()===name.toLowerCase())) return;
+    this.setState(s=>({ loc:[...s.loc,{state:name,cities:[]}], newState:'' }));
+  }
+
+  // form
+  blankForm() { return {id:null,name:'',handle:'',email:'',phone:'',states:[],cities:[],cats:[],langs:[],followers:'',eng:'',likes:'',comments:'',story:'',reel:'',post:'',bio:'',tags:'',newCat:'',newLang:'',newCity:{},cityQ:'',customState:'',locOpen:false}; }
+  openAdd() { this.setState({ form:this.blankForm(), formErr:'' }); }
+  openEdit(i) {
+    const p = v=>String(v||'').replace(/[^0-9.]/g,'');
+    this.setState({ formErr:'', form:{ ...this.blankForm(), id:i.id, name:i.name, handle:i.handle.replace(/^@/,''), email:i.email||'', phone:i.phone||'',
+      states:[...(i.states||[])], cities:[...i.cities], cats:[...i.cats], langs:[...i.langs],
+      followers:String(i.followers), eng:String(i.eng), likes:String(i.likes), comments:String(i.comments),
+      story:p(i.pricing.story), reel:p(i.pricing.reel), post:p(i.pricing.post), bio:i.bio||'', tags:i.tags.join(', ') } });
+  }
+  setF(k, v) { this.setState(s=>({ form:{...s.form,[k]:v} })); }
+  togFormState(st) {
+    this.setState(s=>{
+      const f=s.form, on=f.states.includes(st);
+      const own=(s.loc.find(l=>l.state===st)||{cities:[]}).cities;
+      return { form:{ ...f, states:on?f.states.filter(x=>x!==st):[...f.states,st], cities:on?f.cities.filter(c=>!own.includes(c)):f.cities } };
+    });
+  }
+  formAddCity(st) {
+    const name = (this.state.form.newCity[st]||'').trim();
+    if (!name) return;
+    const err = this.addCity(st, name);
+    if (err) { this.setState({ formErr:err }); return; }
+    this.setState(s=>({ formErr:'', form:{ ...s.form, cities:s.form.cities.includes(name)?s.form.cities:[...s.form.cities,name], newCity:{...s.form.newCity,[st]:''} } }));
+  }
+  formAddTag(listKey, inputKey) {
+    const v = this.state.form[inputKey].trim();
+    if (!v) return;
+    this.setState(s=>{
+      const exists = s[listKey].find(x=>x.toLowerCase()===v.toLowerCase());
+      const val = exists || v;
+      const fk = listKey==='cats'?'cats':'langs';
+      return { [listKey]:exists?s[listKey]:[...s[listKey],v], form:{ ...s.form, [fk]:s.form[fk].includes(val)?s.form[fk]:[...s.form[fk],val], [inputKey]:'' } };
+    });
+  }
+  saveForm() {
+    const f = this.state.form;
+    const err = !f.name.trim() ? 'Name is required' : !f.handle.trim() ? 'Instagram handle is required' : !f.cities.length && !f.states.length ? 'Add at least one city or state' : !f.cats.length ? 'Pick at least one niche' : !(String(f.followers).trim() && +f.followers>0) ? 'Followers is required' : '';
+    if (err) { this.setState({ formErr:err }); return; }
+    const num = v=>+String(v).replace(/[^0-9.]/g,'')||0;
+    const inr = v=>String(v).trim()?'₹'+num(v).toLocaleString('en-IN'):'—';
+    const infs = this.state.infs;
+    const prev = f.id ? infs.find(i=>i.id===f.id) : null;
+    const rec = {
+      id: f.id || Math.max(0,...infs.map(i=>i.id))+1,
+      name:f.name.trim(), handle:'@'+f.handle.trim().replace(/^@/,''),
+      cities:f.cities, states:f.states.filter(st=>!f.cities.some(c=>this.stateOf(c)===st)), cats:f.cats, langs:f.langs,
+      followers:num(f.followers), eng:num(f.eng), likes:num(f.likes), comments:num(f.comments),
+      bio:f.bio.trim(), email:f.email.trim()||'—', phone:f.phone.trim()||'—',
+      pricing:{ story:inr(f.story), reel:inr(f.reel), post:inr(f.post) },
+      tags:f.tags.split(/[,\s]+/).filter(Boolean).map(t=>t.startsWith('#')?t:'#'+t),
+      camps: prev ? prev.camps : [], av:this.initials(f.name),
+    };
+    const now = Date.now();
+    const mChanged = !prev || ['followers','eng','likes','comments'].some(k=>prev[k]!==rec[k]);
+    rec.updatedAt = mChanged ? now : prev.updatedAt;
+    const rChanged = !prev || ['story','reel','post'].some(k=>prev.pricing[k]!==rec.pricing[k]);
+    rec.rates = rChanged ? [{ date:now, ...rec.pricing }, ...(prev?prev.rates:[])] : prev.rates;
+    this.setState({ infs: prev ? infs.map(i=>i.id===rec.id?rec:i) : [...infs,rec], form:null, formErr:'' });
+  }
+  deleteInf(id) {
+    this.setState(s=>({ infs:s.infs.filter(i=>i.id!==id), sls:s.sls.map(sl=>({...sl,iids:sl.iids.filter(x=>x!==id)})), delId:null }));
+  }
+
+
+  toggleSb() { this.setState(st=>{ const v=!st.sbOpen; try{localStorage.setItem('iiq-sb',v?'1':'0');}catch(e){} return {sbOpen:v}; }); }
+  componentDidMount() { this._kd = e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='.'){ e.preventDefault(); this.toggleSb(); } }; window.addEventListener('keydown',this._kd); }
+  componentWillUnmount() { window.removeEventListener('keydown',this._kd); }
+
+  renderVals() {
+    const s = { ...this.state, sls:this.state.sls.map(sl=>({ ...sl, iids:this.uniq(sl.iids) })) };
+    const res = this.filtered();
+    const asl = s.sls.find(sl=>sl.id===s.slId);
+    const sel = s.infs.find(i=>i.id===s.selId) || s.infs[0] || this.SEED[0];
+    const stop = e=>e.stopPropagation();
+    const base = i=>({ fr:this.fresh(i.updatedAt), rateAsOf:this.mon(i.rates[0].date), id:i.id, name:i.name, handle:i.handle, igUrl:this.ig(i.handle), cityStr:[...i.cities, ...(i.states||[])].join(', '), citiesOnly:i.cities.join(', ')||'Not known', citiesColor:i.cities.length?'var(--cs-fg-2)':'var(--cs-fg-3)', stateStr:this.statesOf(i).join(', '), avBg:this.avc(i.id), avTxt:i.av, badges:this.badges(i.cats), fStr:this.fmt(i.followers), eStr:i.eng.toFixed(1)+'%', langStr:i.langs.join(', ') });
+
+    const inkChip = (a, label, onClick, on='var(--cs-ink-800)') => ({ label, bg:a?on:'var(--cs-ink-100)', color:a?'white':'var(--cs-fg-2)', onClick });
+    const cChip = (v, a, onClick) => { const cc=this.cc(v); return { label:v, bg:a?cc.bg:'var(--cs-ink-100)', color:a?cc.fg:'var(--cs-fg-2)', border:a?`1px solid ${cc.fg}`:'1px solid transparent', onClick }; };
+
+    const nav = (key,label,icon,badge)=>{ const a=s.screen===key||(key==='search'&&s.screen==='profile'); return { label, icon, bg:a?'rgba(255,255,255,0.1)':'transparent', color:a?'white':'var(--cs-dark-fg-2)', weight:a?600:400, bl:a?'2px solid var(--cs-blueberry-400)':'2px solid transparent', badge, onClick:()=>this.go(key) }; };
+    const navItems = [ nav('search','Search & Browse','search',null), nav('shortlists','Campaigns','megaphone',String(s.sls.length)), nav('manage','Manage Data','database',String(s.infs.length)) ];
+
+    const infCards = res.map(i=>({ ...base(i), lStr:this.fmt(i.likes), tags:i.tags.slice(0,2), onView:()=>this.go('profile',i.id), onAdd:e=>{ e.stopPropagation(); this.setState({modalId:i.id}); } }));
+
+    const loc = this.statesOf(sel);
+    const prof = {
+      ...base(sel), langs:sel.langs.join(', '),
+      locStr: [...sel.cities.map(c=>{ const st=this.stateOf(c); return st && !st.startsWith(c) ? `${c}, ${st}` : c; }), ...(sel.states||[]).map(st=>`${st} (city not known)`)].join(' · '),
+      lStr:this.fmt(sel.likes), cStr:String(sel.comments), bio:sel.bio, email:sel.email, phone:sel.phone,
+      updDate:this.dstr(sel.updatedAt), rfr:this.fresh(sel.rates[0].date), rateAsOf:'as of '+this.mon(sel.rates[0].date),
+      hasRateHist:sel.rates.length>1,
+      rateHist:sel.rates.map((r,k)=>({ date:k===0?this.mon(r.date)+' · now':this.mon(r.date), story:r.story, reel:r.reel, post:r.post, color:k===0?'var(--cs-fg-1)':'var(--cs-fg-3)' })),
+      pStory:sel.pricing.story, pReel:sel.pricing.reel, pPost:sel.pricing.post, hashtags:sel.tags,
+      hasCamps:sel.camps.length>0, noCamps:sel.camps.length===0,
+      camps:sel.camps.map(c=>({ name:c.name, brand:c.brand, date:c.date, deliverable:c.del, status:c.status,
+        sBg:c.status==='Completed'?'#E7F7EF':c.status==='Ongoing'?'#FEF4E4':'#F4F4F5',
+        sFg:c.status==='Completed'?'#005E3B':c.status==='Ongoing'?'#8B5E00':'#3F3F46' })),
+    };
+
+    const slList = s.sls.map(sl=>({ id:sl.id, name:sl.name, count:sl.iids.length, created:sl.created, bg:sl.id===s.slId?'var(--cs-blueberry-50)':'transparent', bl:sl.id===s.slId?'2px solid var(--cs-blueberry-500)':'2px solid transparent', onClick:()=>this.setState({slId:sl.id}) }));
+    const slInfs = (asl?asl.iids:[]).map((id,idx)=>{ const i=s.infs.find(x=>x.id===id); if(!i)return null; return { ...base(i), num:idx+1, catStr:i.cats.join(', '), onView:()=>this.go('profile',i.id), onRemove:()=>asl&&this.removeFromSl(asl.id,i.id) }; }).filter(Boolean);
+
+    const modalInf = s.infs.find(i=>i.id===s.modalId);
+    const modalOpts = s.sls.map(sl=>{ const has=sl.iids.includes(s.modalId||0); return { id:sl.id, name:sl.name, count:sl.iids.length, has, notHas:!has, bg:has?'var(--cs-blueberry-50)':'white', onToggle:()=>has?this.removeFromSl(sl.id,s.modalId):this.addToSl(sl.id,s.modalId) }; });
+
+    // filters
+    const locMatches = this.locSearch(s.locQ, s.locF.filter(l=>l.type==='city').map(l=>l.name), s.locF.filter(l=>l.type==='state').map(l=>l.name));
+    const pickLocF = m=>this.setState(st=>({ locF:st.locF.some(l=>l.type===m.type&&l.name===m.name)?st.locF:[...st.locF,{type:m.type,name:m.name}], locQ:'', locIdx:0 }));
+    const CAT_N = 4;
+    const locOpenNow = s.locOpenF && s.locQ.trim().length>0;
+    const li = Math.min(s.locIdx, Math.max(0, locMatches.length-1));
+    const locResults = locMatches.map((m,k)=>({ ...m, optId:'locopt-'+k, sel:k===li?'true':'false', bg:k===li?'var(--cs-ink-100)':'white',
+      onPick:e=>{ e.preventDefault(); pickLocF(m); }, onHover:()=>{ if(this.state.locIdx!==k) this.setState({locIdx:k}); } }));
+    const scrollOpt = i=>requestAnimationFrame(()=>{ const el=document.getElementById('locopt-'+i), p=el&&el.parentElement; if(!el||!p) return; if(el.offsetTop<p.scrollTop) p.scrollTop=el.offsetTop; else if(el.offsetTop+el.offsetHeight>p.scrollTop+p.clientHeight) p.scrollTop=el.offsetTop+el.offsetHeight-p.clientHeight; });
+    const locFTags = s.locF.map(l=>({ label:l.type==='state'?l.name+' (state)':l.name, aria:'Remove '+l.name+' filter', onRemove:()=>this.setState(st=>({ locF:st.locF.filter(x=>!(x.type===l.type&&x.name===l.name)) })) }));
+
+    // manage
+    const mql = s.mq.toLowerCase();
+    const tiers = s.infs.map(i=>this.fresh(i.updatedAt).tier);
+    const tc = t=>tiers.filter(x=>x===t).length;
+    const freshChips = [['all','All',s.infs.length,'var(--cs-ink-300)'],['fresh','Fresh',tc('fresh'),'#12A363'],['ageing','Ageing',tc('ageing'),'#D97706'],['stale','Stale',tc('stale'),'#DC2626']].map(([k,l,n,dot])=>{ const a=s.mFresh===k; return { label:`${l} ${n}`, dot, bg:a?'var(--cs-ink-800)':'white', color:a?'white':'var(--cs-fg-2)', onClick:()=>this.setState({mFresh:k}) }; });
+    const mRows = s.infs.filter(i=>s.mFresh==='all'||this.fresh(i.updatedAt).tier===s.mFresh).filter(i=>!mql||i.name.toLowerCase().includes(mql)||i.handle.toLowerCase().includes(mql)).map(i=>({
+      ...base(i), confirming:s.delId===i.id, idle:s.delId!==i.id,
+      onView:()=>this.go('profile',i.id), onEdit:()=>this.openEdit(i),
+      onDel:()=>this.setState({delId:i.id}), onCancelDel:()=>this.setState({delId:null}), onConfirmDel:()=>this.deleteInf(i.id),
+    }));
+    const mTab = (key,label)=>{ const a=s.mTab===key; return { label, weight:a?600:400, color:a?'var(--cs-fg-1)':'var(--cs-fg-3)', bb:a?'2px solid var(--cs-blueberry-500)':'2px solid transparent', onClick:()=>this.setState({mTab:key}) }; };
+    const uses = c=>s.infs.filter(i=>i.cities.includes(c)).length;
+    const locCards = s.loc.map(l=>{
+      const inf = s.infs.filter(i=>i.cities.some(c=>l.cities.includes(c))).length;
+      const doAdd = ()=>{ const err=this.addCity(l.state, s.newCityBy[l.state]); if(err){ alert(err); return; } this.setState(st=>({ newCityBy:{...st.newCityBy,[l.state]:''} })); };
+      return { state:l.state, meta:`${l.cities.length} ${l.cities.length===1?'city':'cities'} · ${inf} influencers`,
+        cities:l.cities.map(c=>{ const u=uses(c); return { name:c, uses:String(u), canRemove:u===0, onRemove:()=>this.setState(st=>({ loc:st.loc.map(x=>x.state===l.state?{...x,cities:x.cities.filter(y=>y!==c)}:x) })) }; }),
+        newCity:s.newCityBy[l.state]||'', onNewCity:e=>{ const v=e.target.value; this.setState(st=>({ newCityBy:{...st.newCityBy,[l.state]:v} })); },
+        onAdd:doAdd, onKey:this.onEnter(doAdd) };
+    });
+
+    // form
+    const f = s.form || this.blankForm();
+    const on = {};
+    ['name','handle','email','phone','followers','eng','likes','comments','story','reel','post','bio','tags','newCat','newLang','cityQ','customState'].forEach(k=>{ on[k]=e=>this.setF(k,e.target.value); });
+    const q = (f.cityQ||'').trim().toLowerCase();
+    const matches = this.locSearch(f.cityQ, f.cities, f.states);
+    const pickLoc = m=>this.setState(st=>({ formErr:'', form:{ ...st.form, cities:m.type==='city'?this.uniq([...st.form.cities,m.name]):st.form.cities, states:m.type==='state'?this.uniq([...st.form.states,m.name]):st.form.states, cityQ:'' } }));
+    const pickCity = c=>pickLoc({ type:'city', name:c });
+    const togLoc = (type,name)=>e=>{ e.preventDefault(); this.setState(st=>{ const key=type==='city'?'cities':'states'; const arr=st.form[key]; return { formErr:'', form:{ ...st.form, [key]:arr.includes(name)?arr.filter(x=>x!==name):[...arr,name] } }; }); };
+    const rkq = n=>{ n=n.toLowerCase(); return !q?0:n.startsWith(q)?0:n.includes(q)?1:9; };
+    const locTree = s.loc.map(l=>{
+      const sm = rkq(l.state)<9;
+      const cs = l.cities.filter(c=>sm || rkq(c)<9);
+      if (!sm && !cs.length) return null;
+      const sPicked = f.states.includes(l.state);
+      const nPicked = l.cities.filter(c=>f.cities.includes(c)).length;
+      return { state:l.state, r:Math.min(rkq(l.state), ...cs.map(rkq)),
+        hint: sPicked ? '✓ Whole state' : nPicked ? `${nPicked} selected` : 'Select whole state',
+        hintColor: sPicked||nPicked ? 'var(--cs-blueberry-500)' : 'var(--cs-fg-3)',
+        bg: sPicked ? 'var(--cs-blueberry-50)' : 'var(--cs-ink-25)',
+        onPick: togLoc('state', l.state),
+        cities: cs.map(c=>{ const p=f.cities.includes(c); return { name:c, mark:p?'✓':'', bg:p?'var(--cs-blueberry-50)':'white', color:p?'var(--cs-blueberry-500)':'var(--cs-fg-1)', onPick:togLoc('city', c) }; }) };
+    }).filter(Boolean).sort((a,b)=>a.r-b.r);
+    const exact = s.loc.some(l=>l.state.toLowerCase()===q || l.cities.some(c=>c.toLowerCase()===q));
+    const typed = (f.cityQ||'').trim().replace(/\b\w/g,x=>x.toUpperCase());
+    const addCustom = ()=>{ const st=this.state.form.customState; if(!st){ this.setState({formErr:'Choose a state for '+typed}); return; } const err=this.addCity(st, typed); if(err){ this.setState({formErr:err}); return; } pickCity(typed); this.setF('customState',''); };
+
+    navItems.forEach(n=>{ n.title = s.sbOpen ? '' : n.label; n.mask = 'url(https://unpkg.com/lucide-static@0.400.0/icons/'+n.icon+'.svg)'; });
+    return {
+      stop,
+      sbOpen:s.sbOpen, sbW:s.sbOpen?'216px':'52px',
+      sbOp:s.sbOpen?1:0, sbOpT:s.sbOpen?'200ms ease 90ms':'120ms ease', sbHeadH:s.sbOpen?'30px':'0px',
+      sbToggleTitle:(s.sbOpen?'Close sidebar':'Open sidebar')+' (Ctrl+.)',
+      onToggleSb:()=>this.toggleSb(),
+      showSearch:s.screen==='search', showProfile:s.screen==='profile', showShortlists:s.screen==='shortlists', showManage:s.screen==='manage',
+      navItems,
+
+      searchQ:s.q, onSearchChange:e=>this.setState({q:e.target.value}), onClearSearch:()=>this.setState({q:''}), hasSearchQ:!!s.q,
+      locQ:s.locQ, onLocQ:e=>this.setState({locQ:e.target.value, locIdx:0, locOpenF:true}), locResults,
+      onLocFFocus:()=>this.setState({locOpenF:true}),
+      onLocFBlur:()=>{ clearTimeout(this._lb); this._lb=setTimeout(()=>this.setState({locOpenF:false}),120); },
+      locExpanded:locOpenNow?'true':'false', locActiveId:locOpenNow&&locMatches.length?'locopt-'+li:undefined,
+      showLocResults:locOpenNow, noLocResults:locResults.length===0,
+      onLocKey:e=>{
+        const n=locMatches.length;
+        if((e.key==='ArrowDown'||e.key==='ArrowUp') && !s.locOpenF){ e.preventDefault(); this.setState({locOpenF:true}); return; }
+        if(e.key==='ArrowDown'){ e.preventDefault(); if(!n) return; const i=(li+1)%n; this.setState({locIdx:i}); scrollOpt(i); }
+        else if(e.key==='ArrowUp'){ e.preventDefault(); if(!n) return; const i=(li-1+n)%n; this.setState({locIdx:i}); scrollOpt(i); }
+        else if(e.key==='Home' && n && s.locQ){ e.preventDefault(); this.setState({locIdx:0}); scrollOpt(0); }
+        else if(e.key==='End' && n && s.locQ){ e.preventDefault(); this.setState({locIdx:n-1}); scrollOpt(n-1); }
+        else if(e.key==='Enter'){ e.preventDefault(); if(locOpenNow && locMatches[li]) pickLocF(locMatches[li]); else this.setState({locOpenF:true}); }
+        else if(e.key==='Escape'){ e.preventDefault(); if(locOpenNow) this.setState({locOpenF:false}); else this.setState({locQ:'', locIdx:0}); }
+        else if(e.key==='Backspace' && !s.locQ && s.locF.length){ this.setState(st=>({ locF:st.locF.slice(0,-1) })); }
+      },
+      hasLocF:s.locF.length>0, locFTags,
+      catChips:(s.catMore ? s.cats : s.cats.filter((v,k)=>k<CAT_N || s.cF.includes(v))).map(v=>cChip(v, s.cF.includes(v), ()=>this.setState(st=>({cF:this.tog(st.cF,v)})))),
+      hasCatMore:s.catMore || s.cats.some((v,k)=>k>=CAT_N && !s.cF.includes(v)),
+      catMoreExpanded:s.catMore?'true':'false',
+      catMoreLabel:s.catMore ? 'Show less' : `+${s.cats.filter((v,k)=>k>=CAT_N && !s.cF.includes(v)).length} more`,
+      onToggleCatMore:()=>this.setState(st=>({catMore:!st.catMore})),
+      langChips:s.langs.map(v=>inkChip(s.lF.includes(v), v, ()=>this.setState(st=>({lF:this.tog(st.lF,v)})))),
+      engChips:this.ENG_O.map(o=>inkChip(s.eMin===o.v, o.l, ()=>this.setState({eMin:o.v}))),
+      fPosMin:this.f2pos(s.fMin), fPosMax:this.f2pos(s.fMax),
+      fPctMin:this.f2pos(s.fMin)/10+'%', fPctW:(this.f2pos(s.fMax)-this.f2pos(s.fMin))/10+'%',
+      fZMin:this.f2pos(s.fMin)>900?4:2,
+      fMinText:this.fmt(s.fMin)+' followers', fMaxText:s.fMax>=this.F_HI?'10M or more followers':this.fmt(s.fMax)+' followers',
+      fRangeLabel:(s.fMin<=this.F_LO && s.fMax>=this.F_HI) ? 'Any' : `${this.fmt(s.fMin)} – ${s.fMax>=this.F_HI?'10M+':this.fmt(s.fMax)}`,
+      onFMin:e=>{ const p=Math.min(+e.target.value, this.f2pos(this.state.fMax)-10); this.setState({fMin:p<=0?this.F_LO:this.pos2f(p)}); },
+      onFMax:e=>{ const p=Math.max(+e.target.value, this.f2pos(this.state.fMin)+10); this.setState({fMax:p>=1000?this.F_HI:this.pos2f(p)}); },
+      hasFilters:s.locF.length+s.cF.length+s.lF.length>0||s.eMin>0||s.fMin>this.F_LO||s.fMax<this.F_HI,
+      onClearFilters:()=>this.setState({locF:[],locQ:'',cF:[],lF:[],eMin:0,fMin:1000,fMax:10000000}),
+      resultCount:`${res.length} influencer${res.length!==1?'s':''}`,
+      infCards, noResults:res.length===0,
+      isGrid:s.viewMode==='grid', isList:s.viewMode==='list',
+      gridBtnBg:s.viewMode==='grid'?'var(--cs-ink-100)':'transparent', gridBtnColor:s.viewMode==='grid'?'var(--cs-fg-1)':'var(--cs-fg-3)',
+      listBtnBg:s.viewMode==='list'?'var(--cs-ink-100)':'transparent', listBtnColor:s.viewMode==='list'?'var(--cs-fg-1)':'var(--cs-fg-3)',
+      onSetGrid:()=>this.setState({viewMode:'grid'}), onSetList:()=>this.setState({viewMode:'list'}),
+
+      prof, profNote:s.note, noteDraft:s.noteDraft,
+      showNoteEdit:s.editNote, showNoteBtn:!s.editNote,
+      onEditNote:()=>this.setState({editNote:true,noteDraft:s.note}),
+      onNoteDraft:e=>this.setState({noteDraft:e.target.value}),
+      onSaveNote:()=>this.setState({note:s.noteDraft,editNote:false}),
+      onCancelNote:()=>this.setState({editNote:false}),
+      onBack:()=>this.go('search'),
+      onProfAddSl:()=>this.setState({modalId:sel.id}),
+      onProfEdit:()=>this.openEdit(sel),
+
+      slList, slInfs, hasSlInfs:slInfs.length>0, noSlInfs:slInfs.length===0,
+      activSlName:asl?asl.name:'', activSlCount:asl?asl.iids.length:0, activSlDate:asl?asl.created:'',
+      onExport:()=>this.exportCsv(),
+
+      showModal:!!s.modalId, modalInfName:modalInf?modalInf.name:'', modalOpts,
+      onCloseModal:()=>this.setState({modalId:null}),
+      onModalBg:e=>{ if(e.target===e.currentTarget)this.setState({modalId:null}); },
+
+      manageSub:`${s.infs.length} influencers · ${tc('stale')} with stale metrics`,
+      mTabs:[mTab('people','Influencers'), mTab('locations','States & cities')],
+      showPeopleTab:true, showLocTab:false,
+      freshChips,
+      rateHistOpen:s.rateHistOpen, onToggleRateHist:()=>this.setState(st=>({rateHistOpen:!st.rateHistOpen})),
+      rateHistLabel:s.rateHistOpen?'Hide rate history':`Show rate history (${sel.rates.length-1} earlier)`,
+      formMetricsUpd:(()=>{ const p=f.id&&s.infs.find(i=>i.id===f.id); return p?this.fresh(p.updatedAt).label:'Will be dated today'; })(),
+      formRatesUpd:(()=>{ const p=f.id&&s.infs.find(i=>i.id===f.id); return p?'Current since '+this.mon(p.rates[0].date)+' · edits save as a new rate':'Will be dated today'; })(),
+      mq:s.mq, onMq:e=>this.setState({mq:e.target.value}), mRows,
+      onOpenAdd:()=>this.openAdd(),
+      locCards, newState:s.newState, onNewState:e=>this.setState({newState:e.target.value}),
+      onAddState:()=>this.addState(), onNewStateKey:this.onEnter(()=>this.addState()),
+
+      showForm:!!s.form, formTitle:f.id?'Edit influencer':'Add influencer', formSaveLabel:f.id?'Save changes':'Add influencer',
+      formErr:s.formErr, f, on,
+      hasFormCities:f.cities.length+f.states.length>0,
+      formCityTags:[
+        ...f.cities.map(c=>({ city:c, state:(()=>{ const st=this.stateOf(c); return st&&st!==c?st:''; })(), onRemove:()=>this.setF('cities',this.state.form.cities.filter(x=>x!==c)) })),
+        ...f.states.map(st=>({ city:st, state:'any city', onRemove:()=>this.setF('states',this.state.form.states.filter(x=>x!==st)) })),
+      ],
+      locTree, noLocTree:locTree.length===0, showCityResults:!!f.locOpen || q.length>0,
+      onLocFocus:()=>this.setF('locOpen',true),
+      onLocBlur:()=>setTimeout(()=>this.setState(st=>st.form?{ form:{ ...st.form, locOpen:false } }:null),150), showCustomCity:q.length>1 && !exact && matches.length<3,
+      customCityMsg:`Can't find "${typed}"? Add it under a state:`,
+      allStates:s.loc.map(l=>l.state), onAddCustomCity:addCustom,
+      onCityKey:e=>{ if(e.key==='Enter'){ e.preventDefault(); if(matches[0]) pickLoc(matches[0]); } else if(e.key==='Escape'){ this.setState(st=>({ form:{ ...st.form, cityQ:'', locOpen:false } })); e.target.blur(); } },
+      formCatChips:s.cats.map(v=>cChip(v, f.cats.includes(v), ()=>this.setF('cats',this.tog(this.state.form.cats,v)))),
+      formLangChips:s.langs.map(v=>inkChip(f.langs.includes(v), v, ()=>this.setF('langs',this.tog(this.state.form.langs,v)))),
+      onAddCat:()=>this.formAddTag('cats','newCat'), onNewCatKey:this.onEnter(()=>this.formAddTag('cats','newCat')),
+      onAddLang:()=>this.formAddTag('langs','newLang'), onNewLangKey:this.onEnter(()=>this.formAddTag('langs','newLang')),
+      onCloseForm:()=>this.setState({form:null,formErr:''}),
+      onFormBg:e=>{ if(e.target===e.currentTarget)this.setState({form:null,formErr:''}); },
+      onSaveForm:()=>this.saveForm(),
+    };
+  }
+}
+</script>
+</body>
+</html>
