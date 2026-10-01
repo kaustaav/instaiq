@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { BarChart3, Database, Megaphone, PanelLeft, Search, Send, Settings } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
+import { isMobile } from '../lib/media'
 import './Sidebar.css'
 
 const STORAGE_KEY = 'iiq-sb'
@@ -50,9 +51,12 @@ type NavItem = { to: string; paths: string[]; label: string; icon: LucideIcon; b
 type Props = {
   campaignCount: number
   influencerCount: number
+  /** Phones: the sidebar is an off-canvas menu opened from the top bar. */
+  mobileOpen: boolean
+  onMobileClose: () => void
 }
 
-export function Sidebar({ campaignCount, influencerCount }: Props) {
+export function Sidebar({ campaignCount, influencerCount, mobileOpen, onMobileClose }: Props) {
   const { open, toggle } = useSidebarOpen()
   const { pathname } = useLocation()
 
@@ -62,15 +66,17 @@ export function Sidebar({ campaignCount, influencerCount }: Props) {
     { to: '/manage', paths: ['/manage'], label: 'Manage Data', icon: Database, badge: influencerCount },
   ]
   const toggleTitle = `${open ? 'Close' : 'Open'} sidebar (Ctrl+.)`
+  // on phones the same button closes the menu instead of collapsing the rail
+  const onToggle = () => (isMobile() ? onMobileClose() : toggle())
 
   return (
-    <aside className={open ? 'sb' : 'sb closed'}>
+    <aside className={['sb', !open && 'closed', mobileOpen && 'mobile-open'].filter(Boolean).join(' ')}>
       <div className="sb-head">
         <div className="sb-brand sb-fade" aria-hidden={!open}>
           <div className="sb-brand-name">InfluenceIQ</div>
           <div className="sb-brand-sub">Influencer CRM</div>
         </div>
-        <button type="button" className="sb-toggle" onClick={toggle} title={toggleTitle} aria-label={toggleTitle}>
+        <button type="button" className="sb-toggle" onClick={onToggle} title={toggleTitle} aria-label={toggleTitle}>
           <PanelLeft size={17} />
         </button>
       </div>
@@ -85,6 +91,7 @@ export function Sidebar({ campaignCount, influencerCount }: Props) {
               className={active ? 'sb-item active' : 'sb-item'}
               title={open ? undefined : label}
               aria-current={active ? 'page' : undefined}
+              onClick={onMobileClose}
             >
               <Icon size={14} />
               <span className="sb-label sb-fade">

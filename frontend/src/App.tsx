@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router'
-import { UserX } from 'lucide-react'
+import { Menu, UserX } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
 import { EmptyState } from './components/ui'
 import { StoreProvider, useStore } from './store'
@@ -55,6 +55,14 @@ function Shell() {
   const { infs, campaigns } = useStore()
   const [modalId, setModalId] = useState<number | null>(null)
   const [drawer, setDrawer] = useState<DrawerState>({ mode: 'closed' })
+  const [mobileNav, setMobileNav] = useState(false)
+
+  useEffect(() => {
+    if (!mobileNav) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMobileNav(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mobileNav])
 
   const closeModal = useCallback(() => setModalId(null), [])
   const closeDrawer = useCallback(() => setDrawer({ mode: 'closed' }), [])
@@ -62,8 +70,17 @@ function Shell() {
 
   return (
     <div className="app">
-      <Sidebar campaignCount={campaigns.length} influencerCount={infs.length} />
+      <Sidebar campaignCount={campaigns.length} influencerCount={infs.length}
+        mobileOpen={mobileNav} onMobileClose={() => setMobileNav(false)} />
+      {mobileNav && <div className="sb-backdrop" onClick={() => setMobileNav(false)} />}
       <main className="app-main">
+        {/* phones only (hidden by CSS on wider screens) */}
+        <header className="mobile-bar">
+          <button type="button" className="mobile-bar-btn" aria-label="Open menu" aria-expanded={mobileNav} onClick={() => setMobileNav(true)}>
+            <Menu size={20} />
+          </button>
+          <span className="mobile-bar-brand">InfluenceIQ</span>
+        </header>
         <Routes>
           <Route path="/" element={<Navigate to="/search" replace />} />
           <Route path="/search" element={<SearchScreen onShortlist={setModalId} />} />

@@ -132,3 +132,17 @@
   background: var(--iq-gray-25);
 }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ---------- Phones ---------- */
+@media (max-width: 768px) {
+  .drawer { width: 100%; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .drawer-body { padding: 14px; }
+  .drawer-section-title { flex-direction: column; gap: 2px; }
+  .drawer-foot { flex-wrap: wrap; }
+  .drawer-foot > [role='alert'] { flex-basis: 100%; }
+  .drawer-foot > button { flex: 1; justify-content: center; }
+  .modal-opt { padding: 12px 10px; }
+}
+@media (max-width: 480px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+}

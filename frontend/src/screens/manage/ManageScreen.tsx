@@ -99,14 +99,14 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
           <table className="table">
             <thead>
               <tr>
-                <th>Influencer</th><th>Cities</th><th>States</th><th>Niches</th><th>Languages</th>
+                <th className="pin">Influencer</th><th>Cities</th><th>States</th><th>Niches</th><th>Languages</th>
                 <th className="r">Followers</th><th>Last updated</th><th />
               </tr>
             </thead>
             <tbody>
               {rows.items.map(i => (
                 <tr key={i.id}>
-                  <td><PersonCell inf={i} onView={() => onOpenProfile(i.id)} /></td>
+                  <td className="pin"><PersonCell inf={i} onView={() => onOpenProfile(i.id)} /></td>
                   <td className="sub" style={i.cities.length ? undefined : { color: 'var(--iq-fg-3)' }}>
                     {i.cities.join(', ') || 'Not known'}
                   </td>

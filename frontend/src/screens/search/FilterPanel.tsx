@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { useStore } from '../../store'
 import { categoryColor, collapse, toggle } from '../../lib/format'
 import { MoreChip } from '../../components/ui'
@@ -16,9 +17,16 @@ const ENG_OPTIONS = [
 ]
 
 /** `replace` = update the URL without a new history entry (continuous inputs like the slider). */
-type Props = { filters: Filters; onChange: (f: Filters, replace?: boolean) => void }
+type Props = {
+  filters: Filters
+  onChange: (f: Filters, replace?: boolean) => void
+  /** Phones: the panel is a full-screen sheet. Changes apply live; "Show results" just closes it. */
+  mobileOpen: boolean
+  onMobileClose: () => void
+  resultCount: number
+}
 
-export function FilterPanel({ filters: f, onChange }: Props) {
+export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, resultCount }: Props) {
   const { cats, langs } = useStore()
   const [catMore, setCatMore] = useState(false)
   const [langMore, setLangMore] = useState(false)
@@ -33,15 +41,20 @@ export function FilterPanel({ filters: f, onChange }: Props) {
   })
 
   return (
-    <div className="filters">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className={mobileOpen ? 'filters open' : 'filters'} aria-label="Filters">
+      <div className="filters-head">
         <div className="label" style={{ letterSpacing: '0.08em' }}>Filters</div>
-        {hasActiveFilters(f) && (
-          <button type="button" className="btn btn-plain btn-sm" style={{ color: 'var(--iq-brand-500)', padding: '2px 6px' }}
-            onClick={() => onChange({ ...emptyFilters(), q: f.q })}>
-            Clear all
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {hasActiveFilters(f) && (
+            <button type="button" className="btn btn-plain btn-sm" style={{ color: 'var(--iq-brand-500)', padding: '2px 6px' }}
+              onClick={() => onChange({ ...emptyFilters(), q: f.q })}>
+              Clear all
+            </button>
+          )}
+          <button type="button" className="icon-btn filters-close" aria-label="Close filters" onClick={onMobileClose}>
+            <X size={18} />
           </button>
-        )}
+        </div>
       </div>
 
       <LocationFilter value={f.loc} onChange={loc => set({ loc })} />
@@ -92,6 +105,9 @@ export function FilterPanel({ filters: f, onChange }: Props) {
           {langList.canToggle && <MoreChip expanded={langMore} hiddenCount={langList.hiddenCount} onToggle={() => setLangMore(!langMore)} />}
         </div>
       </div>
+      <button type="button" className="btn btn-blue filters-done" onClick={onMobileClose}>
+        Show {resultCount} influencer{resultCount !== 1 ? 's' : ''}
+      </button>
     </div>
   )
 }

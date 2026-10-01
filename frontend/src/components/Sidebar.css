@@ -142,3 +142,34 @@ a.sb-item:focus-visible { outline: 2px solid var(--iq-brand-400); }
 .sb-user-name { font-size: 12px; font-weight: 500; color: var(--iq-dark-fg-1); overflow: hidden; text-overflow: ellipsis; }
 .sb-user-role { font-size: 11px; color: var(--iq-dark-fg-3); }
 .sb-user svg { margin-left: auto; color: var(--iq-dark-fg-3); cursor: pointer; flex-shrink: 0; }
+
+/* ---------- Phones: off-canvas menu ---------- */
+.sb-backdrop { display: none; }
+@media (max-width: 768px) {
+  .sb, .sb.closed {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 150;
+    width: 260px;
+    min-width: 260px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateX(-100%);
+    transition: transform 280ms var(--sb-ease);
+    box-shadow: var(--iq-shadow-4);
+  }
+  .sb.mobile-open { transform: none; }
+  /* the desktop "collapsed" state doesn't apply to the phone menu */
+  .sb.closed .sb-fade { opacity: 1; }
+  .sb.closed .sb-section { max-height: 30px; padding-block: 6px; }
+  .sb-item { min-height: 40px; font-size: 14px; }
+  .sb-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 140;
+    background: rgba(0, 0, 0, 0.38);
+  }
+}

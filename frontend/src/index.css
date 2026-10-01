@@ -22,12 +22,49 @@ a:hover { text-decoration: underline; }
 .app {
   display: flex;
   height: 100vh;
+  height: 100dvh; /* mobile browsers: excludes the collapsing address bar */
   overflow: hidden;
 }
 
 .app-main {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* ---------- Phones ---------- */
+.mobile-bar { display: none; }
+@media (max-width: 768px) {
+  .mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px 6px;
+    background: var(--iq-gray-900);
+    border-bottom: 1px solid var(--iq-dark-border);
+  }
+  .mobile-bar-btn {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: var(--iq-dark-fg-1);
+    cursor: pointer;
+  }
+  .mobile-bar-btn:focus-visible { outline: 2px solid var(--iq-brand-400); }
+  .mobile-bar-brand {
+    font-family: var(--iq-font-display);
+    font-weight: 900;
+    font-size: 17px;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  /* iOS Safari zooms into any input under 16px when it's focused */
+  input, select, textarea { font-size: 16px !important; }
 }
