@@ -13,6 +13,9 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - Search sits behind an `InfluencerSearchService` interface so an OpenSearch implementation can be added in Phase 2 without touching callers.
 - Cost constraint: user can't pay. Develop locally; deploy to AWS free tier deliberately and tear down when idle.
 
+## Backlog
+Open items (security toggles, cost guardrails, backend next steps, UI gaps) live in `docs/BACKLOG.md`. Check it when planning; tick items off as they land.
+
 ## Working style
 - Build in very small steps. After each step, stop and give exact local test steps; the user tests before anything else is written.
 - User: strong Java, learning Spring Boot/Docker. Teach new tooling concepts briefly; skip basics; push back on wrong approaches.
