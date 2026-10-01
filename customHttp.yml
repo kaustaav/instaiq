@@ -1,0 +1,38 @@
+# AWS Amplify Hosting response headers (read from the repo root at deploy time).
+# Verify after a deploy with: scripts/smoke-test.sh https://main.d360lwuskrbgul.amplifyapp.com
+applications:
+  - appRoot: frontend
+    customHeaders:
+      # Security headers on every response
+      - pattern: '**'
+        headers:
+          # browsers must only use HTTPS for this site for a year
+          - key: Strict-Transport-Security
+            value: max-age=31536000; includeSubDomains
+          # don't guess content types (stops a file being run as a script when it isn't one)
+          - key: X-Content-Type-Options
+            value: nosniff
+          # never allow the app inside another site's frame (clickjacking)
+          - key: X-Frame-Options
+            value: DENY
+          - key: Referrer-Policy
+            value: strict-origin-when-cross-origin
+          - key: Permissions-Policy
+            value: camera=(), microphone=(), geolocation=()
+          # Only load code and assets from this site. Exceptions:
+          #   style 'unsafe-inline'  React style={{}} attributes
+          #   cdn.jsdelivr.net       Inter / JetBrains Mono font files (see frontend/src/styles/tokens.css)
+          #   img data:              inline SVG/data images
+          # When the API exists, add its origin to connect-src.
+          - key: Content-Security-Policy
+            value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      # Vite fingerprints asset names (index-B2WJoJTK.js), so a given URL never changes: cache for a year
+      - pattern: 'assets/**'
+        headers:
+          - key: Cache-Control
+            value: public, max-age=31536000, immutable
+      # index.html must always be re-checked so a new deploy is picked up immediately
+      - pattern: 'index.html'
+        headers:
+          - key: Cache-Control
+            value: no-cache

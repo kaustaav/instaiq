@@ -1,0 +1,27 @@
+# AWS Amplify Hosting build spec (app "influencerIq", ap-southeast-2).
+# This file is the source of truth: when it exists, Amplify uses it instead of the build settings in the console.
+# Commands run inside appRoot (frontend/).
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Node version comes from frontend/.nvmrc so local dev and the build server match
+            - nvm install
+            - nvm use
+            - node --version
+            - npm ci --cache .npm --prefer-offline
+        build:
+          commands:
+            # lint + type-check + build; any failure stops the deploy and the live site stays on the previous build
+            - npm run lint
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .npm/**/*
