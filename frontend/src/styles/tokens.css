@@ -1,0 +1,286 @@
+/* =====================================================================
+   InfluenceIQ — Design System Tokens
+   Colors & Typography foundation.
+   Source of truth: InfluenceIQ design.
+   ===================================================================== */
+
+
+/* ---------- Inter (OFL) — UI / body face ---------- */
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- JetBrains Mono (OFL) — numerics / code ---------- */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---------- Brand / Primary ---------- */
+  /* brand blue — the hero institutional color */
+  --iq-brand-50:  #EEF0FF;
+  --iq-brand-100: #DCE0FF;
+  --iq-brand-200: #B9C0FF;
+  --iq-brand-300: #8C97FA;
+  --iq-brand-400: #5F6CF2;
+  --iq-brand-500: #3B48E6; /* PRIMARY — InfluenceIQ blue */
+  --iq-brand-600: #2E39C2;
+  --iq-brand-700: #252E9C;
+  --iq-brand-800: #1D2477;
+  --iq-brand-900: #151A55;
+
+  /* ---------- Neutrals (Product / Marketing) ---------- */
+  --iq-gray-0:    #FFFFFF;
+  --iq-gray-25:   #FAFAFA;   /* surface-50 */
+  --iq-gray-50:   #F4F4F5;   /* page bg (light) */
+  --iq-gray-100:  #E8E8EA;
+  --iq-gray-200:  #D4D4D8;
+  --iq-gray-300:  #A6A6AE;
+  --iq-gray-400:  #71717A;
+  --iq-gray-500:  #52525B;
+  --iq-gray-600:  #3F3F46;
+  --iq-gray-700:  #27272A;
+  --iq-gray-800:  #18181B;   /* dark product surface */
+  --iq-gray-900:  #0E0E10;   /* darkest — trading platform bg */
+  --iq-gray-1000: #000000;   /* black — used sparingly */
+
+  /* ---------- Semantic — Trading / Finance ---------- */
+  --iq-up:       #00A96B;   /* gain / positive */
+  --iq-up-bg:    #E7F7EF;
+  --iq-down:     #E5484D;   /* loss / negative */
+  --iq-down-bg:  #FDECEC;
+  --iq-warn:     #E8A317;
+  --iq-warn-bg:  #FBF3DF;
+  --iq-info:     var(--iq-brand-500);
+  --iq-info-bg:  var(--iq-brand-50);
+
+  /* ---------- Surface & Foreground (Light mode) ---------- */
+  --iq-bg:        var(--iq-gray-0);
+  --iq-bg-subtle: var(--iq-gray-50);
+  --iq-bg-muted:  var(--iq-gray-100);
+  --iq-surface:   var(--iq-gray-0);
+  --iq-surface-raised: var(--iq-gray-0);
+
+  --iq-fg-1:      var(--iq-gray-900);   /* primary text */
+  --iq-fg-2:      var(--iq-gray-600);   /* secondary text */
+  --iq-fg-3:      var(--iq-gray-400);   /* tertiary / metadata */
+  --iq-fg-muted:  var(--iq-gray-300);
+  --iq-fg-inverse: var(--iq-gray-0);
+
+  --iq-border:    var(--iq-gray-100);
+  --iq-border-strong: var(--iq-gray-200);
+  --iq-border-focus:  var(--iq-brand-500);
+
+  /* ---------- Product-dark surfaces (Studio trading UI) ---------- */
+  --iq-dark-bg:        var(--iq-gray-900);
+  --iq-dark-surface:   var(--iq-gray-800);
+  --iq-dark-surface-2: #1F1F23;
+  --iq-dark-border:    #2A2A2F;
+  --iq-dark-fg-1:      #F4F4F5;
+  --iq-dark-fg-2:      #A6A6AE;
+  --iq-dark-fg-3:      #71717A;
+
+  /* ---------- Typography ---------- */
+  /* Sans UI: Inter — used for body, UI, tables, small sizes */
+  --iq-font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* Display face */
+  --iq-font-display: "Inter Tight", "Inter", serif;
+  /* Monospace: JetBrains Mono */
+  --iq-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale (fluid-ish, px-based). Line-heights: @kind font */
+  --iq-fs-display-xl: 80px;  --iq-lh-display-xl: 0.95; /* @kind font */
+  --iq-fs-display-lg: 64px;  --iq-lh-display-lg: 1.00; /* @kind font */
+  --iq-fs-display-md: 48px;  --iq-lh-display-md: 1.05; /* @kind font */
+  --iq-fs-h1:         40px;  --iq-lh-h1:         1.10; /* @kind font */
+  --iq-fs-h2:         32px;  --iq-lh-h2:         1.15; /* @kind font */
+  --iq-fs-h3:         24px;  --iq-lh-h3:         1.25; /* @kind font */
+  --iq-fs-h4:         20px;  --iq-lh-h4:         1.30; /* @kind font */
+  --iq-fs-h5:         16px;  --iq-lh-h5:         1.40; /* @kind font */
+  --iq-fs-body-lg:    18px;  --iq-lh-body-lg:    1.55; /* @kind font */
+  --iq-fs-body:       15px;  --iq-lh-body:       1.55; /* @kind font */
+  --iq-fs-body-sm:    13px;  --iq-lh-body-sm:    1.50; /* @kind font */
+  --iq-fs-caption:    11px;  --iq-lh-caption:    1.40; /* @kind font */
+  --iq-fs-micro:      10px;  --iq-lh-micro:      1.30; /* @kind font */
+
+  --iq-fw-regular:  400; /* @kind font */
+  --iq-fw-medium:   500; /* @kind font */
+  --iq-fw-semibold: 600; /* @kind font */
+  --iq-fw-bold:     700; /* @kind font */
+
+  --iq-tracking-tight:  -0.02em; /* @kind font */
+  --iq-tracking-normal:  0em;     /* @kind font */
+  --iq-tracking-wide:    0.04em;  /* @kind font */
+  --iq-tracking-caps:    0.08em;  /* @kind font */
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --iq-space-0:  0;
+  --iq-space-1:  2px;
+  --iq-space-2:  4px;
+  --iq-space-3:  8px;
+  --iq-space-4:  12px;
+  --iq-space-5:  16px;
+  --iq-space-6:  20px;
+  --iq-space-7:  24px;
+  --iq-space-8:  32px;
+  --iq-space-9:  40px;
+  --iq-space-10: 48px;
+  --iq-space-11: 64px;
+  --iq-space-12: 80px;
+  --iq-space-13: 96px;
+  --iq-space-14: 128px;
+
+  /* ---------- Radii ---------- */
+  /* Fully rounded system — NO sharp corners. Smallest is 4px. */
+  --iq-radius-0:   4px;       /* legacy alias — kept for back-compat, now the 4px floor */
+  --iq-radius-xs:  4px;       /* chips, tags, small controls (floor) */
+  --iq-radius-sm:  6px;       /* product tables, inputs, buttons */
+  --iq-radius-md:  8px;       /* cards, panels, dropdowns */
+  --iq-radius-lg:  10px;      /* large cards, modals, hero blocks */
+  --iq-radius-xl:  16px;      /* oversized feature surfaces */
+  --iq-radius-pill: 999px;    /* pills, avatars, status dots */
+
+  /* ---------- Elevation / Shadow ---------- */
+  --iq-shadow-0: none;
+  --iq-shadow-1: 0 1px 2px rgba(14, 14, 16, 0.04), 0 1px 1px rgba(14, 14, 16, 0.03);
+  --iq-shadow-2: 0 2px 8px rgba(14, 14, 16, 0.06), 0 1px 2px rgba(14, 14, 16, 0.04);
+  --iq-shadow-3: 0 8px 24px rgba(14, 14, 16, 0.08), 0 2px 6px rgba(14, 14, 16, 0.04);
+  --iq-shadow-4: 0 24px 64px rgba(14, 14, 16, 0.14), 0 4px 12px rgba(14, 14, 16, 0.06);
+  --iq-shadow-focus: 0 0 0 3px rgba(59, 72, 230, 0.25);
+
+  /* ---------- Motion ---------- */
+  --iq-ease-out:    cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --iq-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);     /* @kind other */
+  --iq-ease-in:     cubic-bezier(0.64, 0, 0.78, 0);     /* @kind other */
+  --iq-dur-fast:  120ms; /* @kind other */
+  --iq-dur-base:  200ms; /* @kind other */
+  --iq-dur-slow:  360ms; /* @kind other */
+  --iq-dur-page:  600ms; /* @kind other */
+
+  /* ---------- Layout ---------- */
+  --iq-container-max: 1440px;
+  --iq-container-pad: 24px;
+  --iq-grid-columns:  12; /* @kind other */
+  --iq-grid-gap:      24px;
+}
+
+/* =====================================================================
+   Semantic element defaults
+   ===================================================================== */
+
+html { -webkit-text-size-adjust: 100%; font-feature-settings: "ss01","cv11"; }
+
+body {
+  font-family: var(--iq-font-sans);
+  font-size: var(--iq-fs-body);
+  line-height: var(--iq-lh-body);
+  font-weight: var(--iq-fw-regular);
+  color: var(--iq-fg-1);
+  background: var(--iq-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .cs-h1 {
+  font-family: var(--iq-font-display);
+  font-size: var(--iq-fs-h1);
+  line-height: var(--iq-lh-h1);
+  font-weight: var(--iq-fw-medium);
+  letter-spacing: var(--iq-tracking-tight);
+  color: var(--iq-fg-1);
+  margin: 0;
+}
+h2, .cs-h2 {
+  font-size: var(--iq-fs-h2);
+  line-height: var(--iq-lh-h2);
+  font-weight: var(--iq-fw-medium);
+  letter-spacing: var(--iq-tracking-tight);
+  margin: 0;
+}
+h3, .cs-h3 {
+  font-size: var(--iq-fs-h3);
+  line-height: var(--iq-lh-h3);
+  font-weight: var(--iq-fw-medium);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+h4, .cs-h4 {
+  font-size: var(--iq-fs-h4);
+  line-height: var(--iq-lh-h4);
+  font-weight: var(--iq-fw-medium);
+  margin: 0;
+}
+h5, .cs-h5 {
+  font-size: var(--iq-fs-h5);
+  line-height: var(--iq-lh-h5);
+  font-weight: var(--iq-fw-semibold);
+  margin: 0;
+}
+p, .cs-body {
+  font-size: var(--iq-fs-body);
+  line-height: var(--iq-lh-body);
+  color: var(--iq-fg-2);
+  margin: 0;
+}
+.cs-display-xl { font-family: var(--iq-font-display); font-size: var(--iq-fs-display-xl); line-height: var(--iq-lh-display-xl); letter-spacing: var(--iq-tracking-tight); font-weight: var(--iq-fw-medium); }
+.cs-display-lg { font-family: var(--iq-font-display); font-size: var(--iq-fs-display-lg); line-height: var(--iq-lh-display-lg); letter-spacing: var(--iq-tracking-tight); font-weight: var(--iq-fw-medium); }
+.cs-display-md { font-family: var(--iq-font-display); font-size: var(--iq-fs-display-md); line-height: var(--iq-lh-display-md); letter-spacing: var(--iq-tracking-tight); font-weight: var(--iq-fw-medium); }
+.cs-eyebrow {
+  font-size: var(--iq-fs-caption);
+  letter-spacing: var(--iq-tracking-caps);
+  text-transform: uppercase;
+  font-weight: var(--iq-fw-medium);
+  color: var(--iq-fg-3);
+}
+code, pre, .cs-mono {
+  font-family: var(--iq-font-mono);
+  font-size: 0.92em;
+}
+.cs-numeric { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+a { color: var(--iq-brand-500); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }

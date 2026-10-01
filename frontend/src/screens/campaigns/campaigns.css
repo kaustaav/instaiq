@@ -1,0 +1,43 @@
+.camp-list {
+  width: 252px;
+  min-width: 252px;
+  background: white;
+  border-right: 1px solid var(--iq-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.camp-list-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--iq-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.camp-item {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  padding: 9px 10px;
+  border-radius: 6px;
+  border-left: 2px solid transparent;
+  margin-bottom: 2px;
+  transition: background 100ms;
+}
+.camp-item:hover { background: var(--iq-gray-50); text-decoration: none; }
+.camp-item.on { background: var(--iq-brand-50); border-left-color: var(--iq-brand-500); }
+.camp-item:focus-visible { outline: 2px solid var(--iq-brand-500); outline-offset: -2px; }
+.camp-item-name { font-size: 13px; font-weight: 500; color: var(--iq-fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.camp-item-meta { font-size: 11px; color: var(--iq-fg-3); margin-top: 3px; }
+.camp-prev {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px dashed var(--iq-border);
+  color: var(--iq-fg-3);
+  cursor: not-allowed;
+}
