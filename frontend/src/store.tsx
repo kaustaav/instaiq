@@ -1,13 +1,14 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import type { Campaign, Influencer, Region, SeedInfluencer } from './types'
 import {
-  GEO, METRICS_AGE_DAYS, RATES_AGE_DAYS, SEED_CAMPAIGNS, SEED_CATEGORIES,
-  SEED_INFLUENCERS, SEED_LANGUAGES, SEED_NOTE,
+  GEO, METRICS_AGE_DAYS, RATES_AGE_DAYS, SEED_CATEGORIES, SEED_INFLUENCERS, SEED_LANGUAGES, SEED_NOTE,
 } from './data/seed'
+import { SEED_CAMPAIGNS } from './data/seed-campaigns'
 import GENERATED from './data/generated-influencers.json'
-import { DAY, uniq } from './lib/format'
+import { DAY } from './lib/format'
 import { parseGeo, stateOf } from './lib/locations'
 import { toInfluencer, type Draft } from './lib/influencerForm'
+import { addMembers, duplicateCampaign, newCampaign, type CampaignInput } from './lib/campaigns'
 
 const ago = (days: number) => Date.now() - days * DAY
 const scalePrice = (p: string, f: number) => {
@@ -46,8 +47,15 @@ type Store = {
   loc: Region[]
   cats: string[]
   langs: string[]
-  addToCampaign: (campaignId: number, infId: number) => void
-  removeFromCampaign: (campaignId: number, infId: number) => void
+  /**
+   * Applies a rule function from lib/campaigns.ts to one campaign.
+   * Returns '' on success or the rule's error message (nothing changes on error).
+   */
+  runCampaign: (id: number, action: (c: Campaign) => Campaign) => string
+  createCampaign: (input: CampaignInput) => Campaign | string
+  duplicateCampaign: (id: number) => Campaign
+  /** Adds influencers at SHORTLISTED; already-present ones are skipped. */
+  addToCampaign: (id: number, influencerIds: number[]) => { added: number; skipped: number } | string
   saveInfluencer: (draft: Draft) => Influencer
   deleteInfluencer: (id: number) => void
   setNote: (id: number, note: string) => void
@@ -77,10 +85,43 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
     return {
       infs, campaigns, loc, cats, langs,
-      addToCampaign: (cid, iid) =>
-        setCampaigns(cs => cs.map(c => (c.id === cid ? { ...c, iids: uniq([...c.iids, iid]) } : c))),
-      removeFromCampaign: (cid, iid) =>
-        setCampaigns(cs => cs.map(c => (c.id === cid ? { ...c, iids: c.iids.filter(x => x !== iid) } : c))),
+      runCampaign: (id, action) => {
+        const c = campaigns.find(x => x.id === id)
+        if (!c) return 'Campaign not found'
+        try {
+          const next = action(c)
+          setCampaigns(cs => cs.map(x => (x.id === id ? next : x)))
+          return ''
+        } catch (e) {
+          return e instanceof Error ? e.message : String(e)
+        }
+      },
+      createCampaign: input => {
+        try {
+          const c = newCampaign(Math.max(0, ...campaigns.map(x => x.id)) + 1, input)
+          setCampaigns(cs => [c, ...cs])
+          return c
+        } catch (e) {
+          return e instanceof Error ? e.message : String(e)
+        }
+      },
+      duplicateCampaign: id => {
+        const src = campaigns.find(x => x.id === id)!
+        const c = duplicateCampaign(src, Math.max(0, ...campaigns.map(x => x.id)) + 1)
+        setCampaigns(cs => [c, ...cs])
+        return c
+      },
+      addToCampaign: (id, ids) => {
+        const c = campaigns.find(x => x.id === id)
+        if (!c) return 'Campaign not found'
+        try {
+          const r = addMembers(c, ids)
+          setCampaigns(cs => cs.map(x => (x.id === id ? r.campaign : x)))
+          return { added: r.added, skipped: r.skipped }
+        } catch (e) {
+          return e instanceof Error ? e.message : String(e)
+        }
+      },
       saveInfluencer: draft => {
         const prev = draft.id != null ? infs.find(i => i.id === draft.id) : undefined
         const rec = toInfluencer(draft, prev, Math.max(0, ...infs.map(i => i.id)) + 1, loc)
@@ -89,7 +130,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       deleteInfluencer: id => {
         setInfs(xs => xs.filter(i => i.id !== id))
-        setCampaigns(cs => cs.map(c => ({ ...c, iids: c.iids.filter(x => x !== id) })))
+        // prototype only: the real app archives influencers instead of deleting them
+        setCampaigns(cs => cs.map(c => ({ ...c, members: c.members.filter(m => m.influencerId !== id) })))
       },
       setNote: (id, note) => setInfs(xs => xs.map(i => (i.id === id ? { ...i, note } : i))),
       addCity: (state, raw) => {

@@ -24,6 +24,7 @@ Open items (security toggles, cost guardrails, backend next steps, UI gaps) live
 
 ## Working style
 - Build in very small steps. After each step, stop and give exact local test steps; the user tests before anything else is written.
+- **Always ask before `git commit` / `git push`.** Show what changed and wait for a yes (user rule, 2026-10-02).
 - User: strong Java, learning Spring Boot/Docker. Teach new tooling concepts briefly; skip basics; push back on wrong approaches.
 
 ## Architecture principles

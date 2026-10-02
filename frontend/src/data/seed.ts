@@ -31,11 +31,6 @@ export const METRICS_AGE_DAYS = [4,12,45,2,130,20,75,9,33,160,6,1,58,210,15,98,2
 /** Days since the current rate card was set, per seed row. */
 export const RATES_AGE_DAYS = [60,200,45,90,300,30,150,20,400,180,10,70,120,250,35,98,60,40,15,365]
 
-export const SEED_CAMPAIGNS = [
-  { id: 1, name: "Bridal Jewellery Q2 2025", created: "12 May 2025", iids: [1, 4, 6, 13, 16] },
-  { id: 2, name: "Chandigarh Food Fest", created: "3 Jun 2025", iids: [2, 7, 12, 18] },
-  { id: 3, name: "Diwali Beauty Push", created: "20 Aug 2025", iids: [3, 8, 11, 19] },
-]
 
 export const SEED_CATEGORIES = ["Jewellery", "Fashion", "Beauty", "Food", "Fitness", "Travel", "Lifestyle", "Tech", "Parenting"]
 /** Built-in languages: English + India's 22 scheduled languages + widely used regional ones. Most common first. */

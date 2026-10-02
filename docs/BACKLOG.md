@@ -33,6 +33,10 @@ The client uses its own email domain. Keep the real domain/name OUT of this publ
 - [ ] Run `./mvnw spring-boot:run` in `backend/`, check `/actuator/health` → `{"status":"UP"}`.
 - [ ] Docker Compose with Postgres only.
 - [ ] First table + `GET /api/influencers`; search via `InfluencerSearchService` (Postgres FTS).
+- [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the
+      browser; refetch on tab focus and when a filter panel / form opens (option b). `POST /api/taxonomy` normalises and
+      dedupes via a unique index on lower(value). Multi-instance later: short TTL or Postgres LISTEN/NOTIFY.
+- [ ] UI (doable now): edit form shows the influencer's own category/language values even if missing from the option list.
 - [ ] Design for split hosting (UI on Amplify/Pages, API on EC2 behind CloudFront): token auth (not session cookies),
       CORS for the UI origins, API URL as build-time config (`VITE_API_URL`).
 

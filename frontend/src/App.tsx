@@ -8,7 +8,8 @@ import type { Influencer } from './types'
 import type { ProfileNavState } from './hooks/useOpenProfile'
 import { SearchScreen } from './screens/search/SearchScreen'
 import { ProfileScreen } from './screens/profile/ProfileScreen'
-import { CampaignsIndex, CampaignsScreen } from './screens/campaigns/CampaignsScreen'
+import { CampaignListScreen } from './screens/campaigns/CampaignListScreen'
+import { CampaignDetailScreen } from './screens/campaigns/CampaignDetailScreen'
 import { ManageScreen } from './screens/manage/ManageScreen'
 import { AddToCampaignModal } from './overlays/AddToCampaignModal'
 import { InfluencerDrawer } from './overlays/InfluencerDrawer'
@@ -53,7 +54,8 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
 
 function Shell() {
   const { infs, campaigns } = useStore()
-  const [modalId, setModalId] = useState<number | null>(null)
+  // influencer ids for the Add to campaign modal: one from a card/profile, many from "Add all" on search
+  const [modalIds, setModalIds] = useState<number[] | null>(null)
   const [drawer, setDrawer] = useState<DrawerState>({ mode: 'closed' })
   const [mobileNav, setMobileNav] = useState(false)
 
@@ -64,13 +66,14 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileNav])
 
-  const closeModal = useCallback(() => setModalId(null), [])
+  const closeModal = useCallback(() => setModalIds(null), [])
+  const shortlist = (id: number) => setModalIds([id])
   const closeDrawer = useCallback(() => setDrawer({ mode: 'closed' }), [])
   const onEdit = (inf: Influencer) => setDrawer({ mode: 'edit', inf })
 
   return (
     <div className="app">
-      <Sidebar campaignCount={campaigns.length} influencerCount={infs.length}
+      <Sidebar campaignCount={campaigns.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length} influencerCount={infs.length}
         mobileOpen={mobileNav} onMobileClose={() => setMobileNav(false)} />
       {mobileNav && <div className="sb-backdrop" onClick={() => setMobileNav(false)} />}
       <main className="app-main">
@@ -83,16 +86,16 @@ function Shell() {
         </header>
         <Routes>
           <Route path="/" element={<Navigate to="/search" replace />} />
-          <Route path="/search" element={<SearchScreen onShortlist={setModalId} />} />
-          <Route path="/influencers/:id" element={<ProfileRoute onShortlist={setModalId} onEdit={onEdit} />} />
-          <Route path="/campaigns" element={<CampaignsIndex />} />
-          <Route path="/campaigns/:id" element={<CampaignsScreen />} />
+          <Route path="/search" element={<SearchScreen onShortlist={shortlist} onAddMany={setModalIds} />} />
+          <Route path="/influencers/:id" element={<ProfileRoute onShortlist={shortlist} onEdit={onEdit} />} />
+          <Route path="/campaigns" element={<CampaignListScreen />} />
+          <Route path="/campaigns/:id" element={<CampaignDetailScreen />} />
           <Route path="/manage" element={<ManageScreen onAdd={() => setDrawer({ mode: 'add' })} onEdit={onEdit} />} />
           <Route path="*" element={<Navigate to="/search" replace />} />
         </Routes>
       </main>
 
-      {modalId != null && <AddToCampaignModal infId={modalId} onClose={closeModal} />}
+      {modalIds && <AddToCampaignModal influencerIds={modalIds} onClose={closeModal} />}
       {drawer.mode !== 'closed' && (
         <InfluencerDrawer
           key={drawer.mode === 'edit' ? drawer.inf.id : 'new'}
