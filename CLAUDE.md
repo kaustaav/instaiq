@@ -13,6 +13,12 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - Search sits behind an `InfluencerSearchService` interface so an OpenSearch implementation can be added in Phase 2 without touching callers.
 - Cost constraint: user can't pay. Develop locally; deploy to AWS free tier deliberately and tear down when idle.
 
+## Hosting strategy (decided 2026-10-02)
+- **AWS is the primary platform.** Learning it end to end (build → deploy → operate) is a core goal, so prefer doing things the proper AWS way over shortcuts.
+- **Single region, no exceptions.** All resources live in one region. Open question: Sydney (where the account is locked today) vs India/Mumbai (needs "advanced features"; check Free-plan impact first).
+- **OCI is the fallback** if AWS goes over budget: redeploy the whole stack on OCI Always Free (Arm VM, home region in India).
+- Therefore keep the app **portable**: Docker for everything, plain Postgres, config via env vars. Avoid AWS-only services inside the application code (e.g. prefer Spring Security/OIDC over Cognito-specific APIs); AWS-specific pieces stay in infrastructure, not in the app.
+
 ## Backlog
 Open items (security toggles, cost guardrails, backend next steps, UI gaps) live in `docs/BACKLOG.md`. Check it when planning; tick items off as they land.
 
