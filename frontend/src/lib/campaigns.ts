@@ -4,7 +4,7 @@
  * The backend's campaign service will enforce exactly these rules.
  */
 import type {
-  Campaign, CampaignStatus, Compensation, Deliverable, DeliverableType, DisplayStage, Influencer, Member, MemberStage,
+  Campaign, Payment, CampaignStatus, Compensation, Deliverable, DeliverableType, DisplayStage, Influencer, Member, MemberStage,
 } from '../types'
 
 /** Placeholder until auth exists. */
@@ -30,6 +30,8 @@ export const COMPENSATION_LABEL: Record<Compensation, string> = {
 export const DELIVERABLE_LABEL: Record<DeliverableType, string> = { REEL: 'Reel', STORY: 'Story', POST: 'Post' }
 
 // ---------- derived values ----------
+export const amountPaid = (m: Member) => m.payments.reduce((sum, p) => sum + p.amount, 0)
+
 export const isReadOnly = (c: Campaign) => c.status === 'COMPLETED' || c.status === 'CANCELLED' || c.status === 'ARCHIVED'
 
 /** AGREED members move through IN_PRODUCTION → LIVE → COMPLETED based on their deliverables and payment. */
@@ -191,13 +193,13 @@ export function addMembers(c: Campaign, ids: number[]): { campaign: Campaign; ad
   const t = now()
   const added: Member[] = fresh.map(influencerId => ({
     influencerId, stage: 'SHORTLISTED', stageUpdatedAt: t, stageUpdatedBy: CURRENT_USER, compensation: 'CASH',
-    agreedFee: null, paymentStatus: 'NOT_DUE', amountPaid: 0, notes: '', deliverables: [], addedAt: t, addedBy: CURRENT_USER,
+    agreedFee: null, paymentStatus: 'NOT_DUE', payments: [], notes: '', deliverables: [], addedAt: t, addedBy: CURRENT_USER,
   }))
   return { campaign: { ...c, members: [...c.members, ...added] }, added: added.length, skipped: ids.length - added.length }
 }
 
 export function removeBlocker(m: Member): string {
-  if (m.amountPaid > 0) return 'They have been paid; decline them instead'
+  if (m.payments.length) return 'They have been paid; decline them instead'
   if (m.deliverables.some(d => d.revisions.length || d.status === 'POSTED')) return 'They have submitted content; it must stay on record'
   return ''
 }
@@ -273,8 +275,8 @@ export function agreeTerms(c: Campaign, infId: number, t: Terms): Campaign {
 
 const paymentFor = (m: Member, fee: number | null): Member['paymentStatus'] => {
   if (m.paymentStatus === 'WAIVED') return 'WAIVED'
-  if (fee != null && m.amountPaid >= fee) return 'PAID'
-  return m.amountPaid > 0 ? 'PARTIALLY_PAID' : 'DUE'
+  if (fee != null && amountPaid(m) >= fee) return 'PAID'
+  return m.payments.length ? 'PARTIALLY_PAID' : 'DUE'
 }
 
 /** Fee change after agreement: needs a reason; payment status follows the new fee. */
@@ -331,15 +333,17 @@ export const markPosted = (c: Campaign, infId: number, delId: string, liveUrl: s
 }
 
 // ---------- payments ----------
-export const recordPayment = (c: Campaign, infId: number, amount: number, paidAt: string, ref: string) =>
+/** Each payment needs a date and a link to proof of payment (receipt / screenshot in Drive). */
+export const recordPayment = (c: Campaign, infId: number, amount: number, paidAt: string, receiptUrl: string) =>
   updateMember(c, infId, m => {
     if (m.stage !== 'AGREED') throw new Error('Payments are recorded after terms are agreed')
     if (m.compensation === 'BARTER') throw new Error('Barter collaborations have no cash payment')
     if (m.paymentStatus === 'PAID' || m.paymentStatus === 'WAIVED') throw new Error('Nothing left to pay')
     if (!(amount > 0)) throw new Error('Amount must be more than 0')
     if (!paidAt) throw new Error('Enter the payment date')
-    if (!ref.trim()) throw new Error('Enter the payment reference (UTR / UPI id)')
-    const paid = { ...m, amountPaid: m.amountPaid + amount, paidAt, paymentRef: ref.trim() }
+    if (!isUrl(receiptUrl)) throw new Error('Add a link to the payment receipt (https://…)')
+    const payment: Payment = { amount, paidAt, receiptUrl: receiptUrl.trim(), recordedAt: now(), recordedBy: CURRENT_USER }
+    const paid = { ...m, payments: [...m.payments, payment] }
     return { ...paid, paymentStatus: paymentFor(paid, m.agreedFee) }
   })
 

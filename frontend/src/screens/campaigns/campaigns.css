@@ -76,3 +76,9 @@ a.btn-plain:hover, a.btn-ghost:hover { text-decoration: none; }
   .camp-head { padding: 14px; }
   .camp-actions { width: 100%; }
 }
+
+.md-payments { width: 100%; border-collapse: collapse; font-size: 12px; }
+.md-payments th { text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--iq-fg-3); padding: 0 8px 6px 0; border-bottom: 1px solid var(--iq-border); }
+.md-payments td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--iq-border); }
+.md-payments .r { text-align: right; }
+.md-payments a { display: inline-flex; align-items: center; gap: 2px; }

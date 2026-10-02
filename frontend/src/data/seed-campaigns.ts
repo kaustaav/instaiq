@@ -1,9 +1,13 @@
 // Demo campaigns covering every state in docs/DATA_MODEL.md. Brands are fictional. Influencer ids refer to seed.ts.
-import type { Campaign, Compensation, Deliverable, DeliverableStatus, DeliverableType, Member, MemberStage, Revision } from '../types'
+import type { Campaign, Compensation, Deliverable, DeliverableStatus, DeliverableType, Member, MemberStage, Payment, Revision } from '../types'
 
 const STAFF = 'Aisha Khan'
 /** Placeholder draft shared by the team (a public Google Drive file); every demo draft round points here. */
 const DEMO_DRAFT_URL = 'https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing'
+/** Placeholder proof of payment; same shared file for now. */
+const DEMO_RECEIPT_URL = DEMO_DRAFT_URL
+
+const pay = (amount: number, date: string) => ({ amount, paidAt: date, receiptUrl: DEMO_RECEIPT_URL, recordedAt: `${date}T12:00:00.000Z`, recordedBy: 'Aisha Khan' })
 const at = (date: string) => `${date}T10:00:00.000Z`
 
 /** A revision round. `review` = [decision, feedback?] once reviewed. */
@@ -17,7 +21,8 @@ const del = (type: DeliverableType, n: number, status: DeliverableStatus, revisi
   ...(posted && { liveUrl: `https://www.instagram.com/${type === 'STORY' ? 'stories' : 'reel'}/demo${n}${posted.replaceAll('-', '')}/`, postedAt: posted }),
 })
 
-type MemberOpts = Partial<Pick<Member, 'stageReason' | 'notes' | 'amountPaid' | 'paidAt' | 'paymentRef' | 'paymentStatus'>> & {
+type MemberOpts = Partial<Pick<Member, 'stageReason' | 'notes' | 'paymentStatus'>> & {
+  payments?: Payment[]
   compensation?: Compensation
   fee?: number | null
   deliverables?: Deliverable[]
@@ -30,7 +35,7 @@ const mem = (influencerId: number, stage: MemberStage, added: string, o: MemberO
     influencerId, stage, stageReason: o.stageReason, stageUpdatedAt: at(added), stageUpdatedBy: STAFF, compensation,
     agreedFee: agreed && compensation !== 'BARTER' ? o.fee ?? null : null,
     paymentStatus: o.paymentStatus ?? (!agreed ? 'NOT_DUE' : compensation === 'BARTER' ? 'WAIVED' : 'DUE'),
-    amountPaid: o.amountPaid ?? 0, paidAt: o.paidAt, paymentRef: o.paymentRef, notes: o.notes ?? '',
+    payments: o.payments ?? [], notes: o.notes ?? '',
     deliverables: o.deliverables ?? [], addedAt: at(added), addedBy: STAFF,
   }
 }
@@ -38,7 +43,7 @@ const mem = (influencerId: number, stage: MemberStage, added: string, o: MemberO
 /** A finished, fully paid member (for completed campaigns). */
 const done = (id: number, date: string, fee: number, types: DeliverableType[]) =>
   mem(id, 'AGREED', date, {
-    fee, amountPaid: fee, paymentStatus: 'PAID', paidAt: date, paymentRef: `UTR${id}${date.replaceAll('-', '')}`,
+    fee, paymentStatus: 'PAID', payments: [pay(fee, date)],
     deliverables: types.map((t, k) => del(t, k + 1, 'POSTED', [rev(1, date, ['APPROVED'])], date)),
   })
 
@@ -54,7 +59,7 @@ export const SEED_CAMPAIGNS: Campaign[] = [
     startDate: '2026-10-05', endDate: '2026-11-08', budget: 150000,
     members: [
       mem(1, 'AGREED', '2026-09-16', {
-        fee: 12000, amountPaid: 6000, paymentStatus: 'PARTIALLY_PAID', paidAt: '2026-09-30', paymentRef: 'UTR20260930PS', notes: '50% advance paid on signing.',
+        fee: 12000, paymentStatus: 'PARTIALLY_PAID', payments: [pay(6000, '2026-09-30')], notes: '50% advance paid on signing.',
         deliverables: [
           del('REEL', 1, 'POSTED', [rev(1, '2026-09-29', ['CHANGES_REQUESTED', 'Show the clasp close-up; music is too loud over the voiceover.']), rev(2, '2026-10-01', ['APPROVED'])], '2026-10-02'),
           del('REEL', 2, 'IN_REVIEW', [rev(1, '2026-10-01')]),
@@ -62,7 +67,7 @@ export const SEED_CAMPAIGNS: Campaign[] = [
         ],
       }),
       mem(16, 'AGREED', '2026-09-16', {
-        fee: 5000, amountPaid: 5000, paymentStatus: 'PAID', paidAt: '2026-10-01', paymentRef: 'UTR20261001MK',
+        fee: 5000, paymentStatus: 'PAID', payments: [pay(2500, '2026-09-20'), pay(2500, '2026-10-01')],
         deliverables: [
           del('REEL', 1, 'POSTED', [rev(1, '2026-09-27', ['APPROVED'])], '2026-09-30'),
           del('STORY', 1, 'POSTED', [rev(1, '2026-09-27', ['APPROVED'])], '2026-09-30'),

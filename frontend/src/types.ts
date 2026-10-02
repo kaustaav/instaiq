@@ -63,6 +63,15 @@ export type Revision = {
   reviewedBy?: string
 }
 
+/** One payment to an influencer, with a link to the proof (e.g. a receipt in Google Drive). Append-only. */
+export type Payment = {
+  amount: number // INR
+  paidAt: string // ISO date
+  receiptUrl: string
+  recordedAt: string
+  recordedBy: string
+}
+
 export type Deliverable = {
   id: string
   type: DeliverableType
@@ -81,9 +90,7 @@ export type Member = {
   compensation: Compensation
   agreedFee: number | null // INR
   paymentStatus: PaymentStatus
-  amountPaid: number
-  paidAt?: string
-  paymentRef?: string
+  payments: Payment[] // amount paid = sum of these
   paymentReason?: string // write-off reason
   notes: string
   deliverables: Deliverable[]
