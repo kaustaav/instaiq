@@ -1,49 +1,78 @@
-.camp-list {
-  width: 252px;
-  min-width: 252px;
+/* ---------- List ---------- */
+.camp-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.camp-cards { display: flex; flex-direction: column; gap: 8px; }
+.camp-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
   background: white;
-  border-right: 1px solid var(--iq-border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  border: 1px solid var(--iq-border);
+  border-radius: 8px;
+  color: var(--iq-fg-1);
+  transition: box-shadow 180ms var(--iq-ease-out), transform 180ms var(--iq-ease-out);
 }
-.camp-list-head {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--iq-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.camp-item {
-  all: unset;
-  box-sizing: border-box;
-  display: block;
-  width: 100%;
-  cursor: pointer;
-  padding: 9px 10px;
-  border-radius: 6px;
-  border-left: 2px solid transparent;
-  margin-bottom: 2px;
-  transition: background 100ms;
-}
-.camp-item:hover { background: var(--iq-gray-50); text-decoration: none; }
-.camp-item.on { background: var(--iq-brand-50); border-left-color: var(--iq-brand-500); }
-.camp-item:focus-visible { outline: 2px solid var(--iq-brand-500); outline-offset: -2px; }
-.camp-item-name { font-size: 13px; font-weight: 500; color: var(--iq-fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.camp-item-meta { font-size: 11px; color: var(--iq-fg-3); margin-top: 3px; }
-.camp-prev {
+.camp-card:hover { text-decoration: none; box-shadow: var(--iq-shadow-3); transform: translateY(-1px); }
+.camp-card:focus-visible { outline: 2px solid var(--iq-brand-500); outline-offset: 1px; }
+.camp-card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.camp-card-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.camp-card-name { font-size: 14px; font-weight: 600; }
+.camp-card-meta { font-size: 12px; color: var(--iq-fg-3); }
+.camp-card-budget { width: 220px; flex-shrink: 0; }
+
+.budget-bar { height: 6px; border-radius: 999px; background: var(--iq-gray-100); overflow: hidden; }
+.budget-bar > div { height: 100%; border-radius: 999px; transition: width 240ms var(--iq-ease-out); }
+
+/* ---------- Detail ---------- */
+.camp-detail { max-width: 1080px; margin: 0 auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.camp-head { border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.camp-head-top { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.camp-head-name { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.camp-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.camp-actions .btn:disabled, .md-section .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.camp-budget { max-width: 420px; }
+.camp-warn { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12px; color: #9F1D1D; }
+.camp-brief { margin: 0; font-size: 13px; line-height: 1.6; color: var(--iq-fg-2); white-space: pre-wrap; }
+.camp-readonly {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 8px 10px;
   border-radius: 6px;
+  background: var(--iq-gray-50);
   border: 1px dashed var(--iq-border);
-  color: var(--iq-fg-3);
-  cursor: not-allowed;
+  font-size: 12px;
+  color: var(--iq-fg-2);
 }
+.camp-members-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+a.btn-plain:hover, a.btn-ghost:hover { text-decoration: none; }
 
-.camp-picker { display: none; }
+/* ---------- Member drawer ---------- */
+.md-section { display: flex; flex-direction: column; gap: 8px; }
+.md-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.md-section > .md-actions { justify-content: flex-start; }
+.md-danger { color: var(--iq-down) !important; }
+.md-quote { font-size: 12px; color: var(--iq-fg-2); font-style: italic; }
+.md-terms { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; font-size: 13px; }
+.md-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--iq-border);
+  border-radius: 8px;
+  background: var(--iq-gray-25);
+}
+.md-inline { display: flex; gap: 6px; flex-wrap: wrap; }
+.md-inline .input { flex: 1; min-width: 160px; }
+.md-revisions { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.md-revisions a { display: inline-flex; align-items: center; gap: 2px; }
+
+/* ---------- Phones ---------- */
 @media (max-width: 768px) {
-  .camp-list { display: none; }
-  .camp-picker { display: block; padding: 10px 12px 0; background: white; }
+  .camp-card { flex-direction: column; align-items: stretch; gap: 10px; }
+  .camp-card-budget { width: auto; }
+  .camp-detail { padding: 12px; }
+  .camp-head { padding: 14px; }
+  .camp-actions { width: 100%; }
 }

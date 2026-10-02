@@ -86,6 +86,11 @@ export function MoreChip({ expanded, hiddenCount, onToggle }: { expanded: boolea
   )
 }
 
+/** Coloured status pill (campaign status, stage, payment, deliverable). */
+export function Pill({ tone, children, title }: { tone: { bg: string; fg: string }; children: ReactNode; title?: string }) {
+  return <span className="pill" title={title} style={{ background: tone.bg, color: tone.fg }}>{children}</span>
+}
+
 export function Soon({ children }: { children?: ReactNode }) {
   return <span className="soon-pill">{children ?? 'Soon'}</span>
 }

@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { ArrowLeft, BookmarkPlus, ChevronRight, ExternalLink, Languages, Mail, MapPin, Pencil, Phone } from 'lucide-react'
 import { useStore } from '../../store'
 import { dstr, fmt, freshness, igUrl, mon } from '../../lib/format'
 import { stateOf } from '../../lib/locations'
 import type { Influencer } from '../../types'
-import { Avatar, CategoryBadges, FreshPill } from '../../components/ui'
+import { Avatar, CategoryBadges, FreshPill, Pill } from '../../components/ui'
+import { CAMPAIGN_STATUS_LABEL, displayStage, STAGE_LABEL } from '../../lib/campaigns'
+import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
 import './profile.css'
 
 type Props = {
@@ -21,7 +24,11 @@ const STATUS_COLORS = {
 }
 
 export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign }: Props) {
-  const { loc, setNote } = useStore()
+  const { loc, setNote, campaigns } = useStore()
+  // derived from campaign membership, newest first
+  const history = campaigns
+    .flatMap(c => c.members.filter(m => m.influencerId === inf.id).map(m => ({ c, m })))
+    .sort((a, b) => (b.c.startDate ?? b.c.createdAt).localeCompare(a.c.startDate ?? a.c.createdAt))
   const [histOpen, setHistOpen] = useState(false)
   const [noteDraft, setNoteDraft] = useState<string | null>(null) // null = not editing
 
@@ -106,31 +113,59 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
               </section>
               <section className="card" style={{ padding: 16 }}>
                 <div className="label" style={{ marginBottom: 12 }}>Campaign History</div>
-                {inf.camps.length ? (
+                {history.length ? (
                   <div style={{ overflowX: 'auto' }}>
                     <table className="camp-table">
                       <thead>
-                        <tr><th>Campaign</th><th>Brand</th><th>Date</th><th>Deliverable</th><th>Status</th></tr>
+                        <tr><th>Campaign</th><th>Brand</th><th>Start</th><th>Stage</th><th>Posts</th><th>Campaign</th></tr>
                       </thead>
                       <tbody>
-                        {inf.camps.map(c => (
-                          <tr key={c.name + c.date}>
-                            <td style={{ fontWeight: 500 }}>{c.name}</td>
-                            <td className="sub">{c.brand}</td>
-                            <td className="muted mono" style={{ fontSize: 11 }}>{c.date}</td>
-                            <td className="sub">{c.del}</td>
-                            <td>
-                              <span className="badge" style={{ padding: '2px 8px', background: STATUS_COLORS[c.status].bg, color: STATUS_COLORS[c.status].fg }}>
-                                {c.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {history.map(({ c, m }) => {
+                          const s = displayStage(m)
+                          const posted = m.deliverables.filter(d => d.status === 'POSTED').length
+                          return (
+                            <tr key={c.id}>
+                              <td style={{ fontWeight: 500 }}><Link to={`/campaigns/${c.id}?member=${inf.id}`}>{c.name}</Link></td>
+                              <td className="sub">{c.brand}</td>
+                              <td className="muted mono" style={{ fontSize: 11 }}>{fmtDate(c.startDate)}</td>
+                              <td><Pill tone={STAGE_TONE[s]}>{STAGE_LABEL[s]}</Pill></td>
+                              <td className="sub">{m.deliverables.length ? `${posted}/${m.deliverables.length}` : '—'}</td>
+                              <td><Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill></td>
+                            </tr>
+                          )
+                        })}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <div className="muted" style={{ padding: '16px 0', textAlign: 'center', fontSize: 13 }}>No campaigns on record</div>
+                  <div className="muted" style={{ padding: '12px 0', textAlign: 'center', fontSize: 13 }}>Not in any campaign yet</div>
+                )}
+                {inf.camps.length > 0 && (
+                  <>
+                    <div className="label" style={{ margin: '16px 0 8px' }}>Earlier collaborations <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 400 }}>(before InfluenceIQ)</span></div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="camp-table">
+                        <thead>
+                          <tr><th>Campaign</th><th>Brand</th><th>Date</th><th>Deliverable</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                          {inf.camps.map(c => (
+                            <tr key={c.name + c.date}>
+                              <td style={{ fontWeight: 500 }}>{c.name}</td>
+                              <td className="sub">{c.brand}</td>
+                              <td className="muted mono" style={{ fontSize: 11 }}>{c.date}</td>
+                              <td className="sub">{c.del}</td>
+                              <td>
+                                <span className="badge" style={{ padding: '2px 8px', background: STATUS_COLORS[c.status].bg, color: STATUS_COLORS[c.status].fg }}>
+                                  {c.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 )}
               </section>
             </div>

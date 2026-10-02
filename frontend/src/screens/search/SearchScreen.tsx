@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { LayoutGrid, List, Plus, Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
+import { BookmarkPlus, LayoutGrid, List, Plus, Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { fmt, freshness } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
@@ -14,12 +14,16 @@ import { Avatar, CategoryBadges, EmptyState, IgLink, PersonCell } from '../../co
 import { FilterPanel } from './FilterPanel'
 import './search.css'
 
-type Props = { onShortlist: (id: number) => void }
+type Props = {
+  onShortlist: (id: number) => void
+  /** "Add all to campaign": every result matching the filters, not just this page. */
+  onAddMany: (ids: number[]) => void
+}
 
 const locationLine = (i: Influencer) => [...i.cities, ...i.states].join(', ')
 
 /** Search state lives in the URL, so refresh, Back and shared links all restore the same results. */
-export function SearchScreen({ onShortlist }: Props) {
+export function SearchScreen({ onShortlist, onAddMany }: Props) {
   const { infs, loc } = useStore()
   const [params, setParams] = useSearchParams()
   const state = searchFromParams(params)
@@ -42,7 +46,8 @@ export function SearchScreen({ onShortlist }: Props) {
   const onFiltersChange = (f: Filters, replace = false) => update({ filters: f, page: 1 }, replace)
   const onPageChange = (p: number) => update({ page: p })
   const onViewChange = (v: SearchState['view']) => update({ view: v }, true)
-  const results = paginate(applyFilters(infs, filters, loc), page, SEARCH_PAGE_SIZE)
+  const matches = applyFilters(infs, filters, loc)
+  const results = paginate(matches, page, SEARCH_PAGE_SIZE)
   const scrollRef = useRef<HTMLDivElement>(null)
   useScrollTopOnChange(scrollRef, results.page)
 
@@ -79,6 +84,12 @@ export function SearchScreen({ onShortlist }: Props) {
             <SlidersHorizontal size={13} />Filters
             {nFilters > 0 && <span className="filters-badge">{nFilters}</span>}
           </button>
+          {results.total > 0 && (
+            <button type="button" className="btn btn-ghost" title="Add every influencer matching these filters to a campaign"
+              onClick={() => onAddMany(matches.map(i => i.id))}>
+              <BookmarkPlus size={13} />Add all to campaign
+            </button>
+          )}
           <div className="results-count">{results.total} influencer{results.total !== 1 ? 's' : ''}</div>
           <div className="view-toggle" role="group" aria-label="View">
             <button type="button" aria-label="Grid view" aria-pressed={view === 'grid'} className={view === 'grid' ? 'on' : ''} onClick={() => onViewChange('grid')}>
