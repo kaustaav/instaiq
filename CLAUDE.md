@@ -15,7 +15,7 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 
 ## Hosting strategy (decided 2026-10-02)
 - **AWS is the primary platform.** Learning it end to end (build → deploy → operate) is a core goal, so prefer doing things the proper AWS way over shortcuts.
-- **Single region, no exceptions.** All resources live in one region. Open question: Sydney (where the account is locked today) vs India/Mumbai (needs "advanced features"; check Free-plan impact first).
+- **Single region, no exceptions: `ap-southeast-2` (Sydney)**, the account's assigned region (decided 2026-10-02). Never hard-code the region; it's config, so customer deployments can use their own region (e.g. `ap-south-1`).
 - **OCI is the fallback** if AWS goes over budget: redeploy the whole stack on OCI Always Free (Arm VM, home region in India).
 - Therefore keep the app **portable**: Docker for everything, plain Postgres, config via env vars. Avoid AWS-only services inside the application code (e.g. prefer Spring Security/OIDC over Cognito-specific APIs); AWS-specific pieces stay in infrastructure, not in the app.
 
