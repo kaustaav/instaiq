@@ -15,7 +15,7 @@ Open items agreed in planning but not done yet. Tick them off (or delete) as the
 - [ ] Teardown checklist in `docs/DEPLOYMENT.md` for EC2 / RDS / EBS volumes + snapshots / public IPs / CloudFront.
       Remember: a stopped RDS instance restarts by itself after 7 days.
 - [ ] No NAT Gateway, no load balancer, no Multi-AZ RDS, no WAF in Phase 1.
-- [ ] Everything in one region (currently ap-southeast-2). Decide on Mumbai only if "advanced features" is safe for the Free plan.
+- [ ] Everything in one region. **Decide: Sydney (current) vs Mumbai** — Mumbai needs "advanced features"; read its Learn more page for Free-plan impact first. If Mumbai, recreate the Amplify app there.
 - [ ] Billing data lags up to ~24h; check Credits page / Cost Explorer (excluding credits) for real usage.
 
 ## Backend (next milestone)
@@ -41,6 +41,11 @@ Open items agreed in planning but not done yet. Tick them off (or delete) as the
 ## Learning exercises
 - [ ] Test the Amplify build-failure email (push a broken commit to a throwaway branch).
 - [ ] Teardown drill: delete the Amplify app and rebuild it from `docs/DEPLOYMENT.md` alone.
+
+## Fallback: OCI (only if AWS goes over budget)
+- [ ] OCI Always Free: one Arm (A1) VM running Docker Compose (Spring Boot + Postgres), free load balancer for HTTPS,
+      nightly `pg_dump` to Object Storage. Home region in India (Mumbai/Hyderabad) — it can't be changed later.
+- [ ] Keep Docker images multi-arch (arm64 + amd64) so the same image runs on OCI A1 and AWS Graviton.
 
 ## Phase 2 (parked)
 Excel import (Spring Batch) and .xlsx export · OpenSearch · Redis · metric refresh via scraper/API (prefer the Instagram Graph
