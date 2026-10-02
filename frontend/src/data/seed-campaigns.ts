@@ -2,11 +2,13 @@
 import type { Campaign, Compensation, Deliverable, DeliverableStatus, DeliverableType, Member, MemberStage, Revision } from '../types'
 
 const STAFF = 'Aisha Khan'
+/** Placeholder draft shared by the team (a public Google Drive file); every demo draft round points here. */
+const DEMO_DRAFT_URL = 'https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing'
 const at = (date: string) => `${date}T10:00:00.000Z`
 
 /** A revision round. `review` = [decision, feedback?] once reviewed. */
 const rev = (round: number, date: string, review?: ['APPROVED' | 'CHANGES_REQUESTED', string?]): Revision => ({
-  round, draftUrl: `https://drive.example.com/drafts/${date}-r${round}`, submittedAt: at(date), submittedBy: STAFF,
+  round, draftUrl: DEMO_DRAFT_URL, submittedAt: at(date), submittedBy: STAFF,
   ...(review && { decision: review[0], feedback: review[1], reviewedAt: at(date), reviewedBy: STAFF }),
 })
 
