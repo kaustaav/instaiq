@@ -15,7 +15,7 @@ Open items agreed in planning but not done yet. Tick them off (or delete) as the
 - [ ] Teardown checklist in `docs/DEPLOYMENT.md` for EC2 / RDS / EBS volumes + snapshots / public IPs / CloudFront.
       Remember: a stopped RDS instance restarts by itself after 7 days.
 - [ ] No NAT Gateway, no load balancer, no Multi-AZ RDS, no WAF in Phase 1.
-- [ ] Everything in one region. **Decide: Sydney (current) vs Mumbai** — Mumbai needs "advanced features"; read its Learn more page for Free-plan impact first. If Mumbai, recreate the Amplify app there.
+- [x] Everything in one region: **ap-southeast-2 (Sydney)**, decided 2026-10-02. Region is config, never hard-coded.
 - [ ] Billing data lags up to ~24h; check Credits page / Cost Explorer (excluding credits) for real usage.
 
 ## Backend (next milestone)
