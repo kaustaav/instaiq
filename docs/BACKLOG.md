@@ -18,20 +18,29 @@ Open items agreed in planning but not done yet. Tick them off (or delete) as the
 - [x] Everything in one region: **ap-southeast-2 (Sydney)**, decided 2026-10-02. Region is config, never hard-coded.
 - [ ] Billing data lags up to ~24h; check Credits page / Cost Explorer (excluding credits) for real usage.
 
+## Auth (to discuss)
+The client uses its own email domain. Keep the real domain/name OUT of this public repo — config only (env vars).
+- [ ] Find out: is their email on **Google Workspace or Microsoft 365**? (their IT, or `dig MX <domain> +short`)
+- [ ] Who may sign in: everyone on the domain, or a specific group? Roles needed (admin vs member)?
+- [ ] Target design: SSO with their identity provider via standard OIDC (Spring Security), restricted to their domain
+      (+ the owner's own account). No passwords stored. Token auth while UI and API are on different sites;
+      cookies become fine once both live under their domain (crm./api.).
+- [ ] Interim options discussed (none chosen): (a) frontend-only Google sign-in — UX gate only, bypassable, allow-list
+      stored as hashes, client ID + allow-list in Amplify env vars / `.env.local`, GitHub Pages demo stays open;
+      needs CSP update for accounts.google.com. (b) Amplify Access control (password) — real server-side lock.
+
 ## Backend (next milestone)
 - [ ] Run `./mvnw spring-boot:run` in `backend/`, check `/actuator/health` → `{"status":"UP"}`.
 - [ ] Docker Compose with Postgres only.
 - [ ] First table + `GET /api/influencers`; search via `InfluencerSearchService` (Postgres FTS).
 - [ ] Design for split hosting (UI on Amplify/Pages, API on EC2 behind CloudFront): token auth (not session cookies),
       CORS for the UI origins, API URL as build-time config (`VITE_API_URL`).
-- [ ] Decide auth: Amazon Cognito vs Spring Security + users in Postgres.
 
 ## UI
 - [ ] Create / rename / delete lists + "Save results as shortlist". **Decide naming: Campaigns vs Shortlists.**
 - [ ] Block duplicate handles; accept pasted instagram.com URLs; validate handle characters.
 - [ ] Sort search results (followers, engagement, recently updated, relevance).
 - [ ] Missing data-model fields: source, recent captions, metrics updated-by + MANUAL/SYSTEM.
-- [ ] Login screen placeholder + sign out.
 - [ ] Archive instead of hard delete.
 
 ## Engineering hygiene
