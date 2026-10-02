@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users
 import { useStore } from '../../store'
 import { fmt, igUrl, inr } from '../../lib/format'
 import {
-  ACTION_LABEL, ACTION_NEEDS_REASON, budgetUsed, CAMPAIGN_STATUS_LABEL, changeStatus, COMPENSATION_LABEL, DISPLAY_STAGES,
+  ACTION_LABEL, ACTION_NEEDS_REASON, amountPaid, budgetUsed, CAMPAIGN_STATUS_LABEL, changeStatus, COMPENSATION_LABEL, DISPLAY_STAGES,
   displayStage, editCampaign, isReadOnly, STAGE_LABEL, STATUS_ACTIONS, statusBlockers, type StatusAction,
 } from '../../lib/campaigns'
 import { CAMPAIGN_TONE, fmtDate, fmtRange, PAYMENT_LABEL, PAYMENT_TONE, STAGE_TONE } from '../../lib/campaignUi'
@@ -23,13 +23,14 @@ const PAGE_SIZE = 50
 const csvCell = (v: string) => `"${v.replace(/"/g, '""')}"`
 
 function exportCsv(c: Campaign, infOf: (id: number) => Influencer | undefined) {
-  const header = ['Name', 'Handle', 'Instagram URL', 'Stage', 'Compensation', 'Agreed fee', 'Paid', 'Payment', 'Deliverables', 'Live links', 'Cities', 'Categories', 'Followers']
+  const header = ['Name', 'Handle', 'Instagram URL', 'Stage', 'Compensation', 'Agreed fee', 'Paid', 'Payment', 'Receipts', 'Deliverables', 'Live links', 'Cities', 'Categories', 'Followers']
   const lines = c.members.map(m => {
     const i = infOf(m.influencerId)
     const posted = m.deliverables.filter(d => d.status === 'POSTED')
     return [
       i?.name ?? '', i?.handle ?? '', i ? igUrl(i.handle) : '', STAGE_LABEL[displayStage(m)], COMPENSATION_LABEL[m.compensation],
-      m.agreedFee != null ? String(m.agreedFee) : '', String(m.amountPaid), PAYMENT_LABEL[m.paymentStatus],
+      m.agreedFee != null ? String(m.agreedFee) : '', String(amountPaid(m)), PAYMENT_LABEL[m.paymentStatus],
+      m.payments.map(p => p.receiptUrl).join(' '),
       `${posted.length}/${m.deliverables.length}`, posted.map(d => d.liveUrl).join(' '), i?.cities.join('/') ?? '',
       i?.cats.join('/') ?? '', i ? fmt(i.followers) : '',
     ].map(csvCell).join(',')

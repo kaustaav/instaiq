@@ -4,7 +4,7 @@ import { ExternalLink, Lock, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { inr } from '../../lib/format'
 import {
-  agreeTerms, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, displayStage, isReadOnly, markPosted, recordPayment,
+  agreeTerms, amountPaid, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, displayStage, isReadOnly, markPosted, recordPayment,
   removeBlocker, removeMember, reviewDraft, setMemberNotes, setStage, STAGE_LABEL, stageMoves, submitDraft, suggestedFee,
   today, writeOffPayment, type Terms,
 } from '../../lib/campaigns'
@@ -126,13 +126,27 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose 
                 <Pill tone={PAYMENT_TONE[m.paymentStatus]}>{PAYMENT_LABEL[m.paymentStatus]}</Pill>
                 {m.compensation === 'BARTER'
                   ? <span className="muted">Barter: no cash payment</span>
-                  : <span className="mono">{inr(m.amountPaid)} <span className="muted">of {m.agreedFee != null ? inr(m.agreedFee) : '—'}</span></span>}
-                {m.paidAt && <span className="muted">last paid {fmtDate(m.paidAt)} · {m.paymentRef}</span>}
+                  : <span className="mono">{inr(amountPaid(m))} <span className="muted">of {m.agreedFee != null ? inr(m.agreedFee) : '—'}</span></span>}
               </div>
+              {m.payments.length > 0 && (
+                <table className="md-payments">
+                  <thead><tr><th>Paid on</th><th className="r">Amount</th><th>Proof</th><th>Recorded by</th></tr></thead>
+                  <tbody>
+                    {m.payments.map((p, k) => (
+                      <tr key={k}>
+                        <td>{fmtDate(p.paidAt)}</td>
+                        <td className="r mono">{inr(p.amount)}</td>
+                        <td><a href={p.receiptUrl} target="_blank" rel="noopener">receipt <ExternalLink size={10} /></a></td>
+                        <td className="muted">{p.recordedBy}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
               {m.paymentReason && <div className="md-quote">Written off: “{m.paymentReason}”</div>}
               {!readOnly && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
-                <PaymentForm remaining={Math.max(0, (m.agreedFee ?? 0) - m.amountPaid)}
-                  onPay={(amount, date, ref) => run(x => recordPayment(x, m.influencerId, amount, date, ref))}
+                <PaymentForm remaining={Math.max(0, (m.agreedFee ?? 0) - amountPaid(m))}
+                  onPay={(amount, date, receipt) => run(x => recordPayment(x, m.influencerId, amount, date, receipt))}
                   onWriteOff={() => setConfirm({
                     title: `Write off payment: ${name}`, reasonLabel: 'Reason *', confirmLabel: 'Write off', danger: true,
                     run: reason => runCampaign(c.id, x => writeOffPayment(x, m.influencerId, reason)),
@@ -303,20 +317,22 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
   )
 }
 
-function PaymentForm({ remaining, onPay, onWriteOff }: { remaining: number; onPay: (amount: number, date: string, ref: string) => string; onWriteOff: () => void }) {
+function PaymentForm({ remaining, onPay, onWriteOff }: { remaining: number; onPay: (amount: number, date: string, receiptUrl: string) => string; onWriteOff: () => void }) {
   const [amount, setAmount] = useState(remaining ? String(remaining) : '')
   const [date, setDate] = useState(today())
-  const [ref, setRef] = useState('')
+  const [receipt, setReceipt] = useState('')
   return (
     <div className="md-box">
-      <div className="form-grid-3">
+      <div className="form-grid-2">
         <label className="field"><span>Amount (₹)</span><input type="number" min={0} className="input mono" value={amount} onChange={e => setAmount(e.target.value)} /></label>
         <label className="field"><span>Paid on</span><input type="date" className="input" value={date} onChange={e => setDate(e.target.value)} /></label>
-        <label className="field"><span>Reference</span><input className="input" autoComplete="off" placeholder="UTR / UPI id" value={ref} onChange={e => setRef(e.target.value)} /></label>
       </div>
+      <label className="field"><span>Proof of payment *</span>
+        <input className="input" autoComplete="off" placeholder="Link to the receipt or screenshot (Google Drive…)" value={receipt} onChange={e => setReceipt(e.target.value)} />
+      </label>
       <div className="md-actions">
         <button type="button" className="btn btn-ghost md-danger" onClick={onWriteOff}>Write off…</button>
-        <button type="button" className="btn btn-blue" onClick={() => { if (!onPay(+amount, date, ref)) setRef('') }}>Record payment</button>
+        <button type="button" className="btn btn-blue" onClick={() => { if (!onPay(+amount, date, receipt)) setReceipt('') }}>Record payment</button>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 # Data model (Phase 1)
 
-PostgreSQL. Decided 2026-10-02. History is kept only where it's needed (rate cards, draft reviews); everything else stores
+PostgreSQL. Decided 2026-10-02. History is kept only where it's needed (rate cards, draft reviews, payments); everything else stores
 the current value plus who changed it and when. Every table has `created_at/by`, `updated_at/by`; editable aggregates
 also have `version` (optimistic locking). `*_by` is the user's email until auth exists, then an FK to `app_user`.
 
@@ -69,9 +69,14 @@ filter panel or form opens.
 | `stage_reason`, `stage_updated_at`, `stage_updated_by` | | latest reason only |
 | `compensation_type` | enum `CASH` · `BARTER` · `CASH_AND_PRODUCT` | |
 | `agreed_fee_inr` | int NULL | pre-filled from the current rate card |
-| `payment_status` | enum `NOT_DUE` · `DUE` · `PARTIALLY_PAID` · `PAID` · `WAIVED` | |
-| `amount_paid_inr`, `paid_at`, `payment_reference` | | reference = UTR / UPI id |
+| `payment_status` | enum `NOT_DUE` · `DUE` · `PARTIALLY_PAID` · `PAID` · `WAIVED` | amount paid = sum of `campaign_payment` |
+| `payment_write_off_reason` | text | set when `DUE`/`PARTIALLY_PAID` → `WAIVED` |
 | `notes` | text | |
+
+### `campaign_payment` (append-only: one row per payment)
+`id`, `campaign_id`, `influencer_id`, `amount_inr` (> 0), `paid_at` (date), `receipt_url` (proof of payment, e.g. a Google
+Drive link to the receipt or screenshot; required), `recorded_at`, `recorded_by`. Advances and final payments each keep
+their own proof.
 
 ### `campaign_deliverable` (one row per reel / story / post; created when terms are agreed)
 `id`, `campaign_id`, `influencer_id`, `type` (`REEL` · `STORY` · `POST`),
@@ -115,7 +120,7 @@ AWAITING_DRAFT ──submit──▶ IN_REVIEW ──approve──▶ APPROVED �
 
 Payment
 ```
-NOT_DUE ──[AGREED]──▶ DUE ──▶ PARTIALLY_PAID ──▶ PAID     [PAID: paid_at + reference + amount ≥ agreed fee]
+NOT_DUE ──[AGREED]──▶ DUE ──▶ PARTIALLY_PAID ──▶ PAID     [each payment: date + receipt link; PAID when sum ≥ agreed fee]
    └──[BARTER]──▶ WAIVED      ★ DUE / PARTIALLY_PAID → WAIVED (write-off)
 Advances (PARTIALLY_PAID) allowed before content is live.
 ```
