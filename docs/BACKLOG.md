@@ -29,10 +29,27 @@ The client uses its own email domain. Keep the real domain/name OUT of this publ
       stored as hashes, client ID + allow-list in Amplify env vars / `.env.local`, GitHub Pages demo stays open;
       needs CSP update for accounts.google.com. (b) Amplify Access control (password) — real server-side lock.
 
+## Backend on AWS (walking skeleton)
+Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /actuator/health; then torn down
+(instance terminated, SG deleted). Kept: IAM role `crm-ec2-role` (SSM only) for reuse.
+- [ ] Commit pending: ASCII-only `deploy/ec2-user-data.sh` + this backlog.
+- [x] Torn down after the test (instance + security group).
+- [ ] No auto-redeploy on push. Today: manual via Session Manager (git pull, docker build, rm, run).
+      Target: GitHub Actions builds image -> ECR -> deploy via SSM Run Command (needs `workflow` token scope + GitHub OIDC role).
+- [ ] EC2 Launch Template (versioned: AMI, type, SG, role, encryption, credits, user data) instead of re-clicking the wizard.
+- [ ] If user data fetches the script from GitHub instead of pasting, pin to a commit SHA (not `main`).
+- [ ] HTTPS + stable address: CloudFront in front of EC2 (or a domain + certificate).
+- [ ] Build images in CI, not on the server (removes the 1 GB RAM / swap / ~8 min build).
+- [ ] Add EC2 section to `docs/DEPLOYMENT.md` (launch, redeploy, logs, teardown).
+- [ ] Later: infrastructure as code (Terraform/CDK) for EC2 + RDS + CloudFront.
+
 ## Backend (next milestone)
-- [ ] Run `./mvnw spring-boot:run` in `backend/`, check `/actuator/health` → `{"status":"UP"}`.
-- [ ] Docker Compose with Postgres only.
-- [ ] First table + `GET /api/influencers`; search via `InfluencerSearchService` (Postgres FTS).
+- [x] Run `./mvnw spring-boot:run` in `backend/`, check `/actuator/health` → `{"status":"UP"}`.
+- [x] Docker Compose with Postgres only (port 5433; a native Postgres already uses 5432).
+- [x] Flyway V1 (reference data) + V2 (influencer, rate card); JPA entities; Ingestion Service; demo loader (DEMO_DATA=true).
+- [x] `GET /api/influencers` (search, UI's URL params, parity with UI filters), `GET /api/influencers/{id}`, `GET /api/reference` (ETag).
+- [ ] Write APIs: create/edit influencer (via Ingestion Service), notes, status, rate cards.
+- [ ] Campaign tables + API (port `frontend/src/lib/campaigns.ts` rules to a Java service).
 - [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the
       browser; refetch on tab focus and when a filter panel / form opens (option b). `POST /api/taxonomy` normalises and
       dedupes via a unique index on lower(value). Multi-instance later: short TTL or Postgres LISTEN/NOTIFY.
@@ -50,6 +67,9 @@ The client uses its own email domain. Keep the real domain/name OUT of this publ
 ## Engineering hygiene
 - [ ] Unit tests (Vitest) for `frontend/src/lib/` — filters, pagination, URL params, save rules — and run them in `amplify.yml`.
 - [ ] PR workflow: feature branches + Amplify PR previews; keep `main` always deployable.
+
+- [ ] Amplify rebuilds the frontend on every push to `main`, even backend-only commits. Fix: Amplify diff/path-based
+      builds, or move the frontend deploy to CI triggered only on `frontend/**`.
 
 ## Learning exercises
 - [ ] Test the Amplify build-failure email (push a broken commit to a throwaway branch).
