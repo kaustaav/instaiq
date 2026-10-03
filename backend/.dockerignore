@@ -1,0 +1,8 @@
+# Not needed inside the image build (keeps the build context small and the cache stable)
+target/
+.idea/
+.vscode/
+*.iml
+HELP.md
+Dockerfile
+.dockerignore
