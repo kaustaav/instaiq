@@ -1,0 +1,25 @@
+# Local development stack. Start: docker compose up -d   Stop: docker compose down
+# Settings come from .env (copy .env.example to .env). Data survives restarts in the "pgdata" volume;
+# `docker compose down -v` deletes it.
+services:
+  postgres:
+    # Same major version we'll use on RDS, so local and AWS behave the same.
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      # Only reachable from this machine (127.0.0.1), not from other devices on your Wi-Fi.
+      - "127.0.0.1:${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # "ready" = accepting connections; other containers (and you) can wait for this
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
