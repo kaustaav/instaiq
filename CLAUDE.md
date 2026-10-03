@@ -22,6 +22,12 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 ## Backlog
 Open items (security toggles, cost guardrails, backend next steps, UI gaps) live in `docs/BACKLOG.md`. Check it when planning; tick items off as they land.
 
+## Branches and demo freeze (decided 2026-10-04)
+- **`main` = what's live on Amplify** (auto-deploys on push). **`develop` = where all work happens.** Merge to `main` only when the user explicitly says so.
+- **Demo freeze:** a client demo is coming up. Until the user lifts it: **never push to `main`, never publish to `gh-pages`.**
+- The demo UI is tag **`demo-2026-10`** (commit `e0542cf`); both GitHub Pages and Amplify were built from it.
+- New UI work must keep working without a backend: use the API only when `VITE_API_URL` is set, otherwise the built-in demo data.
+
 ## Working style
 - Build in very small steps. After each step, stop and give exact local test steps; the user tests before anything else is written.
 - **Always ask before `git commit` / `git push`.** Show what changed and wait for a yes (user rule, 2026-10-02).
