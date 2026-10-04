@@ -4,7 +4,8 @@ The UI is a static site (no server, no database yet), deployed to two places.
 
 | Environment | URL | Deploys | Config lives in |
 |---|---|---|---|
-| **AWS Amplify** (primary) | https://main.d360lwuskrbgul.amplifyapp.com | Automatically on every push to `main` | `amplify.yml`, `customHttp.yml`, plus one console-only rewrite rule (below) |
+| **AWS Amplify** `main` (client demo) | https://main.d360lwuskrbgul.amplifyapp.com | On push to `main` (**auto-build disabled during the demo freeze**) | `amplify.yml`, `customHttp.yml`, plus one console-only rewrite rule (below) |
+| AWS Amplify `develop` (testing) | https://develop.d360lwuskrbgul.amplifyapp.com | Automatically on every push to `develop` | Same app settings as `main`; **password-protected** (Hosting -> Access control). No `VITE_API_URL` yet = demo-data mode |
 | GitHub Pages (public demo) | https://kaustaav.github.io/instaiq/ | Manually (see below) | `frontend` script `build:pages` |
 
 AWS account notes: Free plan (credits, cannot be charged). Region **ap-southeast-2 (Sydney)**. The account is assigned that

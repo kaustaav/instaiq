@@ -49,8 +49,12 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
 - [x] Flyway V1 (reference data) + V2 (influencer, rate card); JPA entities; Ingestion Service; demo loader (DEMO_DATA=true).
 - [x] `GET /api/influencers` (search, UI's URL params, parity with UI filters), `GET /api/influencers/{id}`, `GET /api/reference` (ETag).
 - [x] UI reads search + profile from the API when `VITE_API_URL` is set (Vite proxy `/api` -> :8080 locally); demo mode otherwise.
-- [ ] **Next (agreed): connect `develop` to Amplify** as a second, password-protected UI (own URL; demo mode until an API is deployed).
-- [ ] Write APIs: create/edit influencer (via Ingestion Service), notes, status, rate cards.
+- [x] `develop` connected to Amplify: https://develop.d360lwuskrbgul.amplifyapp.com (password-protected, demo mode until an API is deployed).
+- [x] Write APIs: create/edit influencer (via Ingestion Service), notes, status, rate cards. Optimistic locking (`version`), 409 duplicate/conflict.
+- [x] UI writes through the API in API mode: add/edit drawer, notes, status, Manage list (`fresh=` filter) with archive instead of delete.
+- [ ] API mode gaps: adding new niches/languages/cities (reference data is fixed); campaigns still use built-in data, so
+      influencers created via the API show as "Influencer #id" in campaigns until the campaigns backend exists.
+- [ ] Discovery source isn't on the add/edit form yet (API defaults to OTHER; edits keep the stored value).
 - [ ] Campaign tables + API (port `frontend/src/lib/campaigns.ts` rules to a Java service).
 - [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the
       browser; refetch on tab focus and when a filter panel / form opens (option b). `POST /api/taxonomy` normalises and
