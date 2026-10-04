@@ -68,6 +68,18 @@ public class PostgresInfluencerSearchService implements InfluencerSearchService 
         return SearchPage.of(items, c.page(), c.size(), total);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> searchIds(SearchCriteria c) {
+        Map<String, Object> params = new HashMap<>();
+        String where = whereClause(c, params);
+        params.put("limit", MAX_IDS);
+        return jdbc.sql("SELECT i.id FROM influencer i WHERE " + where + " ORDER BY i.id LIMIT :limit")
+                .params(params)
+                .query(Long.class)
+                .list();
+    }
+
     /** Builds "a AND b AND ..." from fixed fragments; values go into params. */
     private static String whereClause(SearchCriteria c, Map<String, Object> params) {
         List<String> and = new ArrayList<>();

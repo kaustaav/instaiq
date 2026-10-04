@@ -4,6 +4,7 @@ import com.influenceiq.crm.influencer.InfluencerQueryService;
 import com.influenceiq.crm.influencer.search.InfluencerSearchService;
 import com.influenceiq.crm.influencer.search.InfluencerSummary;
 import com.influenceiq.crm.influencer.search.SearchPage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,12 @@ public class InfluencerController {
     @GetMapping
     public SearchPage<InfluencerSummary> search(SearchRequest request) {
         return search.search(request.toCriteria());
+    }
+
+    /** GET /api/influencers/ids?...same filters...: every matching id (at most 5000), for "Add all to campaign". */
+    @GetMapping("/ids")
+    public List<Long> ids(SearchRequest request) {
+        return search.searchIds(request.toCriteria());
     }
 
     /** GET /api/influencers/42 */

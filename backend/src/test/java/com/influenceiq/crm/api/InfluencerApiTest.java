@@ -54,6 +54,12 @@ class InfluencerApiTest {
     }
 
     @Test
+    void idsOfEveryMatchForBulkActions() {
+        assertThat(mvc.get().uri("/api/influencers/ids?loc=state:Punjab").exchange()).hasStatusOk().bodyJson()
+                .hasPathSatisfying("$.length()", n -> assertThat(n).isEqualTo(95)); // all 95, not one page
+    }
+
+    @Test
     void pagesOfAtMost100() {
         assertThat(mvc.get().uri("/api/influencers?page=5").exchange()).bodyJson()
                 .hasPathSatisfying("$.items.length()", n -> assertThat(n).isEqualTo(100))
