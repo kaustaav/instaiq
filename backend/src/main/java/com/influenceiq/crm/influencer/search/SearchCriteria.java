@@ -21,10 +21,26 @@ public record SearchCriteria(
         Integer followersMax,
         BigDecimal minEngagementRate,
         Set<InfluencerStatus> statuses,
+        Freshness freshness,
         int page,
         int size) {
 
     public static final int MAX_PAGE_SIZE = 100;
+
+    /** Metrics age tiers, same as the UI: fresh <= 30 days, ageing 31-90, stale > 90. */
+    public enum Freshness {
+        FRESH, AGEING, STALE;
+
+        public static Freshness parse(String raw) {
+            if (raw == null || raw.isBlank()) return null;
+            try {
+                return valueOf(raw.trim().toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException("fresh must be fresh, ageing or stale, got: " + raw);
+            }
+        }
+    }
+
     /** Banned and archived influencers are hidden unless asked for. */
     public static final Set<InfluencerStatus> DEFAULT_STATUSES = Set.of(InfluencerStatus.ACTIVE, InfluencerStatus.ON_HOLD);
 

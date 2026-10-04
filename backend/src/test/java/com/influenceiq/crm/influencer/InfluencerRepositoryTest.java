@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.influenceiq.crm.TestcontainersConfiguration;
 import com.influenceiq.crm.common.AuditConfig;
+import com.influenceiq.crm.common.CurrentUser;
 import com.influenceiq.crm.common.Origin;
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,7 +23,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
  */
 @DataJpaTest // starts only the JPA part of the app: entities, repositories, Flyway, a transaction per test
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // keep the Testcontainers Postgres (not an in-memory DB)
-@Import({TestcontainersConfiguration.class, AuditConfig.class}) // throwaway Postgres + auditing (slice tests skip @Configuration)
+@Import({TestcontainersConfiguration.class, AuditConfig.class, CurrentUser.class}) // throwaway Postgres + auditing (slice tests skip @Configuration)
 class InfluencerRepositoryTest {
 
     @Autowired InfluencerRepository influencers;

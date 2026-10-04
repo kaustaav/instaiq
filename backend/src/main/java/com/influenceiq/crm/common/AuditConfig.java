@@ -11,12 +11,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class AuditConfig {
 
-    /** Placeholder until login exists; then this returns the signed-in user's email. */
-    public static final String SYSTEM_USER = "system";
+    /** Kept for existing callers; the source of truth is CurrentUser. */
+    public static final String SYSTEM_USER = CurrentUser.SYSTEM;
 
     /** Who is making the change. Spring calls this whenever it fills @CreatedBy / @LastModifiedBy. */
     @Bean
-    AuditorAware<String> auditorAware() {
-        return () -> Optional.of(SYSTEM_USER);
+    AuditorAware<String> auditorAware(CurrentUser currentUser) {
+        return () -> Optional.of(currentUser.name());
     }
 }

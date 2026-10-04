@@ -129,6 +129,13 @@ public class PostgresInfluencerSearchService implements InfluencerSearchService 
             and.add("i.followers <= :fmax");
             params.put("fmax", c.followersMax());
         }
+        if (c.freshness() != null) {
+            and.add(switch (c.freshness()) {
+                case FRESH -> "i.metrics_updated_at >= now() - interval '30 days'";
+                case AGEING -> "i.metrics_updated_at < now() - interval '30 days' AND i.metrics_updated_at >= now() - interval '90 days'";
+                case STALE -> "i.metrics_updated_at < now() - interval '90 days'";
+            });
+        }
         if (c.minEngagementRate() != null) {
             and.add("i.engagement_rate >= :er");
             params.put("er", c.minEngagementRate());

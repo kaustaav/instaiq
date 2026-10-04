@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.influenceiq.crm.TestcontainersConfiguration;
 import com.influenceiq.crm.common.AuditConfig;
+import com.influenceiq.crm.common.CurrentUser;
 import com.influenceiq.crm.common.Origin;
 import com.influenceiq.crm.common.ValidationException;
 import com.influenceiq.crm.influencer.Influencer;
@@ -23,7 +24,7 @@ import org.springframework.context.annotation.Import;
 /** The ingestion rules, against a throwaway Postgres (Testcontainers), rolled back after each test. */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({TestcontainersConfiguration.class, AuditConfig.class, InfluencerIngestionService.class, ReferenceDataService.class})
+@Import({TestcontainersConfiguration.class, AuditConfig.class, CurrentUser.class, InfluencerIngestionService.class, ReferenceDataService.class})
 class InfluencerIngestionServiceTest {
 
     @Autowired InfluencerIngestionService ingestion;

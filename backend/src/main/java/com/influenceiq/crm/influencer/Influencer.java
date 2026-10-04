@@ -137,6 +137,15 @@ public class Influencer extends Auditable {
         updateMetrics(metrics, origin, actor, observedAt);
     }
 
+    public void rename(String name) {
+        this.name = requireText(name, "name");
+    }
+
+    /** Uniqueness is checked by the caller (and by the database's unique constraint). */
+    public void changeHandle(InstagramHandle handle) {
+        this.handle = Objects.requireNonNull(handle, "handle");
+    }
+
     /** Optional profile details; blank values are stored as null. */
     public void updateDetails(String bio, String email, String phone, DiscoverySource discoverySource) {
         this.bio = blankToNull(bio);

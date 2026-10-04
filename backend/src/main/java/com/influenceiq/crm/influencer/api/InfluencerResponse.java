@@ -35,7 +35,9 @@ public record InfluencerResponse(
         List<String> recentCaptions,
         String notes,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        /** Send back on edit (optimistic locking): if it no longer matches, someone else saved first. */
+        int version) {
 
     public record MetricsView(int followers, BigDecimal engagementRate, Integer avgLikes, Integer avgComments,
                               Instant updatedAt, String updatedBy, Origin source) {}
@@ -57,6 +59,6 @@ public record InfluencerResponse(
                 new MetricsView(i.getFollowers(), i.getEngagementRate(), i.getAvgLikes(), i.getAvgComments(),
                         i.getMetricsUpdatedAt(), i.getMetricsUpdatedBy(), i.getMetricsSource()),
                 history.isEmpty() ? null : history.getFirst(), history,
-                i.getRecentCaptions(), i.getNotes(), i.getCreatedAt(), i.getUpdatedAt());
+                i.getRecentCaptions(), i.getNotes(), i.getCreatedAt(), i.getUpdatedAt(), i.getVersion());
     }
 }

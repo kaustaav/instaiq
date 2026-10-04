@@ -54,6 +54,26 @@ class InfluencerApiTest {
     }
 
     @Test
+    void freshnessTiersAddUpAndMatchTheUi() {
+        // same tiers as the UI's Manage screen; together they must cover all 500 demo profiles
+        long fresh = total("/api/influencers?fresh=fresh&size=1");
+        long ageing = total("/api/influencers?fresh=ageing&size=1");
+        long stale = total("/api/influencers?fresh=stale&size=1");
+        assertThat(fresh + ageing + stale).isEqualTo(500);
+        assertThat(stale).isEqualTo(total("/api/influencers?fresh=STALE&size=1")); // case-insensitive
+        assertThat(mvc.get().uri("/api/influencers?fresh=old").exchange()).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    private long total(String uri) {
+        try {
+            return ((Number) com.jayway.jsonpath.JsonPath.read(
+                    mvc.get().uri(uri).exchange().getResponse().getContentAsString(), "$.total")).longValue();
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
     void idsOfEveryMatchForBulkActions() {
         assertThat(mvc.get().uri("/api/influencers/ids?loc=state:Punjab").exchange()).hasStatusOk().bodyJson()
                 .hasPathSatisfying("$.length()", n -> assertThat(n).isEqualTo(95)); // all 95, not one page

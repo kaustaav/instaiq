@@ -1,10 +1,13 @@
 package com.influenceiq.crm.common.api;
 
+import com.influenceiq.crm.common.ConflictException;
 import com.influenceiq.crm.common.NotFoundException;
 import com.influenceiq.crm.common.ValidationException;
 import com.influenceiq.crm.ingestion.DuplicateInfluencerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -37,6 +40,23 @@ public class ApiExceptionHandler {
     ProblemDetail notFound(NotFoundException e) {
         ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         p.setTitle("Not found");
+        return p;
+    }
+
+    /** Our own version check, or Hibernate's @Version check catching a race in the same instant: both mean "reload". */
+    @ExceptionHandler({ConflictException.class, ObjectOptimisticLockingFailureException.class})
+    ProblemDetail conflict(RuntimeException e) {
+        ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                e instanceof ConflictException ? e.getMessage() : "This record was changed by someone else. Reload and try again.");
+        p.setTitle("Edit conflict");
+        return p;
+    }
+
+    /** Body isn't valid JSON, or a value has the wrong type (e.g. "followers": "lots", "status": "MAYBE"). */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ProblemDetail unreadable(HttpMessageNotReadableException e) {
+        ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "The request body is not valid JSON for this endpoint");
+        p.setTitle("Invalid input");
         return p;
     }
 

@@ -11,7 +11,7 @@ import java.util.Set;
  * Query parameters of GET /api/influencers. Spring fills this record from the URL by matching names, e.g.
  * <pre>/api/influencers?q=bridal&loc=city:Chandigarh&loc=state:Punjab&cat=Jewellery&fmin=2000&er=5&page=2</pre>
  * The names are the UI's URL contract (frontend/src/lib/search.ts), so a UI link maps 1:1 to an API call.
- * Repeated parameters (loc, cat, lang, status) become lists.
+ * Repeated parameters (loc, cat, lang, status) become lists. fresh=fresh|ageing|stale filters by metrics age.
  */
 public record SearchRequest(
         String q,
@@ -22,6 +22,7 @@ public record SearchRequest(
         Integer fmax,
         BigDecimal er,
         Set<InfluencerStatus> status,
+        String fresh,
         Integer page,
         Integer size) {
 
@@ -29,7 +30,7 @@ public record SearchRequest(
         return new SearchCriteria(
                 q,
                 loc == null ? List.of() : loc.stream().map(LocationFilter::parse).toList(),
-                cat, lang, fmin, fmax, er, status,
+                cat, lang, fmin, fmax, er, status, SearchCriteria.Freshness.parse(fresh),
                 page == null ? 1 : page,
                 size == null ? SearchCriteria.MAX_PAGE_SIZE : size);
     }
