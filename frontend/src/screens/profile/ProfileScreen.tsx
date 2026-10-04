@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeft, BookmarkPlus, ChevronRight, ExternalLink, Languages, Mail, MapPin, Pencil, Phone } from 'lucide-react'
 import { useStore } from '../../store'
+import { ApiError } from '../../api/client'
+import { changeStatus, updateNotes } from '../../api/influencers'
 import { dstr, fmt, freshness, igUrl, mon } from '../../lib/format'
 import { stateOf } from '../../lib/locations'
-import type { Influencer } from '../../types'
+import type { Influencer, InfluencerStatus } from '../../types'
 import { Avatar, CategoryBadges, FreshPill, Pill } from '../../components/ui'
 import { CAMPAIGN_STATUS_LABEL, displayStage, STAGE_LABEL } from '../../lib/campaigns'
 import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
@@ -15,24 +17,71 @@ type Props = {
   backLabel: string
   onBack: () => void
   onEdit: () => void
-  /** Hide editing (API mode until write APIs exist: edits would only change this browser's copy). */
-  readOnly?: boolean
   onAddToCampaign: () => void
 }
+
+const STATUS_LABEL: Record<InfluencerStatus, string> = { ACTIVE: 'Active', ON_HOLD: 'On hold', BANNED: 'Banned', ARCHIVED: 'Archived' }
+const STATUS_TONE: Record<InfluencerStatus, { bg: string; fg: string }> = {
+  ACTIVE: { bg: '#E7F7EF', fg: '#005E3B' },
+  ON_HOLD: { bg: '#FEF4E4', fg: '#8B5E00' },
+  BANNED: { bg: '#FDECEC', fg: '#A11D1D' },
+  ARCHIVED: { bg: 'var(--iq-gray-100)', fg: 'var(--iq-fg-2)' },
+}
+
+const message = (e: unknown) => (e instanceof ApiError ? [e.message, ...e.errors].join(' ') : 'Something went wrong')
 
 const STATUS_COLORS = {
   Completed: { bg: '#E7F7EF', fg: '#005E3B' },
   Ongoing: { bg: '#FEF4E4', fg: '#8B5E00' },
 }
 
-export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign, readOnly = false }: Props) {
-  const { loc, setNote, campaigns } = useStore()
+export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign }: Props) {
+  const { loc, setNote, campaigns, dataChanged } = useStore()
   // derived from campaign membership, newest first
   const history = campaigns
     .flatMap(c => c.members.filter(m => m.influencerId === inf.id).map(m => ({ c, m })))
     .sort((a, b) => (b.c.startDate ?? b.c.createdAt).localeCompare(a.c.startDate ?? a.c.createdAt))
   const [histOpen, setHistOpen] = useState(false)
   const [noteDraft, setNoteDraft] = useState<string | null>(null) // null = not editing
+  const [noteError, setNoteError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  // inf.api is set only when the profile came from the server: then writes go to the API
+  const saveNote = async (note: string) => {
+    if (!inf.api) {
+      setNote(inf.id, note)
+      return setNoteDraft(null)
+    }
+    setBusy(true)
+    try {
+      await updateNotes(inf.id, note)
+      dataChanged()
+      setNoteDraft(null)
+      setNoteError('')
+    } catch (e) {
+      setNoteError(message(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const setStatus = async (status: InfluencerStatus) => {
+    let reason: string | undefined
+    if (status !== 'ACTIVE') {
+      const r = window.prompt(`Why is ${inf.name} ${STATUS_LABEL[status].toLowerCase()}? (required)`)
+      if (r == null) return // cancelled
+      reason = r
+    }
+    setBusy(true)
+    try {
+      await changeStatus(inf.id, status, reason)
+      dataChanged()
+    } catch (e) {
+      window.alert(message(e))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const fr = freshness(inf.updatedAt)
   const rateFr = freshness(inf.rates[0].date)
@@ -80,9 +129,23 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign,
                   <span>{inf.langs.join(', ')}</span>
                 </div>
                 <div style={{ marginTop: 8 }}><CategoryBadges cats={inf.cats} large /></div>
+                {inf.api && inf.api.status !== 'ACTIVE' && (
+                  <div style={{ marginTop: 8, fontSize: 12 }}>
+                    <span className="badge" style={{ padding: '2px 8px', background: STATUS_TONE[inf.api.status].bg, color: STATUS_TONE[inf.api.status].fg }}>
+                      {STATUS_LABEL[inf.api.status]}
+                    </span>
+                    {inf.api.statusReason && <span className="muted" style={{ marginLeft: 6 }}>{inf.api.statusReason}</span>}
+                  </div>
+                )}
               </div>
               <div className="profile-actions">
-                {!readOnly && <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>}
+                {inf.api && (
+                  <select className="input input-sm" aria-label="Status" value={inf.api.status} disabled={busy}
+                    style={{ width: 'auto' }} onChange={e => setStatus(e.target.value as InfluencerStatus)}>
+                    {(Object.keys(STATUS_LABEL) as InfluencerStatus[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+                  </select>
+                )}
+                <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>
                 <a className="btn btn-ghost" href={igUrl(inf.handle)} target="_blank" rel="noopener">
                   <ExternalLink size={12} />View on Instagram
                 </a>
@@ -230,13 +293,13 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign,
                   <div className="label">Notes</div>
                   {noteDraft != null ? (
                     <div style={{ display: 'flex', gap: 5 }}>
-                      <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }} onClick={() => setNoteDraft(null)}>Cancel</button>
-                      <button type="button" className="btn btn-blue btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }}
-                        onClick={() => { setNote(inf.id, noteDraft); setNoteDraft(null) }}>
-                        Save
+                      <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }} onClick={() => { setNoteDraft(null); setNoteError('') }}>Cancel</button>
+                      <button type="button" className="btn btn-blue btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }} disabled={busy}
+                        onClick={() => saveNote(noteDraft)}>
+                        {busy ? 'Saving…' : 'Save'}
                       </button>
                     </div>
-                  ) : readOnly ? null : (
+                  ) : (
                     <button type="button" className="btn btn-plain btn-sm" style={{ padding: '2px 6px', gap: 3, color: 'var(--iq-fg-3)', fontWeight: 400 }}
                       onClick={() => setNoteDraft(inf.note)}>
                       <Pencil size={10} />Edit
@@ -250,6 +313,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign,
                 ) : (
                   <p className="profile-note">{inf.note || <span className="muted">No notes yet</span>}</p>
                 )}
+                {noteError && <div role="alert" style={{ fontSize: 12, color: 'var(--iq-down)', marginTop: 6 }}>{noteError}</div>}
               </section>
             </div>
           </div>

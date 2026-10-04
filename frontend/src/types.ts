@@ -35,10 +35,14 @@ export type RawInfluencer = {
 /** Seed row plus how old its metrics and rates are, so freshness stays relative to today. */
 export type SeedInfluencer = RawInfluencer & { metricsAgeDays: number; ratesAgeDays: number }
 
+export type InfluencerStatus = 'ACTIVE' | 'ON_HOLD' | 'BANNED' | 'ARCHIVED'
+
 export type Influencer = RawInfluencer & {
   rates: RateEntry[] // newest first; rates[0] mirrors pricing
   updatedAt: number // epoch ms, changes only when metrics change
   note: string
+  /** API mode, full profile only. `version` goes back on edit so the server can spot a conflicting save. */
+  api?: { version: number; status: InfluencerStatus; statusReason: string | null; discoverySource: string | null }
 }
 
 // ---------- Campaigns (see docs/DATA_MODEL.md) ----------

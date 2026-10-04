@@ -3,31 +3,46 @@ export const API_URL: string | undefined = import.meta.env.VITE_API_URL?.replace
 
 export const apiEnabled = () => API_URL !== undefined
 
-/** An error response from the API (RFC 9457 problem details), or a network failure (status 0). */
+/** RFC 9457 problem details, plus our extra fields (errors, existingId). */
+type Problem = { title?: string; detail?: string; errors?: string[]; existingId?: number }
+
+/** An error response from the API (problem details), or a network failure (status 0). */
 export class ApiError extends Error {
   readonly status: number
   readonly errors: string[]
+  /** 409 duplicate: the influencer that already has this handle. */
+  readonly existingId: number | undefined
 
-  constructor(status: number, message: string, errors: string[] = []) {
+  constructor(status: number, message: string, errors: string[] = [], existingId?: number) {
     super(message)
     this.status = status
     this.errors = errors
+    this.existingId = existingId
   }
 }
 
-/** GET a JSON resource. `signal` lets callers cancel stale requests (e.g. the user typed again). */
-export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> {
+/** One JSON request. `signal` lets callers cancel stale requests (e.g. the user typed again). */
+async function request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   if (!API_URL) throw new Error('API is not configured (VITE_API_URL is unset)')
   let res: Response
   try {
-    res = await fetch(API_URL + path, { signal, headers: { Accept: 'application/json' } })
+    res = await fetch(API_URL + path, {
+      method,
+      signal,
+      headers: body === undefined ? { Accept: 'application/json' } : { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
   } catch (e) {
     if ((e as Error).name === 'AbortError') throw e
     throw new ApiError(0, 'Can’t reach the server. Is the backend running?')
   }
   if (!res.ok) {
-    const problem = await res.json().catch(() => ({})) as { title?: string; detail?: string; errors?: string[] }
-    throw new ApiError(res.status, problem.detail ?? problem.title ?? `Request failed (${res.status})`, problem.errors ?? [])
+    const p = await res.json().catch(() => ({})) as Problem
+    throw new ApiError(res.status, p.detail ?? p.title ?? `Request failed (${res.status})`, p.errors ?? [], p.existingId)
   }
   return res.json() as Promise<T>
 }
+
+export const apiGet = <T>(path: string, signal?: AbortSignal) => request<T>('GET', path, undefined, signal)
+export const apiPost = <T>(path: string, body: unknown) => request<T>('POST', path, body)
+export const apiPut = <T>(path: string, body: unknown) => request<T>('PUT', path, body)

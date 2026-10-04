@@ -2,13 +2,14 @@
  * Influencer endpoints, and the mapping from the API's shapes to the UI's existing Influencer type,
  * so the screens don't need to know where the data came from.
  */
-import type { Influencer, Pricing, RateEntry, Region } from '../types'
-import { initials, inr } from '../lib/format'
+import type { Influencer, InfluencerStatus, Pricing, RateEntry, Region } from '../types'
+import { digits, initials, inr } from '../lib/format'
+import type { Draft } from '../lib/influencerForm'
 import { stateOf } from '../lib/locations'
-import { apiGet } from './client'
+import { apiGet, apiPost, apiPut } from './client'
 
 // ---------- API shapes (mirror the backend records) ----------
-type Status = 'ACTIVE' | 'ON_HOLD' | 'BANNED' | 'ARCHIVED'
+type Status = InfluencerStatus
 
 export type ApiSummary = {
   id: number
@@ -32,6 +33,9 @@ type ApiRates = { storyInr: number | null; reelInr: number | null; postInr: numb
 export type ApiProfile = Omit<ApiSummary, 'followers' | 'engagementRate' | 'avgLikes' | 'metricsUpdatedAt' | 'reelInr'> & {
   bio: string | null
   email: string | null
+  statusReason: string | null
+  discoverySource: string | null
+  version: number
   phone: string | null
   metrics: { followers: number; engagementRate: number | null; avgLikes: number | null; avgComments: number | null; updatedAt: string }
   currentRates: ApiRates | null
@@ -50,6 +54,51 @@ export const searchInfluencerIds = (params: URLSearchParams) => apiGet<number[]>
 
 export const getInfluencer = (id: number | string, signal?: AbortSignal) =>
   apiGet<ApiProfile>(`/influencers/${encodeURIComponent(String(id))}`, signal)
+
+/** Body of POST/PUT /influencers (backend InfluencerRequest). */
+type InfluencerRequest = {
+  handle: string; name: string; bio: string | null; email: string | null; phone: string | null
+  discoverySource: string | null
+  cities: string[]; stateOnly: string[]; categories: string[]; languages: string[]; hashtags: string[]
+  followers: number; engagementRate: number | null; avgLikes: number | null; avgComments: number | null
+  storyInr: number | null; reelInr: number | null; postInr: number | null
+  version: number | null
+}
+
+const text = (v: string) => v.trim() || null
+const whole = (v: string) => (v.trim() ? Math.round(Number(digits(v))) : null) // "₹2,000" -> 2000; blank -> null
+
+/** The drawer's draft as the API expects it. `editing` = the loaded profile (its version and discovery source). */
+export function draftToRequest(f: Draft, editing: Influencer | null): InfluencerRequest {
+  return {
+    handle: f.handle.trim(),
+    name: f.name.trim(),
+    bio: text(f.bio),
+    email: text(f.email),
+    phone: text(f.phone),
+    discoverySource: editing?.api?.discoverySource ?? null, // not on the form yet; keep what's stored
+    cities: f.cities,
+    stateOnly: f.states,
+    categories: f.cats,
+    languages: f.langs,
+    hashtags: f.tags.split(/[,\s]+/).map(t => t.replace(/^#/, '')).filter(Boolean),
+    followers: whole(f.followers) ?? 0,
+    engagementRate: f.eng.trim() ? Number(f.eng) : null,
+    avgLikes: whole(f.likes),
+    avgComments: whole(f.comments),
+    storyInr: whole(f.story),
+    reelInr: whole(f.reel),
+    postInr: whole(f.post),
+    version: editing?.api?.version ?? null,
+  }
+}
+
+export const createInfluencer = (body: InfluencerRequest) => apiPost<ApiProfile>('/influencers', body)
+export const updateInfluencer = (id: number, body: InfluencerRequest) => apiPut<ApiProfile>(`/influencers/${id}`, body)
+export const updateNotes = (id: number, notes: string) => apiPut<ApiProfile>(`/influencers/${id}/notes`, { notes })
+/** A reason is required for anything but ACTIVE. */
+export const changeStatus = (id: number, status: InfluencerStatus, reason?: string) =>
+  apiPut<ApiProfile>(`/influencers/${id}/status`, { status, reason })
 
 // ---------- mapping to the UI's Influencer ----------
 const price = (v: number | null): string => (v == null ? '—' : inr(v))
@@ -112,5 +161,6 @@ export function profileToInfluencer(a: ApiProfile, loc: Region[]): Influencer {
     // the profile always shows a "current" rate; with no prices on record, show dashes dated at the metrics date
     rates: rates.length ? rates : [{ date: updatedAt, ...toPricing(null) }],
     updatedAt,
+    api: { version: a.version, status: a.status, statusReason: a.statusReason, discoverySource: a.discoverySource },
   }
 }

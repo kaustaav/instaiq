@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Pencil, Search, Trash2, Upload, UserPlus } from 'lucide-react'
+import { Archive, Pencil, Search, Trash2, Upload, UserPlus } from 'lucide-react'
 import { useStore } from '../../store'
+import { apiEnabled, ApiError } from '../../api/client'
+import { changeStatus } from '../../api/influencers'
+import { useApiSearchPage, useTierCounts } from '../../hooks/useApiSearchPage'
 import { fmt, freshness, mon, type FreshTier } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
 import type { Influencer } from '../../types'
@@ -28,7 +31,8 @@ const TIER_CHIPS: { key: TierFilter; label: string; dot: string }[] = [
 ]
 
 export function ManageScreen({ onAdd, onEdit }: Props) {
-  const { infs, loc, deleteInfluencer } = useStore()
+  const { infs, loc, deleteInfluencer, dataChanged } = useStore()
+  const api = apiEnabled()
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const onOpenProfile = useOpenProfile('Manage Data')
 
@@ -48,24 +52,48 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
   }
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // ---------- API mode: the server filters and pages (q here is the same text search as the Search screen) ----------
+  const apiParams = new URLSearchParams()
+  if (q) apiParams.set('q', q)
+  if (tier !== 'all') apiParams.set('fresh', tier)
+  if (page > 1) apiParams.set('page', String(page))
+  apiParams.set('size', String(PAGE_SIZE))
+  const remote = useApiSearchPage(api ? apiParams.toString() : null)
+  const counts = useTierCounts(api)
+
+  // ---------- demo mode: filter the built-in data ----------
   const tiers = new Map(infs.map(i => [i.id, freshness(i.updatedAt).tier]))
-  const count = (t: TierFilter) => (t === 'all' ? infs.length : infs.filter(i => tiers.get(i.id) === t).length)
+  const localCount = (t: TierFilter) => (t === 'all' ? infs.length : infs.filter(i => tiers.get(i.id) === t).length)
   const ql = q.toLowerCase()
-  const rows = paginate(
+  const rows = api ? remote.page : paginate(
     infs
       .filter(i => tier === 'all' || tiers.get(i.id) === tier)
       .filter(i => !ql || i.name.toLowerCase().includes(ql) || i.handle.toLowerCase().includes(ql)),
     page,
     PAGE_SIZE,
   )
+  const count = (t: TierFilter) => (!api ? localCount(t) : counts ? counts[t] : '…')
   useScrollTopOnChange(scrollRef, rows.page)
+
+  // API mode never hard-deletes: the record is archived (hidden from search, history kept)
+  const remove = async (id: number) => {
+    setConfirmId(null)
+    if (!api) return deleteInfluencer(id)
+    try {
+      await changeStatus(id, 'ARCHIVED', 'Archived from Manage data')
+      dataChanged()
+    } catch (e) {
+      window.alert(e instanceof ApiError ? e.message : 'Could not archive')
+    }
+  }
+  const removeVerb = api ? 'Archive' : 'Delete'
 
   return (
     <div className="screen-col" style={{ background: 'var(--iq-gray-50)' }}>
       <div className="screen-head">
         <div>
           <div className="screen-title">Manage data</div>
-          <div className="screen-sub">{infs.length} influencers · {count('stale')} with stale metrics</div>
+          <div className="screen-sub">{count('all')} influencers · {count('stale')} with stale metrics</div>
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <div className="btn btn-soon" title="CSV import is coming soon" aria-disabled="true" style={{ gap: 5 }}>
@@ -95,7 +123,12 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
           </div>
         </div>
 
-        <div className="table-wrap">
+        {api && remote.error && (
+          <div role="alert" style={{ fontSize: 12, color: 'var(--iq-down)', marginBottom: 8 }}>
+            {remote.error} <button type="button" className="btn btn-plain btn-sm" onClick={remote.retry}>Retry</button>
+          </div>
+        )}
+        <div className="table-wrap" style={api && remote.loading ? { opacity: 0.6 } : undefined}>
           <table className="table">
             <thead>
               <tr>
@@ -116,15 +149,16 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
                   <td className="num">{fmt(i.followers)}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <FreshPill fr={freshness(i.updatedAt)} short />
-                    <div className="muted" style={{ fontSize: 10, marginTop: 3 }}>Rates: {mon(i.rates[0].date)}</div>
+                    {/* search results don't carry the rate date; it's on the profile */}
+                    {!api && <div className="muted" style={{ fontSize: 10, marginTop: 3 }}>Rates: {mon(i.rates[0].date)}</div>}
                   </td>
                   <td className="r" style={{ whiteSpace: 'nowrap' }}>
                     {confirmId === i.id ? (
                       <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-                        <span className="muted" style={{ fontSize: 11 }}>Delete?</span>
+                        <span className="muted" style={{ fontSize: 11 }}>{removeVerb}?</span>
                         <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '3px 8px', fontWeight: 400 }} onClick={() => setConfirmId(null)}>No</button>
                         <button type="button" className="btn btn-sm" style={{ padding: '3px 8px', fontWeight: 400, background: 'var(--iq-down)', color: 'white' }}
-                          onClick={() => { deleteInfluencer(i.id); setConfirmId(null) }}>
+                          onClick={() => remove(i.id)}>
                           Yes
                         </button>
                       </div>
@@ -133,8 +167,8 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
                         <button type="button" className="btn btn-plain" title="Edit" aria-label={`Edit ${i.name}`} style={{ padding: '5px 7px' }} onClick={() => onEdit(i)}>
                           <Pencil size={12} />
                         </button>
-                        <button type="button" className="btn btn-plain" title="Delete" aria-label={`Delete ${i.name}`} style={{ padding: '5px 7px', color: 'var(--iq-down)' }} onClick={() => setConfirmId(i.id)}>
-                          <Trash2 size={12} />
+                        <button type="button" className="btn btn-plain" title={removeVerb} aria-label={`${removeVerb} ${i.name}`} style={{ padding: '5px 7px', color: 'var(--iq-down)' }} onClick={() => setConfirmId(i.id)}>
+                          {api ? <Archive size={12} /> : <Trash2 size={12} />}
                         </button>
                       </div>
                     )}

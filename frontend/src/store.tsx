@@ -47,6 +47,9 @@ type Store = {
   loc: Region[]
   cats: string[]
   langs: string[]
+  /** API mode: bumped after every successful write, so screens showing server data fetch again. */
+  dataRev: number
+  dataChanged: () => void
   /**
    * Applies a rule function from lib/campaigns.ts to one campaign.
    * Returns '' on success or the rule's error message (nothing changes on error).
@@ -74,6 +77,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [loc, setLoc] = useState(() => parseGeo(GEO))
   const [cats, setCats] = useState(SEED_CATEGORIES)
   const [langs, setLangs] = useState(SEED_LANGUAGES)
+  const [dataRev, setDataRev] = useState(0)
 
   const store = useMemo<Store>(() => {
     const addTo = (list: string[], set: (v: string[]) => void, raw: string) => {
@@ -85,6 +89,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
     return {
       infs, campaigns, loc, cats, langs,
+      dataRev,
+      dataChanged: () => setDataRev(r => r + 1),
       runCampaign: (id, action) => {
         const c = campaigns.find(x => x.id === id)
         if (!c) return 'Campaign not found'
@@ -145,7 +151,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addCategory: raw => addTo(cats, setCats, raw),
       addLanguage: raw => addTo(langs, setLangs, raw),
     }
-  }, [infs, campaigns, loc, cats, langs])
+  }, [infs, campaigns, loc, cats, langs, dataRev])
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
 }

@@ -8,6 +8,7 @@ import type { Influencer } from './types'
 import type { ProfileNavState } from './hooks/useOpenProfile'
 import { useInfluencerProfile } from './hooks/useInfluencerProfile'
 import { apiEnabled } from './api/client'
+import { getInfluencer, profileToInfluencer } from './api/influencers'
 import { SearchScreen } from './screens/search/SearchScreen'
 import { ProfileScreen } from './screens/profile/ProfileScreen'
 import { CampaignListScreen } from './screens/campaigns/CampaignListScreen'
@@ -55,7 +56,6 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
   return (
     <ProfileScreen
       key={inf.id}
-      readOnly={apiEnabled()}
       inf={inf}
       // opened from inside the app → real Back (restores filters/page); opened from a link → plain search
       backLabel={from?.backLabel ?? 'Search Results'}
@@ -67,7 +67,8 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
 }
 
 function Shell() {
-  const { infs, campaigns } = useStore()
+  const { infs, campaigns, loc } = useStore()
+  const navigate = useNavigate()
   // influencer ids for the Add to campaign modal: one from a card/profile, many from "Add all" on search
   const [modalIds, setModalIds] = useState<number[] | null>(null)
   const [drawer, setDrawer] = useState<DrawerState>({ mode: 'closed' })
@@ -83,7 +84,18 @@ function Shell() {
   const closeModal = useCallback(() => setModalIds(null), [])
   const shortlist = (id: number) => setModalIds([id])
   const closeDrawer = useCallback(() => setDrawer({ mode: 'closed' }), [])
-  const onEdit = (inf: Influencer) => setDrawer({ mode: 'edit', inf })
+  const onEdit = (inf: Influencer) => {
+    // API mode: list rows are summaries; editing needs the full profile (bio, contacts, prices, version)
+    if (!apiEnabled() || inf.api) return setDrawer({ mode: 'edit', inf })
+    getInfluencer(inf.id)
+      .then(p => setDrawer({ mode: 'edit', inf: profileToInfluencer(p, loc) }))
+      .catch(e => window.alert(e instanceof Error ? e.message : 'Could not load this influencer'))
+  }
+  const onSaved = (saved: Influencer) => {
+    const added = drawer.mode === 'add'
+    closeDrawer()
+    if (added && apiEnabled()) navigate(`/influencers/${saved.id}`) // show where the new record landed
+  }
 
   return (
     <div className="app">
@@ -115,7 +127,7 @@ function Shell() {
           key={drawer.mode === 'edit' ? drawer.inf.id : 'new'}
           editing={drawer.mode === 'edit' ? drawer.inf : null}
           onClose={closeDrawer}
-          onSaved={closeDrawer}
+          onSaved={onSaved}
         />
       )}
     </div>

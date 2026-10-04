@@ -1,6 +1,9 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import { X } from 'lucide-react'
 import { useStore } from '../store'
+import { apiEnabled, ApiError } from '../api/client'
+import { createInfluencer, draftToRequest, profileToInfluencer, updateInfluencer } from '../api/influencers'
 import { categoryColor, collapse, freshness, mon, toggle } from '../lib/format'
 import { MoreChip } from '../components/ui'
 import { blankDraft, draftFrom, validate, type Draft } from '../lib/influencerForm'
@@ -13,6 +16,9 @@ type Props = {
   onClose: () => void
   onSaved: (inf: Influencer) => void
 }
+
+/** What went wrong on save: one message, or the server's full list; for a duplicate, who already has the handle. */
+type FormError = { message: string; errors?: string[]; existingId?: number }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -54,9 +60,11 @@ function AddInput({ placeholder, onAdd }: { placeholder: string; onAdd: (v: stri
 }
 
 export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
-  const { cats, langs, saveInfluencer, addCategory, addLanguage } = useStore()
+  const { cats, langs, loc, saveInfluencer, addCategory, addLanguage, dataChanged } = useStore()
+  const api = apiEnabled()
   const [f, setF] = useState<Draft>(() => (editing ? draftFrom(editing) : blankDraft()))
-  const [error, setError] = useState('')
+  const [error, setError] = useState<FormError | null>(null)
+  const [saving, setSaving] = useState(false)
   const [langMore, setLangMore] = useState(false)
   const langList = collapse(langs, f.langs, 8, langMore)
   const set = (patch: Partial<Draft>) => setF(prev => ({ ...prev, ...patch }))
@@ -72,10 +80,28 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const save = () => {
-    const err = validate(f)
-    if (err) return setError(err)
-    onSaved(saveInfluencer(f))
+  const save = async () => {
+    const err = validate(f) // quick checks first; the server re-checks everything (it's the source of truth)
+    if (err) return setError({ message: err })
+    if (!api) return onSaved(saveInfluencer(f))
+
+    setSaving(true)
+    setError(null)
+    try {
+      const body = draftToRequest(f, editing)
+      const saved = editing ? await updateInfluencer(editing.id, body) : await createInfluencer(body)
+      dataChanged() // search, Manage and the profile fetch again
+      onSaved(profileToInfluencer(saved, loc))
+    } catch (e) {
+      if (!(e instanceof ApiError)) setError({ message: 'Something went wrong while saving' })
+      else if (e.status === 409 && e.existingId != null) setError({ message: e.message, existingId: e.existingId })
+      else if (e.status === 409) {
+        dataChanged() // pick up the other person's save, so reopening Edit starts from it
+        setError({ message: 'Someone else saved this influencer while you were editing. Close this form and open Edit again to see their changes.' })
+      } else setError({ message: e.errors.length ? 'Please fix these:' : e.message, errors: e.errors })
+    } finally {
+      setSaving(false)
+    }
   }
 
   const metricsAside = editing ? freshness(editing.updatedAt).label : 'Will be dated today'
@@ -108,7 +134,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
 
           <Section title="Location *" gap={8}>
             <div className="muted" style={{ fontSize: 12 }}>Search a city or a state. If you only know the state, pick the state on its own.</div>
-            <LocationPicker cities={f.cities} states={f.states} onChange={(cities, states) => set({ cities, states })} onError={setError} />
+            <LocationPicker cities={f.cities} states={f.states} onChange={(cities, states) => set({ cities, states })} onError={m => setError(m ? { message: m } : null)} />
           </Section>
 
           <Section title="Niches *" gap={8}>
@@ -125,10 +151,11 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
                 )
               })}
             </div>
-            <AddInput placeholder="Add a new niche" onAdd={v => {
+            {/* the backend's niche list is fixed for now (reference data) */}
+            {!api && <AddInput placeholder="Add a new niche" onAdd={v => {
               const c = addCategory(v)
               setF(prev => (prev.cats.includes(c) ? prev : { ...prev, cats: [...prev.cats, c] }))
-            }} />
+            }} />}
           </Section>
 
           <Section title="Languages" gap={8}>
@@ -145,10 +172,10 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
               })}
               {langList.canToggle && <MoreChip expanded={langMore} hiddenCount={langList.hiddenCount} onToggle={() => setLangMore(!langMore)} />}
             </div>
-            <AddInput placeholder="Add a new language" onAdd={v => {
+            {!api && <AddInput placeholder="Add a new language" onAdd={v => {
               const l = addLanguage(v)
               setF(prev => (prev.langs.includes(l) ? prev : { ...prev, langs: [...prev.langs, l] }))
-            }} />
+            }} />}
           </Section>
 
           <Section title="Metrics" aside={metricsAside}>
@@ -178,10 +205,18 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
         </div>
 
         <div className="drawer-foot">
-          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)' }}>{error}</div>
+          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)' }}>
+            {error?.message}
+            {error?.errors && error.errors.length > 0 && (
+              <ul style={{ margin: '2px 0 0', paddingLeft: 16 }}>{error.errors.map(m => <li key={m}>{m}</li>)}</ul>
+            )}
+            {error?.existingId != null && (
+              <> <Link to={`/influencers/${error.existingId}`} onClick={onClose}>Open their profile</Link></>
+            )}
+          </div>
           <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} onClick={save}>
-            {editing ? 'Save changes' : 'Add influencer'}
+          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>
+            {saving ? 'Saving…' : editing ? 'Save changes' : 'Add influencer'}
           </button>
         </div>
       </div>
