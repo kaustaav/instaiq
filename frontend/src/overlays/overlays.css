@@ -122,6 +122,8 @@
 .loc-tree > div:first-child .loc-tree-state { border-top: none; }
 .loc-tree-city { padding: 6px 12px 6px 28px; }
 .loc-tree-state:hover, .loc-tree-city:hover { background: var(--iq-gray-50) !important; }
+/* keyboard highlight (also follows the mouse) */
+.loc-tree-state.active, .loc-tree-city.active { box-shadow: inset 3px 0 0 var(--iq-brand-500); background: var(--iq-gray-50) !important; }
 .loc-none { font-size: 12px; color: var(--iq-fg-3); }
 .loc-custom {
   padding: 10px 12px;
