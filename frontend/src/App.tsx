@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router'
-import { Menu, UserX } from 'lucide-react'
+import { Menu, UserX, WifiOff } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
 import { EmptyState } from './components/ui'
 import { StoreProvider, useStore } from './store'
 import type { Influencer } from './types'
 import type { ProfileNavState } from './hooks/useOpenProfile'
+import { useInfluencerProfile } from './hooks/useInfluencerProfile'
+import { apiEnabled } from './api/client'
 import { SearchScreen } from './screens/search/SearchScreen'
 import { ProfileScreen } from './screens/profile/ProfileScreen'
 import { CampaignListScreen } from './screens/campaigns/CampaignListScreen'
@@ -25,13 +27,23 @@ type Overlays = {
 
 /** /influencers/:id — the back link returns to wherever the profile was opened from. */
 function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
-  const { infs } = useStore()
   const { id } = useParams()
   const navigate = useNavigate()
   const from = useLocation().state as ProfileNavState | null
-  const inf = infs.find(i => String(i.id) === id)
+  const profile = useInfluencerProfile(id) // built-in data, or the API when VITE_API_URL is set
 
-  if (!inf) {
+  if (profile.kind === 'loading') {
+    return <div className="screen-col" style={{ justifyContent: 'center' }}><div className="empty"><div className="empty-sub">Loading profile…</div></div></div>
+  }
+  if (profile.kind === 'error') {
+    return (
+      <div className="screen-col" style={{ justifyContent: 'center' }}>
+        <EmptyState icon={WifiOff} title="Couldn’t load this profile" sub={profile.message} />
+        <div style={{ textAlign: 'center' }}><Link to="/search">Back to search</Link></div>
+      </div>
+    )
+  }
+  if (profile.kind === 'not-found') {
     return (
       <div className="screen-col" style={{ justifyContent: 'center' }}>
         <EmptyState icon={UserX} title="Influencer not found" sub="They may have been deleted, or the link is wrong." />
@@ -39,9 +51,11 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
       </div>
     )
   }
+  const inf = profile.inf
   return (
     <ProfileScreen
       key={inf.id}
+      readOnly={apiEnabled()}
       inf={inf}
       // opened from inside the app → real Back (restores filters/page); opened from a link → plain search
       backLabel={from?.backLabel ?? 'Search Results'}

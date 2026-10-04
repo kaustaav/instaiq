@@ -26,6 +26,7 @@ Open items (security toggles, cost guardrails, backend next steps, UI gaps) live
 - **`main` = what's live on Amplify** (auto-deploys on push). **`develop` = where all work happens.** Merge to `main` only when the user explicitly says so.
 - **Demo freeze:** a client demo is coming up. Until the user lifts it: **never push to `main`, never publish to `gh-pages`.**
 - The demo UI is tag **`demo-2026-10`** (commit `e0542cf`); both GitHub Pages and Amplify were built from it.
+- Amplify **auto-build on `main` is disabled** during the freeze (2026-10-04). **Re-enable it after the demo** (App settings -> Branch settings -> main -> Enable auto build).
 - New UI work must keep working without a backend: use the API only when `VITE_API_URL` is set, otherwise the built-in demo data.
 
 ## Working style

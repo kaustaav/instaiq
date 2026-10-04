@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { BookmarkPlus, LayoutGrid, List, Plus, Search, SearchX, SlidersHorizontal, X } from 'lucide-react'
+import { BookmarkPlus, LayoutGrid, List, Plus, Search, SearchX, SlidersHorizontal, WifiOff, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { fmt, freshness } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
-import { activeFilterCount, applyFilters, SEARCH_PAGE_SIZE, searchFromParams, searchToParams, type Filters, type SearchState } from '../../lib/search'
-import { paginate } from '../../lib/paginate'
+import { activeFilterCount, searchFromParams, searchToParams, type Filters, type SearchState } from '../../lib/search'
+import { useSearchResults } from '../../hooks/useSearchResults'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
 import { Pagination } from '../../components/Pagination'
@@ -24,7 +24,7 @@ const locationLine = (i: Influencer) => [...i.cities, ...i.states].join(', ')
 
 /** Search state lives in the URL, so refresh, Back and shared links all restore the same results. */
 export function SearchScreen({ onShortlist, onAddMany }: Props) {
-  const { infs, loc } = useStore()
+  const { loc } = useStore()
   const [params, setParams] = useSearchParams()
   const state = searchFromParams(params)
   const { filters, page, view } = state
@@ -46,8 +46,8 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
   const onFiltersChange = (f: Filters, replace = false) => update({ filters: f, page: 1 }, replace)
   const onPageChange = (p: number) => update({ page: p })
   const onViewChange = (v: SearchState['view']) => update({ view: v }, true)
-  const matches = applyFilters(infs, filters, loc)
-  const results = paginate(matches, page, SEARCH_PAGE_SIZE)
+  // built-in demo data, or the API when VITE_API_URL is set
+  const { results, loading, error, retry, allIds } = useSearchResults(filters, page)
   const scrollRef = useRef<HTMLDivElement>(null)
   useScrollTopOnChange(scrollRef, results.page)
 
@@ -86,11 +86,13 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
           </button>
           {results.total > 0 && (
             <button type="button" className="btn btn-ghost" title="Add every influencer matching these filters to a campaign"
-              onClick={() => onAddMany(matches.map(i => i.id))}>
+              onClick={() => { allIds().then(onAddMany).catch(() => {}) }}>
               <BookmarkPlus size={13} />Add all to campaign
             </button>
           )}
-          <div className="results-count">{results.total} influencer{results.total !== 1 ? 's' : ''}</div>
+          <div className="results-count" aria-live="polite">
+            {loading ? 'Searching…' : `${results.total} influencer${results.total !== 1 ? 's' : ''}`}
+          </div>
           <div className="view-toggle" role="group" aria-label="View">
             <button type="button" aria-label="Grid view" aria-pressed={view === 'grid'} className={view === 'grid' ? 'on' : ''} onClick={() => onViewChange('grid')}>
               <LayoutGrid size={14} />
@@ -101,8 +103,17 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
           </div>
         </div>
 
-        <div className="scroll" ref={scrollRef} style={{ padding: '14px 16px' }}>
-          {results.total === 0 ? (
+        <div className="scroll" ref={scrollRef} style={{ padding: '14px 16px', opacity: loading && results.total ? 0.6 : 1, transition: 'opacity 150ms' }}>
+          {error ? (
+            <div className="empty">
+              <WifiOff size={32} />
+              <div className="empty-title">Couldn’t load influencers</div>
+              <div className="empty-sub">{error}</div>
+              <button type="button" className="btn btn-ghost" style={{ marginTop: 12 }} onClick={retry}>Try again</button>
+            </div>
+          ) : results.total === 0 && loading ? (
+            <div className="empty"><div className="empty-sub">Searching…</div></div>
+          ) : results.total === 0 ? (
             <EmptyState icon={SearchX} title="No influencers match" sub="Try adjusting the filters" />
           ) : view === 'grid' ? (
             <div className="grid">

@@ -48,6 +48,8 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
 - [x] Docker Compose with Postgres only (port 5433; a native Postgres already uses 5432).
 - [x] Flyway V1 (reference data) + V2 (influencer, rate card); JPA entities; Ingestion Service; demo loader (DEMO_DATA=true).
 - [x] `GET /api/influencers` (search, UI's URL params, parity with UI filters), `GET /api/influencers/{id}`, `GET /api/reference` (ETag).
+- [x] UI reads search + profile from the API when `VITE_API_URL` is set (Vite proxy `/api` -> :8080 locally); demo mode otherwise.
+- [ ] **Next (agreed): connect `develop` to Amplify** as a second, password-protected UI (own URL; demo mode until an API is deployed).
 - [ ] Write APIs: create/edit influencer (via Ingestion Service), notes, status, rate cards.
 - [ ] Campaign tables + API (port `frontend/src/lib/campaigns.ts` rules to a Java service).
 - [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the

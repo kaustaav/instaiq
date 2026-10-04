@@ -15,6 +15,8 @@ type Props = {
   backLabel: string
   onBack: () => void
   onEdit: () => void
+  /** Hide editing (API mode until write APIs exist: edits would only change this browser's copy). */
+  readOnly?: boolean
   onAddToCampaign: () => void
 }
 
@@ -23,7 +25,7 @@ const STATUS_COLORS = {
   Ongoing: { bg: '#FEF4E4', fg: '#8B5E00' },
 }
 
-export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign }: Props) {
+export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign, readOnly = false }: Props) {
   const { loc, setNote, campaigns } = useStore()
   // derived from campaign membership, newest first
   const history = campaigns
@@ -80,7 +82,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                 <div style={{ marginTop: 8 }}><CategoryBadges cats={inf.cats} large /></div>
               </div>
               <div className="profile-actions">
-                <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>
+                {!readOnly && <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>}
                 <a className="btn btn-ghost" href={igUrl(inf.handle)} target="_blank" rel="noopener">
                   <ExternalLink size={12} />View on Instagram
                 </a>
@@ -234,7 +236,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                         Save
                       </button>
                     </div>
-                  ) : (
+                  ) : readOnly ? null : (
                     <button type="button" className="btn btn-plain btn-sm" style={{ padding: '2px 6px', gap: 3, color: 'var(--iq-fg-3)', fontWeight: 400 }}
                       onClick={() => setNoteDraft(inf.note)}>
                       <Pencil size={10} />Edit
