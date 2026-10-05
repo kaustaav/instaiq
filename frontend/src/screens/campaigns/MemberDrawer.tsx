@@ -20,20 +20,27 @@ type Props = {
   member: Member
   influencer?: Influencer
   onClose: () => void
-  /** API mode: removes through the server ('' = done, else the error). Demo mode uses the in-browser rules. */
-  onRemove?: () => Promise<string>
+  /**
+   * API mode: these go to the server ('' = done, else the error to show). Demo mode leaves this out and uses the
+   * in-browser rules (lib/campaigns.ts).
+   */
+  api?: {
+    setStage: (to: MemberStage, reason: string) => Promise<string>
+    setNotes: (notes: string) => Promise<string>
+    remove: () => Promise<string>
+  }
 }
 
 type Confirm = { title: string; reasonLabel?: string; confirmLabel: string; danger?: boolean; run: (reason: string) => string | Promise<string> }
 
-export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose, onRemove }: Props) {
+export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose, api }: Props) {
   const { runCampaign } = useStore()
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm | null>(null)
-  const campaignReadOnly = isReadOnly(c)
-  // API mode: stages, terms, drafts, payments and notes aren't on the server yet (next steps), so they're view-only
+  const readOnly = isReadOnly(c)
+  // API mode: terms, drafts and payments aren't on the server yet (next steps), so they're view-only there
   const pending = apiEnabled()
-  const readOnly = campaignReadOnly || pending
+  const contentLocked = readOnly || pending
   const stage = displayStage(m)
   const name = inf?.name ?? `Influencer #${m.influencerId}`
 
@@ -56,7 +63,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
       reasonLabel: needsReason ? 'Reason *' : to === 'DECLINED' ? 'Reason (optional)' : undefined,
       confirmLabel: label,
       danger: to === 'DECLINED',
-      run: reason => runCampaign(c.id, x => setStage(x, m.influencerId, to, reason)),
+      run: reason => (api ? api.setStage(to, reason) : runCampaign(c.id, x => setStage(x, m.influencerId, to, reason))),
     })
 
   const blocker = removeBlocker(m)
@@ -78,9 +85,9 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
         </div>
 
         <div className="drawer-body">
-          {campaignReadOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
-          {pending && !campaignReadOnly && (
-            <div className="muted" style={{ fontSize: 12 }}>Stage changes, terms, drafts, payments and notes aren’t connected to the server yet; they come in the next steps.</div>
+          {readOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
+          {pending && !readOnly && (
+            <div className="muted" style={{ fontSize: 12 }}>Agreeing terms, drafts and payments aren’t connected to the server yet; they come in the next steps.</div>
           )}
 
           {/* ---- Stage ---- */}
@@ -103,7 +110,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           </section>
 
           {/* ---- Terms ---- */}
-          {m.stage === 'NEGOTIATING' && !readOnly && inf && <TermsForm inf={inf} onAgree={t => run(x => agreeTerms(x, m.influencerId, t))} />}
+          {m.stage === 'NEGOTIATING' && !contentLocked && inf && <TermsForm inf={inf} onAgree={t => run(x => agreeTerms(x, m.influencerId, t))} />}
           {m.stage === 'AGREED' && (
             <section className="md-section">
               <div className="label">Agreed terms</div>
@@ -115,7 +122,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                   return n ? `${n} ${DELIVERABLE_LABEL[t].toLowerCase()}${n > 1 ? 's' : ''}` : ''
                 }).filter(Boolean).join(' · ')}</span>
               </div>
-              {!readOnly && m.compensation !== 'BARTER' && <FeeChanger fee={m.agreedFee} onChange={(fee, reason) => run(x => changeFee(x, m.influencerId, fee, reason))} />}
+              {!contentLocked && m.compensation !== 'BARTER' && <FeeChanger fee={m.agreedFee} onChange={(fee, reason) => run(x => changeFee(x, m.influencerId, fee, reason))} />}
             </section>
           )}
 
@@ -124,7 +131,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
             <section className="md-section">
               <div className="label">Deliverables</div>
               {m.deliverables.map(d => (
-                <DeliverableCard key={d.id} d={d} readOnly={readOnly}
+                <DeliverableCard key={d.id} d={d} readOnly={contentLocked}
                   onSubmit={url => run(x => submitDraft(x, m.influencerId, d.id, url))}
                   onReview={(decision, feedback) => run(x => reviewDraft(x, m.influencerId, d.id, decision, feedback))}
                   onPosted={(url, date) => run(x => markPosted(x, m.influencerId, d.id, url, date))} />
@@ -158,7 +165,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                 </table>
               )}
               {m.paymentReason && <div className="md-quote">Written off: “{m.paymentReason}”</div>}
-              {!readOnly && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
+              {!contentLocked && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
                 <PaymentForm remaining={Math.max(0, (m.agreedFee ?? 0) - amountPaid(m))}
                   onPay={(amount, date, receipt) => run(x => recordPayment(x, m.influencerId, amount, date, receipt))}
                   onWriteOff={() => setConfirm({
@@ -172,16 +179,22 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           {/* ---- Notes ---- */}
           <section className="md-section">
             <div className="label">Notes</div>
-            <NotesEditor value={m.notes} readOnly={readOnly} onSave={v => run(x => setMemberNotes(x, m.influencerId, v))} />
+            <NotesEditor value={m.notes} readOnly={readOnly}
+              onSave={async v => {
+                if (!api) return run(x => setMemberNotes(x, m.influencerId, v))
+                const err = await api.setNotes(v)
+                setError(err)
+                return err
+              }} />
           </section>
 
-          {!campaignReadOnly && (
+          {!readOnly && (
             <section className="md-section">
               <button type="button" className="btn btn-ghost md-danger" disabled={!!blocker} title={blocker || undefined}
                 onClick={() => setConfirm({
                   title: `Remove ${name} from ${c.name}?`, confirmLabel: 'Remove', danger: true,
                   run: async () => {
-                    const err = onRemove ? await onRemove() : runCampaign(c.id, x => removeMember(x, m.influencerId))
+                    const err = api ? await api.remove() : runCampaign(c.id, x => removeMember(x, m.influencerId))
                     if (!err) onClose()
                     return err
                   },
@@ -352,8 +365,9 @@ function PaymentForm({ remaining, onPay, onWriteOff }: { remaining: number; onPa
   )
 }
 
-function NotesEditor({ value, readOnly, onSave }: { value: string; readOnly: boolean; onSave: (v: string) => string }) {
+function NotesEditor({ value, readOnly, onSave }: { value: string; readOnly: boolean; onSave: (v: string) => string | Promise<string> }) {
   const [draft, setDraft] = useState(value)
+  const [saving, setSaving] = useState(false)
   if (readOnly) return <p style={{ margin: 0, fontSize: 12, color: 'var(--iq-fg-2)', whiteSpace: 'pre-wrap' }}>{value || <span className="muted">No notes</span>}</p>
   return (
     <>
@@ -361,7 +375,10 @@ function NotesEditor({ value, readOnly, onSave }: { value: string; readOnly: boo
       {draft !== value && (
         <div className="md-actions">
           <button type="button" className="btn btn-ghost" onClick={() => setDraft(value)}>Discard</button>
-          <button type="button" className="btn btn-blue" onClick={() => onSave(draft)}>Save notes</button>
+          <button type="button" className="btn btn-blue" disabled={saving}
+            onClick={async () => { setSaving(true); await onSave(draft); setSaving(false) }}>
+            {saving ? 'Saving…' : 'Save notes'}
+          </button>
         </div>
       )}
     </>

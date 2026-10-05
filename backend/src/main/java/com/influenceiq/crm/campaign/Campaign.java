@@ -3,6 +3,7 @@ package com.influenceiq.crm.campaign;
 import com.influenceiq.crm.common.Auditable;
 import com.influenceiq.crm.common.NotFoundException;
 import com.influenceiq.crm.common.RuleViolationException;
+import com.influenceiq.crm.common.ValidationException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.LongFunction;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -113,9 +115,75 @@ public class Campaign extends Auditable {
 
     public void removeMember(long influencerId) {
         assertEditable();
-        CampaignMember m = member(influencerId).orElseThrow(() -> new NotFoundException("Campaign member", influencerId));
+        CampaignMember m = requireMember(influencerId);
         m.removeBlocker().ifPresent(reason -> { throw new RuleViolationException(reason); });
         members.remove(m);
+    }
+
+    /**
+     * Everything that stops an action, in words (mirrors statusBlockers() in frontend/src/lib/campaigns.ts).
+     * Empty = allowed.
+     *
+     * @param nameOf influencer id -> name, for messages
+     */
+    public List<String> statusBlockers(CampaignAction action, LongFunction<String> nameOf) {
+        if (!action.from.contains(status)) {
+            return List.of("Can't " + action.label + ": the campaign is " + status.name().toLowerCase(Locale.ROOT));
+        }
+        List<String> out = new ArrayList<>();
+        switch (action) {
+            case ACTIVATE -> {
+                if (startDate == null || endDate == null) out.add("Set start and end dates");
+                if (members.isEmpty()) out.add("Add at least one influencer");
+            }
+            case COMPLETE -> members.forEach(m -> {
+                String who = nameOf.apply(m.getInfluencerId());
+                switch (m.displayStage()) {
+                    case DECLINED, COMPLETED -> { }
+                    case LIVE -> out.add(who + ": not paid yet");
+                    case IN_PRODUCTION -> out.add(who + ": content not posted yet");
+                    default -> out.add(who + ": still " + m.displayStage().name().toLowerCase(Locale.ROOT)
+                            + " (decline or agree terms)");
+                }
+            });
+            case CANCEL -> members.stream().filter(CampaignMember::hasLiveUnpaid).forEach(m -> out.add(
+                    nameOf.apply(m.getInfluencerId()) + ": content is live but unpaid (pay or write off first)"));
+            default -> { }
+        }
+        return out;
+    }
+
+    public void changeStatus(CampaignAction action, String reason, String actor, LongFunction<String> nameOf) {
+        List<String> blockers = statusBlockers(action, nameOf);
+        if (!blockers.isEmpty()) throw new RuleViolationException(blockers);
+        boolean blankReason = reason == null || reason.isBlank();
+        if (action.needsReason && blankReason) throw new ValidationException("A reason is required");
+        CampaignStatus next = switch (action) {
+            case ACTIVATE, REOPEN -> CampaignStatus.ACTIVE;
+            case COMPLETE -> CampaignStatus.COMPLETED;
+            case CANCEL -> CampaignStatus.CANCELLED;
+            case ARCHIVE -> CampaignStatus.ARCHIVED;
+            case UNARCHIVE -> archivedFrom != null ? archivedFrom : CampaignStatus.COMPLETED;
+        };
+        archivedFrom = action == CampaignAction.ARCHIVE ? status : null; // where unarchive will return to
+        status = next;
+        statusReason = blankReason ? null : reason.trim();
+        statusChangedAt = Instant.now();
+        statusChangedBy = actor;
+    }
+
+    public void moveMember(long influencerId, MemberStage to, String reason, String actor) {
+        assertEditable();
+        requireMember(influencerId).moveTo(to, reason, actor);
+    }
+
+    public void updateMemberNotes(long influencerId, String notes) {
+        assertEditable();
+        requireMember(influencerId).updateNotes(notes);
+    }
+
+    private CampaignMember requireMember(long influencerId) {
+        return member(influencerId).orElseThrow(() -> new NotFoundException("Campaign member", influencerId));
     }
 
     /** Agreed fees of members whose terms are agreed. Over budget is a warning, never a block. */

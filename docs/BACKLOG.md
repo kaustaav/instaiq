@@ -60,7 +60,7 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
   - [x] 1a. API: campaigns + members (create, edit with version, duplicate, list summaries, add members in bulk, remove)
   - [x] 1b. UI on the campaigns API (API mode): list, create/edit, duplicate, add (one/all), remove, profile history;
         status/stage/terms/drafts/payments/notes view-only in API mode until steps 2-4
-  - [ ] 2. Campaign status machine + member stages (with reasons)
+  - [x] 2. Campaign status machine + member stages (with reasons) + member notes, API and UI
   - [ ] 3. Deliverables + draft review loop
   - [ ] 4. Payments (receipt links), write-off, budget warning
   - [ ] 5. CSV export of a campaign

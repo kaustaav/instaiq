@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,33 @@ public class CampaignService {
         Campaign c = loadForUpdate(campaignId);
         c.removeMember(influencerId);
         return c;
+    }
+
+    public Campaign changeStatus(long id, CampaignAction action, String reason, String actor) {
+        if (action == null) throw new ValidationException("action is required");
+        Campaign c = loadForUpdate(id);
+        c.changeStatus(action, reason, actor, namesOf(c));
+        return c;
+    }
+
+    public Campaign moveMember(long campaignId, long influencerId, MemberStage to, String reason, String actor) {
+        if (to == null) throw new ValidationException("stage is required");
+        Campaign c = loadForUpdate(campaignId);
+        c.moveMember(influencerId, to, reason, actor);
+        return c;
+    }
+
+    public Campaign updateMemberNotes(long campaignId, long influencerId, String notes) {
+        Campaign c = loadForUpdate(campaignId);
+        c.updateMemberNotes(influencerId, notes);
+        return c;
+    }
+
+    /** Member names for rule messages ("Priya Sharma: still shortlisted"), one query for all members. */
+    private LongFunction<String> namesOf(Campaign c) {
+        Map<Long, String> names = influencers.findAllById(c.getMembers().stream().map(CampaignMember::getInfluencerId).toList())
+                .stream().collect(Collectors.toMap(Influencer::getId, Influencer::getName));
+        return id -> names.getOrDefault(id, "Influencer #" + id);
     }
 
     private Campaign loadForUpdate(long id) {

@@ -80,6 +80,13 @@ export const updateCampaignApi = (id: number, i: CampaignInput, version: number 
   apiPut<ApiCampaign>(`/campaigns/${id}`, body(i, version))
 export const duplicateCampaignApi = (id: number) => apiPost<ApiCampaign>(`/campaigns/${id}/duplicate`, {})
 export const addMembersApi = (id: number, influencerIds: number[]) => apiPost<AddResult>(`/campaigns/${id}/members`, { influencerIds })
+/** action: the UI's lowercase name ('activate', 'cancel'…); the API uses ACTIVATE, CANCEL… */
+export const changeCampaignStatusApi = (id: number, action: string, reason: string) =>
+  apiPost<ApiCampaign>(`/campaigns/${id}/status`, { action: action.toUpperCase(), reason: reason.trim() || null })
+export const setMemberStageApi = (id: number, influencerId: number, stage: MemberStage, reason: string) =>
+  apiPut<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/stage`, { stage, reason: reason.trim() || null })
+export const setMemberNotesApi = (id: number, influencerId: number, notes: string) =>
+  apiPut<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/notes`, { notes })
 export const removeMemberApi = (id: number, influencerId: number) => apiDelete<ApiCampaign>(`/campaigns/${id}/members/${influencerId}`)
 
 // ---------- mapping ----------

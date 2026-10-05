@@ -11,7 +11,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import com.influenceiq.crm.common.RuleViolationException;
+import com.influenceiq.crm.common.ValidationException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -76,6 +81,60 @@ public class CampaignMember {
         this.stageUpdatedBy = actor;
         this.addedAt = now;
         this.addedBy = actor;
+    }
+
+    /** The stages people move through, in order (DECLINED sits outside it). */
+    private static final List<MemberStage> ORDER =
+            List.of(MemberStage.SHORTLISTED, MemberStage.CONTACTED, MemberStage.NEGOTIATING, MemberStage.AGREED);
+
+    /** One stage change people can make from here. AGREED is reached by agreeing terms, not by a move. */
+    public record Move(MemberStage to, boolean needsReason) {}
+
+    /** Mirrors stageMoves() in frontend/src/lib/campaigns.ts. */
+    public List<Move> moves() {
+        if (stage == MemberStage.DECLINED) return List.of(new Move(MemberStage.SHORTLISTED, true)); // re-shortlist
+        List<Move> out = new ArrayList<>();
+        if (stage == MemberStage.SHORTLISTED) out.add(new Move(MemberStage.CONTACTED, false));
+        if (stage == MemberStage.CONTACTED) out.add(new Move(MemberStage.NEGOTIATING, false));
+        int i = ORDER.indexOf(stage);
+        // one step back, with a reason; un-agreeing only before any content or money (it drops the terms)
+        if (i > 0 && (stage != MemberStage.AGREED || removeBlocker().isEmpty())) out.add(new Move(ORDER.get(i - 1), true));
+        if (stage != MemberStage.AGREED) out.add(new Move(MemberStage.DECLINED, false));
+        return out;
+    }
+
+    void moveTo(MemberStage to, String reason, String actor) { // package-private: only through Campaign
+        Move move = moves().stream().filter(m -> m.to() == to).findFirst().orElseThrow(() -> new RuleViolationException(
+                "Can't move from " + lower(stage) + " to " + lower(to)));
+        if (move.needsReason() && isBlank(reason)) throw new ValidationException("A reason is required");
+        if (stage == MemberStage.AGREED) {
+            // stepping back from agreed drops the terms
+            agreedFeeInr = null;
+            compensation = Compensation.CASH;
+            paymentStatus = PaymentStatus.NOT_DUE;
+            paymentWriteOffReason = null;
+        }
+        stage = to;
+        stageReason = isBlank(reason) ? null : reason.trim();
+        stageUpdatedAt = Instant.now();
+        stageUpdatedBy = actor;
+    }
+
+    void updateNotes(String notes) {
+        this.notes = isBlank(notes) ? null : notes.trim();
+    }
+
+    /** Content is live but not fully paid: blocks cancelling. Needs deliverables and payments (later steps). */
+    boolean hasLiveUnpaid() {
+        return false;
+    }
+
+    private static boolean isBlank(String v) {
+        return v == null || v.isBlank();
+    }
+
+    private static String lower(Enum<?> e) {
+        return e.name().toLowerCase(Locale.ROOT).replace('_', ' ');
     }
 
     /** AGREED becomes IN_PRODUCTION / LIVE / COMPLETED from deliverables and payment (those arrive in later steps). */

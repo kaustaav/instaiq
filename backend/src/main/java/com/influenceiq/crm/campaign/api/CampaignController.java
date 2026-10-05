@@ -71,6 +71,26 @@ public class CampaignController {
         return queries.get(id);
     }
 
+    /** Activate / complete / cancel / reopen / archive / unarchive. 409 lists everything in the way. */
+    @PostMapping("/{id}/status")
+    public CampaignResponse changeStatus(@PathVariable long id, @RequestBody StatusChangeRequest body) {
+        campaigns.changeStatus(id, body.action(), body.reason(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PutMapping("/{id}/members/{influencerId}/stage")
+    public CampaignResponse moveMember(@PathVariable long id, @PathVariable long influencerId, @RequestBody StageRequest body) {
+        campaigns.moveMember(id, influencerId, body.stage(), body.reason(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PutMapping("/{id}/members/{influencerId}/notes")
+    public CampaignResponse updateMemberNotes(@PathVariable long id, @PathVariable long influencerId,
+                                              @RequestBody MemberNotesRequest body) {
+        campaigns.updateMemberNotes(id, influencerId, body.notes());
+        return queries.get(id);
+    }
+
     private ResponseEntity<CampaignResponse> created(Campaign c) {
         return ResponseEntity.created(URI.create("/api/campaigns/" + c.getId())).body(queries.get(c.getId()));
     }

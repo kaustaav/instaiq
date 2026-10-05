@@ -3,7 +3,9 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users, WifiOff } from 'lucide-react'
 import { useStore } from '../../store'
 import { apiEnabled, errorText } from '../../api/client'
-import { duplicateCampaignApi, removeMemberApi, updateCampaignApi } from '../../api/campaigns'
+import {
+  changeCampaignStatusApi, duplicateCampaignApi, removeMemberApi, setMemberNotesApi, setMemberStageApi, updateCampaignApi,
+} from '../../api/campaigns'
 import { useCampaignDetail } from '../../hooks/useCampaigns'
 import { fmt, igUrl, inr } from '../../lib/format'
 import {
@@ -113,6 +115,17 @@ export function CampaignDetailScreen() {
 
   const openAction = (action: StatusAction) => setDialog({ action, blockers: statusBlockers(c, action, nameOf) })
 
+  /** API mode: run one write, refresh everything on success; '' or the error text (for dialogs and drawers). */
+  const save = async (call: () => Promise<unknown>) => {
+    try {
+      await call()
+      dataChanged()
+      return ''
+    } catch (e) {
+      return errorText(e)
+    }
+  }
+
   const duplicate = async () => {
     if (!api) return navigate(`/campaigns/${duplicateCampaign(c.id).id}`)
     try {
@@ -148,9 +161,7 @@ export function CampaignDetailScreen() {
               </div>
               <div className="camp-actions">
                 {STATUS_ACTIONS[c.status].map(a => (
-                  // API mode: status changes are the next backend step
-                  <button key={a} type="button" className={a === 'complete' || a === 'activate' ? 'btn btn-blue' : 'btn btn-ghost'}
-                    disabled={api} title={api ? 'Not connected to the server yet (next step)' : undefined} onClick={() => openAction(a)}>
+                  <button key={a} type="button" className={a === 'complete' || a === 'activate' ? 'btn btn-blue' : 'btn btn-ghost'} onClick={() => openAction(a)}>
                     {ACTION_LABEL[a]}
                   </button>
                 ))}
@@ -224,14 +235,10 @@ export function CampaignDetailScreen() {
       {member && (
         <MemberDrawer key={member.influencerId} campaign={c} member={member} influencer={infOf(member.influencerId)}
           onClose={() => setParam({ member: null })}
-          onRemove={api ? async () => {
-            try {
-              await removeMemberApi(c.id, member.influencerId)
-              dataChanged()
-              return ''
-            } catch (e) {
-              return errorText(e)
-            }
+          api={api ? {
+            setStage: (to, reason) => save(() => setMemberStageApi(c.id, member.influencerId, to, reason)),
+            setNotes: notes => save(() => setMemberNotesApi(c.id, member.influencerId, notes)),
+            remove: () => save(() => removeMemberApi(c.id, member.influencerId)),
           } : undefined} />
       )}
 
@@ -262,7 +269,9 @@ export function CampaignDetailScreen() {
           reasonLabel={ACTION_NEEDS_REASON[dialog.action] ? 'Reason *' : undefined}
           confirmLabel={ACTION_LABEL[dialog.action]}
           danger={dialog.action === 'cancel'}
-          onConfirm={reason => runCampaign(c.id, x => changeStatus(x, dialog.action, reason, nameOf))}
+          onConfirm={reason => (api
+            ? save(() => changeCampaignStatusApi(c.id, dialog.action, reason))
+            : runCampaign(c.id, x => changeStatus(x, dialog.action, reason, nameOf)))}
           onClose={() => setDialog(null)} />
       ))}
     </div>
