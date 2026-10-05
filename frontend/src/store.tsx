@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Campaign, Influencer, Region, SeedInfluencer } from './types'
 import {
   GEO, METRICS_AGE_DAYS, RATES_AGE_DAYS, SEED_CATEGORIES, SEED_INFLUENCERS, SEED_LANGUAGES, SEED_NOTE,
@@ -8,6 +8,8 @@ import GENERATED from './data/generated-influencers.json'
 import { DAY } from './lib/format'
 import { parseGeo, stateOf } from './lib/locations'
 import { toInfluencer, type Draft } from './lib/influencerForm'
+import { apiEnabled } from './api/client'
+import { getReference } from './api/reference'
 import { addMembers, duplicateCampaign, newCampaign, type CampaignInput } from './lib/campaigns'
 
 const ago = (days: number) => Date.now() - days * DAY
@@ -64,7 +66,8 @@ type Store = {
   setNote: (id: number, note: string) => void
   /** Adds a city under a state. Returns an error message, or '' on success. */
   addCity: (state: string, name: string) => string
-  /** Adds a niche/language if new (case-insensitive). Returns the canonical value. */
+  /** Adds a niche/language to this browser's list if new (case-insensitive). Returns the canonical value.
+   *  API mode: call the API first, then this with the value it returns. */
   addCategory: (name: string) => string
   addLanguage: (name: string) => string
 }
@@ -78,6 +81,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cats, setCats] = useState(SEED_CATEGORIES)
   const [langs, setLangs] = useState(SEED_LANGUAGES)
   const [dataRev, setDataRev] = useState(0)
+
+  // API mode: niches and languages come from the server (they include custom ones people added).
+  // If the call fails, the built-in lists stay; saving then reports any value the server doesn't know.
+  useEffect(() => {
+    if (!apiEnabled()) return
+    const controller = new AbortController()
+    getReference(controller.signal)
+      .then(r => { setCats(r.categories); setLangs(r.languages) })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
 
   const store = useMemo<Store>(() => {
     const addTo = (list: string[], set: (v: string[]) => void, raw: string) => {

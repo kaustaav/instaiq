@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useStore } from '../store'
 import { apiEnabled, ApiError } from '../api/client'
 import { createInfluencer, draftToRequest, profileToInfluencer, updateInfluencer } from '../api/influencers'
+import { addCategoryApi, addLanguageApi, type Added } from '../api/reference'
 import { categoryColor, collapse, freshness, mon, toggle } from '../lib/format'
 import { MoreChip } from '../components/ui'
 import { blankDraft, draftFrom, validate, type Draft } from '../lib/influencerForm'
@@ -41,20 +42,23 @@ function Section({ title, aside, children, gap = 10 }: { title: string; aside?: 
   )
 }
 
-/** Free-text "add a new …" input that appends to a chip list. */
-function AddInput({ placeholder, onAdd }: { placeholder: string; onAdd: (v: string) => void }) {
+/** Free-text "add a new …" input that appends to a chip list. `onAdd` returns false to keep the text (it failed). */
+function AddInput({ placeholder, onAdd }: { placeholder: string; onAdd: (v: string) => boolean | Promise<boolean> }) {
   const [v, setV] = useState('')
-  const submit = () => {
-    if (!v.trim()) return
-    onAdd(v)
-    setV('')
+  const [busy, setBusy] = useState(false)
+  const submit = async () => {
+    if (!v.trim() || busy) return
+    setBusy(true)
+    const ok = await onAdd(v)
+    setBusy(false)
+    if (ok) setV('')
   }
   return (
     <div style={{ display: 'flex', gap: 5, maxWidth: 300 }}>
       <input type="text" className="input input-sm" autoComplete="off" placeholder={placeholder} aria-label={placeholder} value={v}
         onChange={e => setV(e.target.value)}
         onKeyDown={(e: KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); submit() } }} />
-      <button type="button" className="btn btn-ghost" style={{ fontWeight: 400, padding: '5px 10px' }} onClick={submit}>Add</button>
+      <button type="button" className="btn btn-ghost" style={{ fontWeight: 400, padding: '5px 10px' }} disabled={busy} onClick={submit}>Add</button>
     </div>
   )
 }
@@ -79,6 +83,27 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
+
+  /**
+   * Adds a niche/language and ticks it. API mode saves it on the server first (shared with everyone);
+   * demo mode only adds it to this browser's list.
+   */
+  const addOption = async (raw: string, kind: 'cats' | 'langs') => {
+    let value: string
+    if (api) {
+      try {
+        const added: Added = await (kind === 'cats' ? addCategoryApi(raw) : addLanguageApi(raw))
+        value = added.value
+      } catch (e) {
+        setError({ message: e instanceof ApiError ? [e.message, ...e.errors.filter(x => x !== e.message)].join(' ') : 'Could not add it' })
+        return false
+      }
+    } else value = raw
+    const v = kind === 'cats' ? addCategory(value) : addLanguage(value)
+    setError(null)
+    setF(prev => (prev[kind].includes(v) ? prev : { ...prev, [kind]: [...prev[kind], v] }))
+    return true
+  }
 
   const save = async () => {
     const err = validate(f) // quick checks first; the server re-checks everything (it's the source of truth)
@@ -151,11 +176,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
                 )
               })}
             </div>
-            {/* the backend's niche list is fixed for now (reference data) */}
-            {!api && <AddInput placeholder="Add a new niche" onAdd={v => {
-              const c = addCategory(v)
-              setF(prev => (prev.cats.includes(c) ? prev : { ...prev, cats: [...prev.cats, c] }))
-            }} />}
+            <AddInput placeholder="Add a new niche" onAdd={v => addOption(v, 'cats')} />
           </Section>
 
           <Section title="Languages" gap={8}>
@@ -172,10 +193,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
               })}
               {langList.canToggle && <MoreChip expanded={langMore} hiddenCount={langList.hiddenCount} onToggle={() => setLangMore(!langMore)} />}
             </div>
-            {!api && <AddInput placeholder="Add a new language" onAdd={v => {
-              const l = addLanguage(v)
-              setF(prev => (prev.langs.includes(l) ? prev : { ...prev, langs: [...prev.langs, l] }))
-            }} />}
+            <AddInput placeholder="Add a new language" onAdd={v => addOption(v, 'langs')} />
           </Section>
 
           <Section title="Metrics" aside={metricsAside}>
