@@ -3,10 +3,8 @@
 Open items agreed in planning but not done yet. Tick them off (or delete) as they land.
 
 ## Security (do before the backend goes to AWS)
-- [ ] **GitHub repo protections** (repo is public; all three are free and currently OFF):
-      secret scanning, **push protection** (blocks a push that contains a key), Dependabot security updates.
-      `gh api -X PATCH repos/kaustaav/instaiq -F 'security_and_analysis[secret_scanning][status]=enabled' -F 'security_and_analysis[secret_scanning_push_protection][status]=enabled'`
-      plus Dependabot under Settings → Code security. Verify: `gh api repos/kaustaav/instaiq --jq .security_and_analysis`
+- [x] GitHub repo protections on (2026-10-06): secret scanning, push protection, Dependabot alerts + security updates.
+      Dependabot PRs target `main`: during the demo freeze, apply them on `develop` instead.
 - [x] No long-lived AWS access keys (instance role + Session Manager). Keep it so: CI must use GitHub OIDC.
 - [x] Secrets (DB password) in SSM Parameter Store, read by the EC2 instance role. Nothing secret in the repo or the UI bundle.
 
@@ -28,7 +26,7 @@ The client uses its own email domain. Keep the real domain/name OUT of this publ
       Stateless (no sessions/cookies). Token kept in sessionStorage; quiet renewal before expiry, re-sign-in overlay.
 - [ ] Google Cloud project is in "Testing": only listed test users can sign in. Before company use: add their
       people as test users, or publish the app (basic scopes need no Google review).
-- [ ] Rotate the OAuth client secret that was shown in a screenshot (unused by us, but exposed).
+- [x] Rotated the OAuth client secret that was shown in a screenshot (2026-10-06).
 - [ ] Add `main`/custom-domain origins to the Google client when going live.
 - [ ] Roles (e.g. view-only) if ever needed.
 
@@ -42,7 +40,7 @@ Develop environment live since 2026-10-06; full record in `docs/DEPLOYMENT.md` (
       deploy via SSM Run Command (needs `workflow` token scope + GitHub OIDC role).
 - [ ] Build images in CI, not on the server (removes swap / ~8 min build / 2 min startup pressure).
 - [ ] EC2 Launch Template or infrastructure as code (Terraform/CDK) so the environment can be recreated exactly.
-- [ ] Turn on EC2 termination protection for `influenceiq-develop` (if not done).
+- [x] EC2 termination protection on for `influenceiq-develop` (2026-10-06).
 - [ ] Revisit the "turned off to save money" list in DEPLOYMENT.md when there's budget (WAF, RDS, t4g.small, CI, alarms).
 
 ## Backend (next milestone)

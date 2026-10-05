@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ExternalLink, Lock, X } from 'lucide-react'
+import { ExternalLink, Lock, Pencil, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { inr } from '../../lib/format'
 import {
@@ -291,7 +291,13 @@ function FeeChanger({ fee, onChange }: { fee: number | null; onChange: (fee: num
   const [busy, setBusy] = useState(false)
   const [value, setValue] = useState(fee != null ? String(fee) : '')
   const [reason, setReason] = useState('')
-  if (!open) return <button type="button" className="btn btn-plain btn-sm" style={{ alignSelf: 'flex-start', fontWeight: 400 }} onClick={() => setOpen(true)}>Change fee…</button>
+  if (!open) {
+    return (
+      <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', gap: 5 }} onClick={() => setOpen(true)}>
+        <Pencil size={12} />Change fee
+      </button>
+    )
+  }
   return (
     <div className="md-box">
       <div className="form-grid-2">
