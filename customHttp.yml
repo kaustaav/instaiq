@@ -25,9 +25,9 @@ applications:
           #   img data:                        inline SVG/data images
           #   accounts.google.com/gsi/         "Sign in with Google" (script, button frame, styles, token calls)
           #   lh3.googleusercontent.com        the signed-in person's Google profile picture
-          # When the API is deployed, add its origin to connect-src.
+          #   d30krgd979e950.cloudfront.net    the develop API (CloudFront in front of EC2); see docs/DEPLOYMENT.md
           - key: Content-Security-Policy
-            value: "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://lh3.googleusercontent.com; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+            value: "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://lh3.googleusercontent.com; frame-src https://accounts.google.com/gsi/; connect-src 'self' https://accounts.google.com/gsi/ https://d30krgd979e950.cloudfront.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
       # Vite fingerprints asset names (index-B2WJoJTK.js), so a given URL never changes: cache for a year
       - pattern: 'assets/**'
         headers:
