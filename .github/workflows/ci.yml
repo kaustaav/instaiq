@@ -1,0 +1,54 @@
+# CI: on every push to develop/main and every pull request, prove the code still builds and its tests pass.
+# Shows a check mark (or a cross) on the commit / pull request. Free for public repositories.
+# Deploying to AWS is a separate, later step (CD).
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+permissions:
+  contents: read # read the code, nothing else
+
+concurrency:
+  # a newer push to the same branch cancels the older, unfinished run
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      # unit + API tests; Testcontainers starts a real Postgres in the runner's Docker
+      - run: ./mvnw -B verify
+
+  frontend:
+    name: Frontend lint + build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      # type-check + build in demo mode (no VITE_API_URL): the same check Amplify runs
+      - run: npm run build

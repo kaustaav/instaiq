@@ -32,6 +32,11 @@ The console doesn't allow an empty "all branches" value, so `amplify.yml` **unse
 
 Watch a build: Amplify console → app → branch `main` → the latest build → logs per phase.
 
+**Skip a build:** every push to a connected branch builds the UI (~3-5 min, ~$0.01 per build minute), even when only docs or
+the backend changed. Put **`[skip-cd]`** in the commit message of such pushes and Amplify skips the build (the site keeps the
+previous build). Use it for docs-only and backend-only commits; never for commits that change `frontend/`, `amplify.yml` or
+`customHttp.yml`.
+
 ## Console-only setting: SPA rewrite rule
 Not stored in the repo, so recreate it by hand if the app is ever rebuilt.
 Amplify → Hosting → Rewrites and redirects → Manage redirects → replace the JSON with:

@@ -36,6 +36,7 @@ Develop environment live since 2026-10-06; full record in `docs/DEPLOYMENT.md` (
 - [x] Settings in Parameter Store, read by the instance role; nightly pg_dump to S3 (14 days); verified a backup.
 - [x] HTTPS via CloudFront (caching off, headers passed through); Amplify `develop` points at it with Google sign-in.
 - [x] EC2 section in `docs/DEPLOYMENT.md` (operate, cost, teardown, gotchas, turned-off list).
+- [x] CI (GitHub Actions `.github/workflows/ci.yml`): backend tests + frontend lint/build on every push to develop/main and on PRs.
 - [ ] No auto-redeploy on push: today `deploy.sh` via Session Manager. Target: GitHub Actions builds image -> ECR ->
       deploy via SSM Run Command (needs `workflow` token scope + GitHub OIDC role).
 - [ ] Build images in CI, not on the server (removes swap / ~8 min build / 2 min startup pressure).
