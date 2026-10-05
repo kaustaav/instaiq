@@ -83,7 +83,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [dataRev, setDataRev] = useState(0)
 
   // API mode: niches and languages come from the server (they include custom ones people added).
-  // If the call fails, the built-in lists stay; saving then reports any value the server doesn't know.
+  // Fetched again on every reload (e.g. after signing in: before that the server refuses); unchanged lists come back
+  // as a cheap "304 Not Modified". If the call fails, the current lists stay.
   useEffect(() => {
     if (!apiEnabled()) return
     const controller = new AbortController()
@@ -91,7 +92,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .then(r => { setCats(r.categories); setLangs(r.languages) })
       .catch(() => {})
     return () => controller.abort()
-  }, [])
+  }, [dataRev])
 
   const store = useMemo<Store>(() => {
     const addTo = (list: string[], set: (v: string[]) => void, raw: string) => {

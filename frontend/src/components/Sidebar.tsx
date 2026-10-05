@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { BarChart3, Database, Megaphone, PanelLeft, Search, Send, Settings } from 'lucide-react'
+import { BarChart3, Database, LogOut, Megaphone, PanelLeft, Search, Send, Settings } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
 import { isMobile } from '../lib/media'
+import { useSignedInUser } from '../auth/AuthGate'
+import { initials } from '../lib/format'
 import './Sidebar.css'
 
 const STORAGE_KEY = 'iiq-sb'
@@ -59,6 +61,7 @@ type Props = {
 export function Sidebar({ campaignCount, influencerCount, mobileOpen, onMobileClose }: Props) {
   const { open, toggle } = useSidebarOpen()
   const { pathname } = useLocation()
+  const user = useSignedInUser()
 
   const nav: NavItem[] = [
     { to: '/search', paths: ['/search', '/influencers'], label: 'Search & Browse', icon: Search },
@@ -114,16 +117,35 @@ export function Sidebar({ campaignCount, influencerCount, mobileOpen, onMobileCl
         </div>
       </nav>
 
-      <div className="sb-foot">
-        <div className="sb-avatar" title="Aisha Khan">AK</div>
-        <div className="sb-user sb-fade">
-          <div style={{ minWidth: 0 }}>
-            <div className="sb-user-name">Aisha Khan</div>
-            <div className="sb-user-role">Campaign Manager</div>
+      {user ? (
+        // API mode: the person signed in with Google
+        <div className="sb-foot">
+          {user.picture
+            ? <img className="sb-avatar" src={user.picture} alt="" referrerPolicy="no-referrer" title={user.email} />
+            : <div className="sb-avatar" title={user.email}>{initials(user.name)}</div>}
+          <div className="sb-user sb-fade">
+            <div style={{ minWidth: 0 }}>
+              <div className="sb-user-name">{user.name}</div>
+              <div className="sb-user-role" title={user.email}>{user.email}</div>
+            </div>
+            <button type="button" className="sb-signout" title="Sign out" aria-label="Sign out" onClick={user.signOut}>
+              <LogOut size={13} />
+            </button>
           </div>
-          <Settings size={13} />
         </div>
-      </div>
+      ) : (
+        // demo mode: the prototype's sample user
+        <div className="sb-foot">
+          <div className="sb-avatar" title="Aisha Khan">AK</div>
+          <div className="sb-user sb-fade">
+            <div style={{ minWidth: 0 }}>
+              <div className="sb-user-name">Aisha Khan</div>
+              <div className="sb-user-role">Campaign Manager</div>
+            </div>
+            <Settings size={13} />
+          </div>
+        </div>
+      )}
     </aside>
   )
 }

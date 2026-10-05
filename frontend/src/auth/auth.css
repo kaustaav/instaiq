@@ -1,0 +1,9 @@
+/* Sign-in, no-access and session-expired screens (API mode only) */
+.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--iq-gray-50); }
+.auth-card { width: 100%; max-width: 380px; background: white; border: 1px solid var(--iq-border); border-radius: 12px; padding: 28px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.auth-card h1 { margin: 0; font-size: 18px; font-weight: 600; }
+.auth-card p { margin: 0; font-size: 13px; color: var(--iq-fg-2); line-height: 1.5; }
+.auth-brand { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--iq-brand-500); }
+.auth-button { min-height: 44px; margin-top: 6px; }
+.auth-overlay { align-items: center; justify-content: center; z-index: 400; }

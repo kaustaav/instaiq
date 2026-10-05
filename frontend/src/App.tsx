@@ -4,6 +4,7 @@ import { Menu, UserX, WifiOff } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
 import { EmptyState } from './components/ui'
 import { StoreProvider, useStore } from './store'
+import { AuthGate } from './auth/AuthGate'
 import type { Influencer } from './types'
 import type { ProfileNavState } from './hooks/useOpenProfile'
 import { useInfluencerProfile } from './hooks/useInfluencerProfile'
@@ -142,7 +143,10 @@ export default function App() {
     <StoreProvider>
       {/* BASE_URL is '/' locally and '/instaiq/' on GitHub Pages (set by the build) */}
       <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <Shell />
+        {/* API mode: sign in with Google first; demo mode: straight in */}
+        <AuthGate>
+          <Shell />
+        </AuthGate>
       </BrowserRouter>
     </StoreProvider>
   )

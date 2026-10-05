@@ -142,6 +142,11 @@ a.sb-item:focus-visible { outline: 2px solid var(--iq-brand-400); }
 .sb-user-name { font-size: 12px; font-weight: 500; color: var(--iq-dark-fg-1); overflow: hidden; text-overflow: ellipsis; }
 .sb-user-role { font-size: 11px; color: var(--iq-dark-fg-3); }
 .sb-user svg { margin-left: auto; color: var(--iq-dark-fg-3); cursor: pointer; flex-shrink: 0; }
+img.sb-avatar { object-fit: cover; }
+.sb-user-role { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-signout { margin-left: auto; background: none; border: 0; padding: 4px; border-radius: 4px; cursor: pointer; display: flex; flex-shrink: 0; }
+.sb-signout:hover { background: rgba(255, 255, 255, 0.08); }
+.sb-signout svg { margin-left: 0; }
 
 /* ---------- Phones: off-canvas menu ---------- */
 .sb-backdrop { display: none; }

@@ -1,3 +1,5 @@
+import { getToken, markExpired } from '../auth/session'
+
 /** Backend base URL; undefined = demo mode (built-in data, no server). Set at build time via VITE_API_URL. */
 export const API_URL: string | undefined = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || undefined
 
@@ -24,18 +26,24 @@ export class ApiError extends Error {
 /** One JSON request. `signal` lets callers cancel stale requests (e.g. the user typed again). */
 async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   if (!API_URL) throw new Error('API is not configured (VITE_API_URL is unset)')
+  const token = getToken()
   let res: Response
   try {
     res = await fetch(API_URL + path, {
       method,
       signal,
-      headers: body === undefined ? { Accept: 'application/json' } : { Accept: 'application/json', 'Content-Type': 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        ...(body !== undefined && { 'Content-Type': 'application/json' }),
+        ...(token && { Authorization: `Bearer ${token}` }), // the Google sign-in token; the server checks it
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch (e) {
     if ((e as Error).name === 'AbortError') throw e
     throw new ApiError(0, 'Can’t reach the server. Is the backend running?')
   }
+  if (res.status === 401 && token) markExpired() // signed in, but the server no longer accepts the token
   if (!res.ok) {
     const p = await res.json().catch(() => ({})) as Problem
     throw new ApiError(res.status, p.detail ?? p.title ?? `Request failed (${res.status})`, p.errors ?? [], p.existingId)
