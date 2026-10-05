@@ -1,5 +1,9 @@
 package com.influenceiq.crm.campaign;
 
+import com.influenceiq.crm.common.NotFoundException;
+import com.influenceiq.crm.common.RuleViolationException;
+import com.influenceiq.crm.common.ValidationException;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,9 +14,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import com.influenceiq.crm.common.RuleViolationException;
-import com.influenceiq.crm.common.ValidationException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +72,11 @@ public class CampaignMember {
 
     private String notes;
 
+    // created when terms are agreed (reels, then stories, then posts: id order is creation order)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    private List<Deliverable> deliverables = new ArrayList<>();
+
     @Column(name = "added_at", nullable = false, updatable = false)
     private Instant addedAt;
     @Column(name = "added_by", nullable = false, updatable = false)
@@ -81,6 +90,47 @@ public class CampaignMember {
         this.stageUpdatedBy = actor;
         this.addedAt = now;
         this.addedBy = actor;
+    }
+
+    public List<Deliverable> getDeliverables() {
+        return List.copyOf(deliverables);
+    }
+
+    Deliverable deliverable(long deliverableId) {
+        return deliverables.stream().filter(d -> d.getId() == deliverableId).findFirst()
+                .orElseThrow(() -> new NotFoundException("Deliverable", deliverableId));
+    }
+
+    /**
+     * NEGOTIATING -> AGREED: records compensation and fee, creates one deliverable per reel/story/post, and makes
+     * payment DUE (WAIVED for barter: nothing to pay in cash).
+     */
+    void agreeTerms(Compensation compensation, Integer feeInr, int reels, int stories, int posts, String actor) {
+        if (stage != MemberStage.NEGOTIATING) throw new RuleViolationException("Terms are agreed from the negotiating stage");
+        if (compensation == null) throw new ValidationException("compensation is required");
+        List<String> errors = new ArrayList<>();
+        if (reels < 0 || stories < 0 || posts < 0) errors.add("Deliverable counts can't be negative");
+        else if (reels + stories + posts < 1) errors.add("Add at least one deliverable");
+        boolean barter = compensation == Compensation.BARTER;
+        if (!barter && (feeInr == null || feeInr <= 0)) errors.add("Agreed fee is required for paid collaborations");
+        if (!errors.isEmpty()) throw new ValidationException(errors);
+
+        for (int i = 1; i <= reels; i++) deliverables.add(new Deliverable(this, DeliverableType.REEL, i));
+        for (int i = 1; i <= stories; i++) deliverables.add(new Deliverable(this, DeliverableType.STORY, i));
+        for (int i = 1; i <= posts; i++) deliverables.add(new Deliverable(this, DeliverableType.POST, i));
+        this.compensation = compensation;
+        this.agreedFeeInr = barter ? null : feeInr;
+        this.paymentStatus = barter ? PaymentStatus.WAIVED : PaymentStatus.DUE;
+        this.stage = MemberStage.AGREED;
+        this.stageReason = null;
+        this.stageUpdatedAt = Instant.now();
+        this.stageUpdatedBy = actor;
+    }
+
+    /** Content is live but not fully paid: blocks cancelling the campaign. */
+    public boolean hasLiveUnpaid() {
+        return deliverables.stream().anyMatch(d -> d.getStatus() == DeliverableStatus.POSTED)
+                && (paymentStatus == PaymentStatus.DUE || paymentStatus == PaymentStatus.PARTIALLY_PAID);
     }
 
     /** The stages people move through, in order (DECLINED sits outside it). */
@@ -108,7 +158,8 @@ public class CampaignMember {
                 "Can't move from " + lower(stage) + " to " + lower(to)));
         if (move.needsReason() && isBlank(reason)) throw new ValidationException("A reason is required");
         if (stage == MemberStage.AGREED) {
-            // stepping back from agreed drops the terms
+            // stepping back from agreed drops the terms (allowed only while no content is on record)
+            deliverables.clear();
             agreedFeeInr = null;
             compensation = Compensation.CASH;
             paymentStatus = PaymentStatus.NOT_DUE;
@@ -124,11 +175,6 @@ public class CampaignMember {
         this.notes = isBlank(notes) ? null : notes.trim();
     }
 
-    /** Content is live but not fully paid: blocks cancelling. Needs deliverables and payments (later steps). */
-    boolean hasLiveUnpaid() {
-        return false;
-    }
-
     private static boolean isBlank(String v) {
         return v == null || v.isBlank();
     }
@@ -137,13 +183,21 @@ public class CampaignMember {
         return e.name().toLowerCase(Locale.ROOT).replace('_', ' ');
     }
 
-    /** AGREED becomes IN_PRODUCTION / LIVE / COMPLETED from deliverables and payment (those arrive in later steps). */
+    /** AGREED shows as IN_PRODUCTION until everything is posted, then LIVE until paid (or waived), then COMPLETED. */
     public DisplayStage displayStage() {
-        return stage == MemberStage.AGREED ? DisplayStage.IN_PRODUCTION : DisplayStage.valueOf(stage.name());
+        if (stage != MemberStage.AGREED) return DisplayStage.valueOf(stage.name());
+        boolean allPosted = !deliverables.isEmpty() && deliverables.stream().allMatch(d -> d.getStatus() == DeliverableStatus.POSTED);
+        if (!allPosted) return DisplayStage.IN_PRODUCTION;
+        return paymentStatus == PaymentStatus.PAID || paymentStatus == PaymentStatus.WAIVED ? DisplayStage.COMPLETED : DisplayStage.LIVE;
     }
 
-    /** Why this member can't be removed (paid, or submitted content), if anything. Checks grow with payments/content. */
+    public boolean canBeRemoved() {
+        return removeBlocker().isEmpty();
+    }
+
+    /** Why this member can't be removed or un-agreed, if anything. (Payments join this check in the next step.) */
     Optional<String> removeBlocker() {
+        if (deliverables.stream().anyMatch(Deliverable::hasWork)) return Optional.of("They have submitted content; it must stay on record");
         return Optional.empty();
     }
 }

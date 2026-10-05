@@ -3,11 +3,12 @@
  * so the campaign screens and rules (lib/campaigns.ts) work the same on both data sources.
  */
 import type {
-  Campaign, CampaignStatus, Compensation, DisplayStage, Influencer, Member, MemberStage, PaymentStatus, Region,
+  Campaign, CampaignStatus, Compensation, Deliverable, DeliverableStatus, DeliverableType, DisplayStage, Influencer, Member,
+  MemberStage, PaymentStatus, Region,
 } from '../types'
-import type { CampaignInput } from '../lib/campaigns'
+import type { CampaignInput, Terms } from '../lib/campaigns'
 import type { CampaignCard } from '../lib/campaignUi'
-import { initials } from '../lib/format'
+import { initials, inr } from '../lib/format'
 import { apiDelete, apiGet, apiPost, apiPut } from './client'
 import { stateOnly } from './influencers'
 
@@ -15,6 +16,17 @@ import { stateOnly } from './influencers'
 type ApiBrief = {
   id: number; handle: string; name: string; followers: number; engagementRate: number | null
   status: string; cities: string[]; states: string[]; categories: string[]
+  rates: { storyInr: number | null; reelInr: number | null; postInr: number | null } | null
+}
+
+type ApiRevision = {
+  round: number; draftUrl: string; submittedAt: string; submittedBy: string
+  decision: 'APPROVED' | 'CHANGES_REQUESTED' | null; feedback: string | null; reviewedAt: string | null; reviewedBy: string | null
+}
+
+type ApiDeliverable = {
+  id: number; type: DeliverableType; seq: number; status: DeliverableStatus
+  liveUrl: string | null; postedAt: string | null; revisions: ApiRevision[]
 }
 
 type ApiMember = {
@@ -31,6 +43,7 @@ type ApiMember = {
   notes: string | null
   addedAt: string
   addedBy: string
+  deliverables: ApiDeliverable[]
 }
 
 type ApiTargets = { influencers: number; reels: number | null; stories: number | null; posts: number | null }
@@ -47,7 +60,8 @@ export type ApiCampaign = {
 type ApiCampaignSummary = {
   id: number; name: string; brand: string; status: CampaignStatus
   startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number; targets: ApiTargets
-  memberCount: number; stageCounts: Partial<Record<DisplayStage, number>>; createdAt: string
+  memberCount: number; stageCounts: Partial<Record<DisplayStage, number>>
+  deliverables: number; posted: number; inReview: number; unpaid: number; createdAt: string
 }
 
 export type AddResult = {
@@ -60,6 +74,7 @@ export type AddResult = {
 export type ApiInfluencerCampaign = {
   campaignId: number; name: string; brand: string; startDate: string | null; endDate: string | null
   campaignStatus: CampaignStatus; stage: MemberStage; displayStage: DisplayStage
+  deliverables: number; posted: number; removable: boolean
 }
 
 // ---------- calls ----------
@@ -87,6 +102,18 @@ export const setMemberStageApi = (id: number, influencerId: number, stage: Membe
   apiPut<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/stage`, { stage, reason: reason.trim() || null })
 export const setMemberNotesApi = (id: number, influencerId: number, notes: string) =>
   apiPut<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/notes`, { notes })
+export const agreeTermsApi = (id: number, influencerId: number, t: Terms) =>
+  apiPost<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/terms`, {
+    compensation: t.compensation, feeInr: t.fee, reels: t.counts.REEL, stories: t.counts.STORY, posts: t.counts.POST,
+  })
+const deliverablePath = (id: number, influencerId: number, d: Deliverable, action: string) =>
+  `/campaigns/${id}/members/${influencerId}/deliverables/${d.apiId}/${action}`
+export const submitDraftApi = (id: number, influencerId: number, d: Deliverable, draftUrl: string) =>
+  apiPost<ApiCampaign>(deliverablePath(id, influencerId, d, 'drafts'), { draftUrl })
+export const reviewDraftApi = (id: number, influencerId: number, d: Deliverable, decision: 'APPROVED' | 'CHANGES_REQUESTED', feedback: string) =>
+  apiPost<ApiCampaign>(deliverablePath(id, influencerId, d, 'review'), { decision, feedback: feedback.trim() || null })
+export const markPostedApi = (id: number, influencerId: number, d: Deliverable, liveUrl: string, postedAt: string) =>
+  apiPost<ApiCampaign>(deliverablePath(id, influencerId, d, 'posted'), { liveUrl, postedAt: postedAt || null })
 export const removeMemberApi = (id: number, influencerId: number) => apiDelete<ApiCampaign>(`/campaigns/${id}/members/${influencerId}`)
 
 // ---------- mapping ----------
@@ -97,20 +124,20 @@ function cardFromSummary(s: ApiCampaignSummary): CampaignCard {
     id: s.id, name: s.name, brand: s.brand, status: s.status, startDate: opt(s.startDate), endDate: opt(s.endDate),
     budget: s.budgetInr, budgetUsed: s.budgetUsedInr, targetInfluencers: s.targets.influencers, members: s.memberCount,
     stages: new Map(Object.entries(s.stageCounts) as [DisplayStage, number][]),
-    // deliverables and payments arrive in later steps; until then there's nothing to count
-    deliverables: 0, posted: 0, inReview: 0, unpaid: 0, createdAt: s.createdAt,
+    deliverables: s.deliverables, posted: s.posted, inReview: s.inReview, unpaid: s.unpaid, createdAt: s.createdAt,
   }
 }
 
-const NO_PRICE = { story: '—', reel: '—', post: '—' }
+const price = (v: number | null | undefined) => (v == null ? '—' : inr(v))
 
-/** Enough of an Influencer for campaign screens (avatar, name, handle, CSV columns). */
+/** Enough of an Influencer for campaign screens (avatar, name, handle, CSV columns, suggested fee). */
 function briefToInfluencer(b: ApiBrief, loc: Region[]): Influencer {
   const now = Date.now()
+  const pricing = { story: price(b.rates?.storyInr), reel: price(b.rates?.reelInr), post: price(b.rates?.postInr) }
   return {
     id: b.id, name: b.name, handle: '@' + b.handle, cities: b.cities, states: stateOnly(b.cities, b.states, loc),
     cats: b.categories, langs: [], tags: [], followers: b.followers, eng: b.engagementRate ?? 0, likes: 0, comments: 0,
-    bio: '', email: '—', phone: '—', pricing: NO_PRICE, rates: [{ date: now, ...NO_PRICE }], updatedAt: now,
+    bio: '', email: '—', phone: '—', pricing, rates: [{ date: now, ...pricing }], updatedAt: now,
     camps: [], av: initials(b.name), note: '',
   }
 }
@@ -120,7 +147,18 @@ function toMember(m: ApiMember): Member {
     influencerId: m.influencer.id, stage: m.stage, stageReason: opt(m.stageReason), stageUpdatedAt: m.stageUpdatedAt,
     stageUpdatedBy: m.stageUpdatedBy, compensation: m.compensation, agreedFee: m.agreedFeeInr,
     paymentStatus: m.paymentStatus, payments: [], paymentReason: opt(m.paymentWriteOffReason), notes: m.notes ?? '',
-    deliverables: [], addedAt: m.addedAt, addedBy: m.addedBy,
+    deliverables: m.deliverables.map(toDeliverable), addedAt: m.addedAt, addedBy: m.addedBy,
+  }
+}
+
+function toDeliverable(d: ApiDeliverable): Deliverable {
+  return {
+    id: `${d.type.toLowerCase()}-${d.seq}`, apiId: d.id, type: d.type, status: d.status, liveUrl: opt(d.liveUrl),
+    postedAt: opt(d.postedAt),
+    revisions: d.revisions.map(r => ({
+      round: r.round, draftUrl: r.draftUrl, submittedAt: r.submittedAt, submittedBy: r.submittedBy,
+      decision: opt(r.decision), feedback: opt(r.feedback), reviewedAt: opt(r.reviewedAt), reviewedBy: opt(r.reviewedBy),
+    })),
   }
 }
 

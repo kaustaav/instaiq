@@ -6,6 +6,7 @@ import com.influenceiq.crm.common.ValidationException;
 import com.influenceiq.crm.influencer.Influencer;
 import com.influenceiq.crm.influencer.InfluencerRepository;
 import com.influenceiq.crm.influencer.InfluencerStatus;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -109,6 +110,33 @@ public class CampaignService {
     public Campaign updateMemberNotes(long campaignId, long influencerId, String notes) {
         Campaign c = loadForUpdate(campaignId);
         c.updateMemberNotes(influencerId, notes);
+        return c;
+    }
+
+    public record Terms(Compensation compensation, Integer feeInr, int reels, int stories, int posts) {}
+
+    public Campaign agreeTerms(long campaignId, long influencerId, Terms t, String actor) {
+        Campaign c = loadForUpdate(campaignId);
+        c.agreeTerms(influencerId, t.compensation(), t.feeInr(), t.reels(), t.stories(), t.posts(), actor);
+        return c;
+    }
+
+    public Campaign submitDraft(long campaignId, long influencerId, long deliverableId, String url, String actor) {
+        Campaign c = loadForUpdate(campaignId);
+        c.submitDraft(influencerId, deliverableId, url, actor);
+        return c;
+    }
+
+    public Campaign reviewDraft(long campaignId, long influencerId, long deliverableId, ReviewDecision decision,
+                                String feedback, String actor) {
+        Campaign c = loadForUpdate(campaignId);
+        c.reviewDraft(influencerId, deliverableId, decision, feedback, actor);
+        return c;
+    }
+
+    public Campaign markPosted(long campaignId, long influencerId, long deliverableId, String url, LocalDate postedAt) {
+        Campaign c = loadForUpdate(campaignId);
+        c.markPosted(influencerId, deliverableId, url, postedAt);
         return c;
     }
 

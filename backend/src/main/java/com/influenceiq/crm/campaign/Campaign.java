@@ -17,6 +17,7 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -141,7 +142,10 @@ public class Campaign extends Auditable {
                 switch (m.displayStage()) {
                     case DECLINED, COMPLETED -> { }
                     case LIVE -> out.add(who + ": not paid yet");
-                    case IN_PRODUCTION -> out.add(who + ": content not posted yet");
+                    case IN_PRODUCTION -> {
+                        long left = m.getDeliverables().stream().filter(d -> d.getStatus() != DeliverableStatus.POSTED).count();
+                        out.add(who + ": " + left + " deliverable" + (left == 1 ? "" : "s") + " not posted");
+                    }
                     default -> out.add(who + ": still " + m.displayStage().name().toLowerCase(Locale.ROOT)
                             + " (decline or agree terms)");
                 }
@@ -180,6 +184,37 @@ public class Campaign extends Auditable {
     public void updateMemberNotes(long influencerId, String notes) {
         assertEditable();
         requireMember(influencerId).updateNotes(notes);
+    }
+
+    public void agreeTerms(long influencerId, Compensation compensation, Integer feeInr, int reels, int stories, int posts,
+                           String actor) {
+        assertEditable();
+        requireMember(influencerId).agreeTerms(compensation, feeInr, reels, stories, posts, actor);
+    }
+
+    public void submitDraft(long influencerId, long deliverableId, String url, String actor) {
+        assertEditable();
+        requireMember(influencerId).deliverable(deliverableId).submitDraft(url, actor);
+    }
+
+    public void reviewDraft(long influencerId, long deliverableId, ReviewDecision decision, String feedback, String actor) {
+        assertEditable();
+        requireMember(influencerId).deliverable(deliverableId).review(decision, feedback, actor);
+    }
+
+    /** A live link can be used once per campaign (two deliverables can't both be "that reel"). */
+    public void markPosted(long influencerId, long deliverableId, String liveUrl, LocalDate postedAt) {
+        assertEditable();
+        List<String> errors = new ArrayList<>();
+        if (!Links.isWebLink(liveUrl)) errors.add("Enter a valid live link (https://…)");
+        if (postedAt == null) errors.add("Enter the date it went live");
+        if (!errors.isEmpty()) throw new ValidationException(errors);
+        String url = liveUrl.trim();
+        Deliverable d = requireMember(influencerId).deliverable(deliverableId);
+        boolean taken = members.stream().flatMap(m -> m.getDeliverables().stream())
+                .anyMatch(x -> x != d && Objects.equals(x.getLiveUrl(), url));
+        if (taken) throw new RuleViolationException("That link is already used in this campaign");
+        d.markPosted(url, postedAt);
     }
 
     private CampaignMember requireMember(long influencerId) {

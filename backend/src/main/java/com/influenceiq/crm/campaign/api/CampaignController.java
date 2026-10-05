@@ -91,6 +91,34 @@ public class CampaignController {
         return queries.get(id);
     }
 
+    /** NEGOTIATING -> AGREED: compensation, fee and how many reels/stories/posts (creates the deliverables). */
+    @PostMapping("/{id}/members/{influencerId}/terms")
+    public CampaignResponse agreeTerms(@PathVariable long id, @PathVariable long influencerId, @RequestBody TermsRequest body) {
+        campaigns.agreeTerms(id, influencerId, body.toTerms(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PostMapping("/{id}/members/{influencerId}/deliverables/{deliverableId}/drafts")
+    public CampaignResponse submitDraft(@PathVariable long id, @PathVariable long influencerId, @PathVariable long deliverableId,
+                                        @RequestBody DraftRequest body) {
+        campaigns.submitDraft(id, influencerId, deliverableId, body.draftUrl(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PostMapping("/{id}/members/{influencerId}/deliverables/{deliverableId}/review")
+    public CampaignResponse reviewDraft(@PathVariable long id, @PathVariable long influencerId, @PathVariable long deliverableId,
+                                        @RequestBody ReviewRequest body) {
+        campaigns.reviewDraft(id, influencerId, deliverableId, body.decision(), body.feedback(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PostMapping("/{id}/members/{influencerId}/deliverables/{deliverableId}/posted")
+    public CampaignResponse markPosted(@PathVariable long id, @PathVariable long influencerId, @PathVariable long deliverableId,
+                                       @RequestBody PostedRequest body) {
+        campaigns.markPosted(id, influencerId, deliverableId, body.liveUrl(), body.postedAt());
+        return queries.get(id);
+    }
+
     private ResponseEntity<CampaignResponse> created(Campaign c) {
         return ResponseEntity.created(URI.create("/api/campaigns/" + c.getId())).body(queries.get(c.getId()));
     }

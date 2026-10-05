@@ -77,7 +77,9 @@ export type Payment = {
 }
 
 export type Deliverable = {
-  id: string
+  id: string // "reel-1": type + number within the member
+  /** API mode: the server's id, used in API calls. */
+  apiId?: number
   type: DeliverableType
   status: DeliverableStatus
   liveUrl?: string

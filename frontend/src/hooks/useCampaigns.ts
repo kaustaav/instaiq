@@ -76,7 +76,7 @@ export function useInfluencerCampaigns(influencerId: number | null): Resource<Me
   const remoteData = remote.kind === 'ready' ? remote.data : null
   const mapped = useMemo(() => remoteData?.map((r): Membership => ({
     campaignId: r.campaignId, name: r.name, brand: r.brand, startDate: r.startDate ?? undefined, campaignStatus: r.campaignStatus,
-    stage: r.displayStage, removable: r.stage === 'SHORTLISTED', posted: 0, deliverables: 0,
+    stage: r.displayStage, removable: r.removable, posted: r.posted, deliverables: r.deliverables,
   })) ?? null, [remoteData])
 
   if (local) return { kind: 'ready', data: local, retry: noop }

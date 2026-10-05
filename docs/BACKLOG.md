@@ -61,7 +61,7 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
   - [x] 1b. UI on the campaigns API (API mode): list, create/edit, duplicate, add (one/all), remove, profile history;
         status/stage/terms/drafts/payments/notes view-only in API mode until steps 2-4
   - [x] 2. Campaign status machine + member stages (with reasons) + member notes, API and UI
-  - [ ] 3. Deliverables + draft review loop
+  - [x] 3. Agree terms, deliverables + draft review loop (API + UI; suggested fee from the rate card)
   - [ ] 4. Payments (receipt links), write-off, budget warning
   - [ ] 5. CSV export of a campaign
 - [ ] No way to rename/remove a custom niche or language yet (needs an admin screen + rules for influencers using it).

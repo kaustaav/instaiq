@@ -25,6 +25,10 @@ type Props = {
    * in-browser rules (lib/campaigns.ts).
    */
   api?: {
+    agree: (t: Terms) => Promise<string>
+    submitDraft: (d: Deliverable, url: string) => Promise<string>
+    review: (d: Deliverable, decision: 'APPROVED' | 'CHANGES_REQUESTED', feedback: string) => Promise<string>
+    posted: (d: Deliverable, url: string, date: string) => Promise<string>
     setStage: (to: MemberStage, reason: string) => Promise<string>
     setNotes: (notes: string) => Promise<string>
     remove: () => Promise<string>
@@ -38,11 +42,18 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm | null>(null)
   const readOnly = isReadOnly(c)
-  // API mode: terms, drafts and payments aren't on the server yet (next steps), so they're view-only there
+  // API mode: fee changes and payments aren't on the server yet (next step), so they're view-only there
   const pending = apiEnabled()
-  const contentLocked = readOnly || pending
+  const paymentsLocked = readOnly || pending
   const stage = displayStage(m)
   const name = inf?.name ?? `Influencer #${m.influencerId}`
+
+  /** API mode: one server call; shows its error in the drawer. */
+  const runApi = async (call: () => Promise<string>) => {
+    const err = await call()
+    setError(err)
+    return err
+  }
 
   /** Runs a rule; shows its error in the drawer. */
   const run = (fn: (x: Campaign) => Campaign) => {
@@ -87,7 +98,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
         <div className="drawer-body">
           {readOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
           {pending && !readOnly && (
-            <div className="muted" style={{ fontSize: 12 }}>Agreeing terms, drafts and payments aren’t connected to the server yet; they come in the next steps.</div>
+            <div className="muted" style={{ fontSize: 12 }}>Fee changes and payments aren’t connected to the server yet; they come in the next step.</div>
           )}
 
           {/* ---- Stage ---- */}
@@ -110,7 +121,9 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           </section>
 
           {/* ---- Terms ---- */}
-          {m.stage === 'NEGOTIATING' && !contentLocked && inf && <TermsForm inf={inf} onAgree={t => run(x => agreeTerms(x, m.influencerId, t))} />}
+          {m.stage === 'NEGOTIATING' && !readOnly && inf && (
+            <TermsForm inf={inf} onAgree={t => (api ? runApi(() => api.agree(t)) : run(x => agreeTerms(x, m.influencerId, t)))} />
+          )}
           {m.stage === 'AGREED' && (
             <section className="md-section">
               <div className="label">Agreed terms</div>
@@ -122,7 +135,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                   return n ? `${n} ${DELIVERABLE_LABEL[t].toLowerCase()}${n > 1 ? 's' : ''}` : ''
                 }).filter(Boolean).join(' · ')}</span>
               </div>
-              {!contentLocked && m.compensation !== 'BARTER' && <FeeChanger fee={m.agreedFee} onChange={(fee, reason) => run(x => changeFee(x, m.influencerId, fee, reason))} />}
+              {!paymentsLocked && m.compensation !== 'BARTER' && <FeeChanger fee={m.agreedFee} onChange={(fee, reason) => run(x => changeFee(x, m.influencerId, fee, reason))} />}
             </section>
           )}
 
@@ -131,10 +144,12 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
             <section className="md-section">
               <div className="label">Deliverables</div>
               {m.deliverables.map(d => (
-                <DeliverableCard key={d.id} d={d} readOnly={contentLocked}
-                  onSubmit={url => run(x => submitDraft(x, m.influencerId, d.id, url))}
-                  onReview={(decision, feedback) => run(x => reviewDraft(x, m.influencerId, d.id, decision, feedback))}
-                  onPosted={(url, date) => run(x => markPosted(x, m.influencerId, d.id, url, date))} />
+                <DeliverableCard key={d.id} d={d} readOnly={readOnly}
+                  onSubmit={url => (api ? runApi(() => api.submitDraft(d, url)) : run(x => submitDraft(x, m.influencerId, d.id, url)))}
+                  onReview={(decision, feedback) => (api
+                    ? runApi(() => api.review(d, decision, feedback))
+                    : run(x => reviewDraft(x, m.influencerId, d.id, decision, feedback)))}
+                  onPosted={(url, date) => (api ? runApi(() => api.posted(d, url, date)) : run(x => markPosted(x, m.influencerId, d.id, url, date)))} />
               ))}
             </section>
           )}
@@ -165,7 +180,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                 </table>
               )}
               {m.paymentReason && <div className="md-quote">Written off: “{m.paymentReason}”</div>}
-              {!contentLocked && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
+              {!paymentsLocked && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
                 <PaymentForm remaining={Math.max(0, (m.agreedFee ?? 0) - amountPaid(m))}
                   onPay={(amount, date, receipt) => run(x => recordPayment(x, m.influencerId, amount, date, receipt))}
                   onWriteOff={() => setConfirm({
@@ -217,7 +232,8 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
   )
 }
 
-function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => string }) {
+function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => string | Promise<string> }) {
+  const [busy, setBusy] = useState(false)
   const [compensation, setCompensation] = useState<Compensation>('CASH')
   const [counts, setCounts] = useState({ REEL: 1, STORY: 0, POST: 0 })
   const [fee, setFee] = useState('')
@@ -252,7 +268,10 @@ function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => s
         </button>
       )}
       <div className="md-actions">
-        <button type="button" className="btn btn-blue" onClick={() => onAgree({ compensation, fee: fee.trim() ? +fee : null, counts })}>Agree terms</button>
+        <button type="button" className="btn btn-blue" disabled={busy}
+          onClick={async () => { setBusy(true); await onAgree({ compensation, fee: fee.trim() ? +fee : null, counts }); setBusy(false) }}>
+          {busy ? 'Saving…' : 'Agree terms'}
+        </button>
       </div>
     </section>
   )
@@ -280,14 +299,21 @@ function FeeChanger({ fee, onChange }: { fee: number | null; onChange: (fee: num
 function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
   d: Deliverable
   readOnly: boolean
-  onSubmit: (url: string) => string
-  onReview: (decision: 'APPROVED' | 'CHANGES_REQUESTED', feedback: string) => string
-  onPosted: (url: string, date: string) => string
+  onSubmit: (url: string) => string | Promise<string>
+  onReview: (decision: 'APPROVED' | 'CHANGES_REQUESTED', feedback: string) => string | Promise<string>
+  onPosted: (url: string, date: string) => string | Promise<string>
 }) {
   const [url, setUrl] = useState('')
   const [feedback, setFeedback] = useState('')
   const [date, setDate] = useState(today())
-  const clear = (err: string) => { if (!err) { setUrl(''); setFeedback('') } }
+  const [busy, setBusy] = useState(false)
+  /** Runs an action; clears the inputs when it worked. */
+  const clear = async (result: string | Promise<string>) => {
+    setBusy(true)
+    const err = await result
+    setBusy(false)
+    if (!err) { setUrl(''); setFeedback('') }
+  }
   const n = d.id.split('-')[1]
 
   return (
@@ -319,7 +345,7 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
       {!readOnly && (d.status === 'AWAITING_DRAFT' || d.status === 'CHANGES_REQUESTED') && (
         <div className="md-inline">
           <input className="input input-sm" autoComplete="off" placeholder="Draft link (Drive, Dropbox, Instagram preview…)" value={url} onChange={e => setUrl(e.target.value)} />
-          <button type="button" className="btn btn-blue" onClick={() => clear(onSubmit(url))}>{d.revisions.length ? 'Resubmit draft' : 'Submit draft'}</button>
+          <button type="button" className="btn btn-blue" disabled={busy} onClick={() => clear(onSubmit(url))}>{d.revisions.length ? 'Resubmit draft' : 'Submit draft'}</button>
         </div>
       )}
 
@@ -327,8 +353,8 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
         <>
           <textarea className="input input-sm" rows={2} placeholder="Feedback (required to request changes)" value={feedback} onChange={e => setFeedback(e.target.value)} />
           <div className="md-actions">
-            <button type="button" className="btn btn-ghost" onClick={() => clear(onReview('CHANGES_REQUESTED', feedback))}>Request changes</button>
-            <button type="button" className="btn btn-blue" onClick={() => clear(onReview('APPROVED', feedback))}>Approve</button>
+            <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => clear(onReview('CHANGES_REQUESTED', feedback))}>Request changes</button>
+            <button type="button" className="btn btn-blue" disabled={busy} onClick={() => clear(onReview('APPROVED', feedback))}>Approve</button>
           </div>
         </>
       )}
@@ -337,7 +363,7 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
         <div className="md-inline">
           <input className="input input-sm" autoComplete="off" placeholder="Live post link (instagram.com/…)" value={url} onChange={e => setUrl(e.target.value)} />
           <input type="date" className="input input-sm" style={{ width: 'auto' }} aria-label="Date posted" value={date} onChange={e => setDate(e.target.value)} />
-          <button type="button" className="btn btn-blue" onClick={() => clear(onPosted(url, date))}>Mark posted</button>
+          <button type="button" className="btn btn-blue" disabled={busy} onClick={() => clear(onPosted(url, date))}>Mark posted</button>
         </div>
       )}
     </div>
