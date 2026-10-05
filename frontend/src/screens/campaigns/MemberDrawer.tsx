@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ExternalLink, Lock, X } from 'lucide-react'
 import { useStore } from '../../store'
-import { apiEnabled } from '../../api/client'
 import { inr } from '../../lib/format'
 import {
   agreeTerms, amountPaid, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, displayStage, isReadOnly, markPosted, recordPayment,
@@ -29,22 +28,22 @@ type Props = {
     submitDraft: (d: Deliverable, url: string) => Promise<string>
     review: (d: Deliverable, decision: 'APPROVED' | 'CHANGES_REQUESTED', feedback: string) => Promise<string>
     posted: (d: Deliverable, url: string, date: string) => Promise<string>
+    pay: (amount: number, date: string, receiptUrl: string) => Promise<string>
+    writeOff: (reason: string) => Promise<string>
+    changeFee: (fee: number, reason: string) => Promise<string>
     setStage: (to: MemberStage, reason: string) => Promise<string>
     setNotes: (notes: string) => Promise<string>
     remove: () => Promise<string>
   }
 }
 
-type Confirm = { title: string; reasonLabel?: string; confirmLabel: string; danger?: boolean; run: (reason: string) => string | Promise<string> }
+type Confirm = { title: string; message?: string; reasonLabel?: string; confirmLabel: string; danger?: boolean; run: (reason: string) => string | Promise<string> }
 
 export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose, api }: Props) {
   const { runCampaign } = useStore()
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm | null>(null)
   const readOnly = isReadOnly(c)
-  // API mode: fee changes and payments aren't on the server yet (next step), so they're view-only there
-  const pending = apiEnabled()
-  const paymentsLocked = readOnly || pending
   const stage = displayStage(m)
   const name = inf?.name ?? `Influencer #${m.influencerId}`
 
@@ -97,9 +96,6 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
 
         <div className="drawer-body">
           {readOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
-          {pending && !readOnly && (
-            <div className="muted" style={{ fontSize: 12 }}>Fee changes and payments aren’t connected to the server yet; they come in the next step.</div>
-          )}
 
           {/* ---- Stage ---- */}
           <section className="md-section">
@@ -135,7 +131,10 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                   return n ? `${n} ${DELIVERABLE_LABEL[t].toLowerCase()}${n > 1 ? 's' : ''}` : ''
                 }).filter(Boolean).join(' · ')}</span>
               </div>
-              {!paymentsLocked && m.compensation !== 'BARTER' && <FeeChanger fee={m.agreedFee} onChange={(fee, reason) => run(x => changeFee(x, m.influencerId, fee, reason))} />}
+              {!readOnly && m.compensation !== 'BARTER' && m.paymentStatus !== 'WAIVED' && (
+                <FeeChanger fee={m.agreedFee}
+                  onChange={(fee, reason) => (api ? runApi(() => api.changeFee(fee, reason)) : run(x => changeFee(x, m.influencerId, fee, reason)))} />
+              )}
             </section>
           )}
 
@@ -180,12 +179,17 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                 </table>
               )}
               {m.paymentReason && <div className="md-quote">Written off: “{m.paymentReason}”</div>}
-              {!paymentsLocked && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
+              {!readOnly && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
                 <PaymentForm remaining={Math.max(0, (m.agreedFee ?? 0) - amountPaid(m))}
-                  onPay={(amount, date, receipt) => run(x => recordPayment(x, m.influencerId, amount, date, receipt))}
+                  onPay={(amount, date, receipt) => (api
+                    ? runApi(() => api.pay(amount, date, receipt))
+                    : run(x => recordPayment(x, m.influencerId, amount, date, receipt)))}
                   onWriteOff={() => setConfirm({
                     title: `Write off payment: ${name}`, reasonLabel: 'Reason *', confirmLabel: 'Write off', danger: true,
-                    run: reason => runCampaign(c.id, x => writeOffPayment(x, m.influencerId, reason)),
+                    message: amountPaid(m)
+                      ? `${inr(amountPaid(m))} was paid. The rest is settled with product: this becomes “Paid + product” with the fee set to ${inr(amountPaid(m))}, and the unpaid ${inr((m.agreedFee ?? 0) - amountPaid(m))} leaves the committed budget.`
+                      : `Nothing has been paid, so this becomes a barter (product) collaboration and its ${inr(m.agreedFee ?? 0)} fee leaves the committed budget.`,
+                    run: reason => (api ? api.writeOff(reason) : runCampaign(c.id, x => writeOffPayment(x, m.influencerId, reason))),
                   })} />
               )}
             </section>
@@ -225,20 +229,25 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
       </div>
 
       {confirm && (
-        <ReasonDialog title={confirm.title} reasonLabel={confirm.reasonLabel} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
+        <ReasonDialog title={confirm.title} message={confirm.message} reasonLabel={confirm.reasonLabel} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
           onConfirm={confirm.run} onClose={() => setConfirm(null)} />
       )}
     </div>
   )
 }
 
+/** "2" -> 2; blank, negative or junk -> 0. */
+const whole = (v: string) => Math.max(0, Math.floor(Number(v) || 0))
+
 function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => string | Promise<string> }) {
   const [busy, setBusy] = useState(false)
   const [compensation, setCompensation] = useState<Compensation>('CASH')
-  const [counts, setCounts] = useState({ REEL: 1, STORY: 0, POST: 0 })
+  // the boxes keep what's typed (so they can be cleared); blank counts as 0
+  const [typed, setTyped] = useState({ REEL: '1', STORY: '', POST: '' })
+  const counts = { REEL: whole(typed.REEL), STORY: whole(typed.STORY), POST: whole(typed.POST) }
   const [fee, setFee] = useState('')
   const suggestion = suggestedFee(inf, counts)
-  const setCount = (t: keyof typeof counts) => (e: { target: { value: string } }) => setCounts(p => ({ ...p, [t]: Math.max(0, Math.floor(+e.target.value || 0)) }))
+  const setCount = (t: keyof typeof typed) => (e: { target: { value: string } }) => setTyped(p => ({ ...p, [t]: e.target.value }))
 
   return (
     <section className="md-section">
@@ -246,7 +255,7 @@ function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => s
       <div className="form-grid-3">
         {(['REEL', 'STORY', 'POST'] as const).map(t => (
           <label key={t} className="field"><span>{DELIVERABLE_LABEL[t]}s</span>
-            <input type="number" min={0} className="input mono" value={counts[t]} onChange={setCount(t)} />
+            <input type="number" min={0} step={1} className="input mono" placeholder="0" value={typed[t]} onChange={setCount(t)} />
           </label>
         ))}
       </div>
@@ -277,8 +286,9 @@ function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => s
   )
 }
 
-function FeeChanger({ fee, onChange }: { fee: number | null; onChange: (fee: number, reason: string) => string }) {
+function FeeChanger({ fee, onChange }: { fee: number | null; onChange: (fee: number, reason: string) => string | Promise<string> }) {
   const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
   const [value, setValue] = useState(fee != null ? String(fee) : '')
   const [reason, setReason] = useState('')
   if (!open) return <button type="button" className="btn btn-plain btn-sm" style={{ alignSelf: 'flex-start', fontWeight: 400 }} onClick={() => setOpen(true)}>Change fee…</button>
@@ -290,7 +300,10 @@ function FeeChanger({ fee, onChange }: { fee: number | null; onChange: (fee: num
       </div>
       <div className="md-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
-        <button type="button" className="btn btn-blue" onClick={() => { if (!onChange(+value, reason)) setOpen(false) }}>Save fee</button>
+        <button type="button" className="btn btn-blue" disabled={busy}
+          onClick={async () => { setBusy(true); const err = await onChange(+value, reason); setBusy(false); if (!err) setOpen(false) }}>
+          {busy ? 'Saving…' : 'Save fee'}
+        </button>
       </div>
     </div>
   )
@@ -370,7 +383,12 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
   )
 }
 
-function PaymentForm({ remaining, onPay, onWriteOff }: { remaining: number; onPay: (amount: number, date: string, receiptUrl: string) => string; onWriteOff: () => void }) {
+function PaymentForm({ remaining, onPay, onWriteOff }: {
+  remaining: number
+  onPay: (amount: number, date: string, receiptUrl: string) => string | Promise<string>
+  onWriteOff: () => void
+}) {
+  const [busy, setBusy] = useState(false)
   const [amount, setAmount] = useState(remaining ? String(remaining) : '')
   const [date, setDate] = useState(today())
   const [receipt, setReceipt] = useState('')
@@ -385,7 +403,10 @@ function PaymentForm({ remaining, onPay, onWriteOff }: { remaining: number; onPa
       </label>
       <div className="md-actions">
         <button type="button" className="btn btn-ghost md-danger" onClick={onWriteOff}>Write off…</button>
-        <button type="button" className="btn btn-blue" onClick={() => { if (!onPay(+amount, date, receipt)) setReceipt('') }}>Record payment</button>
+        <button type="button" className="btn btn-blue" disabled={busy}
+          onClick={async () => { setBusy(true); const err = await onPay(+amount, date, receipt); setBusy(false); if (!err) setReceipt('') }}>
+          {busy ? 'Saving…' : 'Record payment'}
+        </button>
       </div>
     </div>
   )

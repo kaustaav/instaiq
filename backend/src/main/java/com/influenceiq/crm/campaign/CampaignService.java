@@ -140,6 +140,25 @@ public class CampaignService {
         return c;
     }
 
+    public Campaign recordPayment(long campaignId, long influencerId, Integer amountInr, LocalDate paidAt, String receiptUrl,
+                                  String actor) {
+        Campaign c = loadForUpdate(campaignId);
+        c.recordPayment(influencerId, amountInr, paidAt, receiptUrl, actor);
+        return c;
+    }
+
+    public Campaign writeOffPayment(long campaignId, long influencerId, String reason) {
+        Campaign c = loadForUpdate(campaignId);
+        c.writeOffPayment(influencerId, reason);
+        return c;
+    }
+
+    public Campaign changeFee(long campaignId, long influencerId, Integer feeInr, String reason) {
+        Campaign c = loadForUpdate(campaignId);
+        c.changeFee(influencerId, feeInr, reason);
+        return c;
+    }
+
     /** Member names for rule messages ("Priya Sharma: still shortlisted"), one query for all members. */
     private LongFunction<String> namesOf(Campaign c) {
         Map<Long, String> names = influencers.findAllById(c.getMembers().stream().map(CampaignMember::getInfluencerId).toList())

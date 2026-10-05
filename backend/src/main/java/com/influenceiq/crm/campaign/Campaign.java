@@ -217,6 +217,21 @@ public class Campaign extends Auditable {
         d.markPosted(url, postedAt);
     }
 
+    public void recordPayment(long influencerId, Integer amountInr, LocalDate paidAt, String receiptUrl, String actor) {
+        assertEditable();
+        requireMember(influencerId).recordPayment(amountInr, paidAt, receiptUrl, actor);
+    }
+
+    public void writeOffPayment(long influencerId, String reason) {
+        assertEditable();
+        requireMember(influencerId).writeOffPayment(reason);
+    }
+
+    public void changeFee(long influencerId, Integer feeInr, String reason) {
+        assertEditable();
+        requireMember(influencerId).changeFee(feeInr, reason);
+    }
+
     private CampaignMember requireMember(long influencerId) {
         return member(influencerId).orElseThrow(() -> new NotFoundException("Campaign member", influencerId));
     }

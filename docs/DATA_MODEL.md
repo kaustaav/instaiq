@@ -73,7 +73,7 @@ filter panel or form opens.
 | `compensation_type` | enum `CASH` · `BARTER` · `CASH_AND_PRODUCT` | |
 | `agreed_fee_inr` | int NULL | pre-filled from the current rate card |
 | `payment_status` | enum `NOT_DUE` · `DUE` · `PARTIALLY_PAID` · `PAID` · `WAIVED` | amount paid = sum of `campaign_payment` |
-| `payment_write_off_reason` | text | set when `DUE`/`PARTIALLY_PAID` → `WAIVED` |
+| `payment_write_off_reason` | text | set when `DUE`/`PARTIALLY_PAID` → `WAIVED`; the rest is settled with product, so the deal becomes `BARTER` (nothing paid, no fee) or `CASH_AND_PRODUCT` (fee = amount paid) and the committed budget drops accordingly |
 | `notes` | text | |
 
 ### `campaign_payment` (append-only: one row per payment)

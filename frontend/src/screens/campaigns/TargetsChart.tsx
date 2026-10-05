@@ -6,11 +6,13 @@ type Row = {
   label: string
   actual: number
   target: number | null // null = no target set
-  /** Darker part of the bar (budget: paid out of committed). */
-  inner?: number
   fmt: (n: number) => string
   /** Going over is bad (budget), not just "more than planned". */
   overIsBad?: boolean
+  /** Shows what's left ("₹6,000 due") instead of a percentage. */
+  due?: boolean
+  /** Content rows: shown only when the campaign asks for some (target above 0). */
+  content?: boolean
 }
 
 const count = (n: number) => String(n)
@@ -24,13 +26,15 @@ export function TargetsChart({ c }: { c: Campaign }) {
   const p = campaignProgress(c)
   const rows: Row[] = [
     { label: 'Influencers confirmed', actual: p.confirmed, target: c.targetInfluencers, fmt: count },
-    { label: 'Reels posted', actual: p.reels, target: c.targetReels, fmt: count },
-    { label: 'Stories posted', actual: p.stories, target: c.targetStories, fmt: count },
-    { label: 'Posts posted', actual: p.posts, target: c.targetPosts, fmt: count },
-    { label: 'Budget committed', actual: p.committed, target: c.budget, inner: p.paid, fmt: inr, overIsBad: true },
+    { label: 'Reels posted', actual: p.reels, target: c.targetReels, fmt: count, content: true },
+    { label: 'Stories posted', actual: p.stories, target: c.targetStories, fmt: count, content: true },
+    { label: 'Posts posted', actual: p.posts, target: c.targetPosts, fmt: count, content: true },
+    { label: 'Budget committed', actual: p.committed, target: c.budget, fmt: inr, overIsBad: true },
+    // only once someone is owed money (all their content posted); before that there's nothing to pay
+    ...(p.payableNow > 0 ? [{ label: 'Paid for posted content', actual: p.paidOnPayable, target: p.payableNow, fmt: inr, due: true }] : []),
   ]
-  // content rows with no target and nothing posted say nothing; leave them out
-  const shown = rows.filter(r => r.target != null || r.actual > 0)
+  // content the campaign doesn't ask for (no number, or 0) gets no row
+  const shown = rows.filter(r => (r.content ? (r.target ?? 0) > 0 : r.target != null || r.actual > 0))
 
   return (
     <div className="tchart" role="group" aria-label="Targets vs actual">
@@ -39,7 +43,6 @@ export function TargetsChart({ c }: { c: Campaign }) {
         <span className="tchart-legend">
           <span><i className="tchart-swatch" style={{ background: 'var(--iq-brand-500)' }} />Done</span>
           <span><i className="tchart-swatch" style={{ background: 'var(--iq-gray-100)' }} />Target</span>
-          <span><i className="tchart-swatch" style={{ background: '#1D2477' }} />Paid</span>
         </span>
       </div>
       {shown.map(r => {
@@ -50,21 +53,18 @@ export function TargetsChart({ c }: { c: Campaign }) {
         const fill = over && r.overIsBad ? 'var(--iq-down)' : met ? '#12A363' : 'var(--iq-brand-500)'
         const value = hasTarget ? `${r.fmt(r.actual)} / ${r.fmt(r.target!)}` : `${r.fmt(r.actual)} · no target`
         const extra = hasTarget ? r.fmt(r.actual - r.target!) : ''
-        const note = !hasTarget ? '' : !over ? `${Math.round(pct)}%` : r.overIsBad ? `over by ${extra}` : `+${extra} over`
+        const note = !hasTarget ? ''
+          : r.due ? (met ? 'all paid' : `${r.fmt(r.target! - r.actual)} due`)
+          : !over ? `${Math.round(pct)}%` : r.overIsBad ? `over by ${extra}` : `+${extra} over`
         return (
           <div key={r.label} className="tchart-row">
             <div className="tchart-label">{r.label}</div>
             <div className="tchart-track" title={value}>
               <div className="tchart-fill" style={{ width: `${Math.min(100, pct)}%`, background: fill }} />
-              {r.inner != null && hasTarget && r.inner > 0 && (
-                <div className="tchart-fill" style={{ width: `${Math.min(100, (r.inner / r.target!) * 100)}%`, background: over ? '#7F1414' : '#1D2477' }}
-                  title={`Paid ${r.fmt(r.inner)}`} />
-              )}
             </div>
             <div className="tchart-value mono">
               {value}
-              {note && <span className="tchart-note" style={{ color: over && r.overIsBad ? 'var(--iq-down)' : met ? '#0B7A4B' : undefined }}>{note}</span>}
-              {r.inner != null && r.inner > 0 && <span className="tchart-note">paid {r.fmt(r.inner)}</span>}
+              {note && <span className="tchart-note" style={{ color: over && r.overIsBad ? 'var(--iq-down)' : met ? '#0B7A4B' : r.due ? '#8B5E00' : undefined }}>{note}</span>}
             </div>
           </div>
         )

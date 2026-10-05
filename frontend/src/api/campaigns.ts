@@ -40,6 +40,8 @@ type ApiMember = {
   agreedFeeInr: number | null
   paymentStatus: PaymentStatus
   paymentWriteOffReason: string | null
+  amountPaidInr: number
+  payments: { id: number; amountInr: number; paidAt: string; receiptUrl: string; recordedAt: string; recordedBy: string }[]
   notes: string | null
   addedAt: string
   addedBy: string
@@ -114,6 +116,14 @@ export const reviewDraftApi = (id: number, influencerId: number, d: Deliverable,
   apiPost<ApiCampaign>(deliverablePath(id, influencerId, d, 'review'), { decision, feedback: feedback.trim() || null })
 export const markPostedApi = (id: number, influencerId: number, d: Deliverable, liveUrl: string, postedAt: string) =>
   apiPost<ApiCampaign>(deliverablePath(id, influencerId, d, 'posted'), { liveUrl, postedAt: postedAt || null })
+export const recordPaymentApi = (id: number, influencerId: number, amount: number, paidAt: string, receiptUrl: string) =>
+  apiPost<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/payments`, {
+    amountInr: Number.isFinite(amount) ? amount : null, paidAt: paidAt || null, receiptUrl,
+  })
+export const writeOffPaymentApi = (id: number, influencerId: number, reason: string) =>
+  apiPost<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/payments/write-off`, { reason })
+export const changeFeeApi = (id: number, influencerId: number, fee: number, reason: string) =>
+  apiPut<ApiCampaign>(`/campaigns/${id}/members/${influencerId}/fee`, { feeInr: Number.isFinite(fee) ? fee : null, reason })
 export const removeMemberApi = (id: number, influencerId: number) => apiDelete<ApiCampaign>(`/campaigns/${id}/members/${influencerId}`)
 
 // ---------- mapping ----------
@@ -146,7 +156,9 @@ function toMember(m: ApiMember): Member {
   return {
     influencerId: m.influencer.id, stage: m.stage, stageReason: opt(m.stageReason), stageUpdatedAt: m.stageUpdatedAt,
     stageUpdatedBy: m.stageUpdatedBy, compensation: m.compensation, agreedFee: m.agreedFeeInr,
-    paymentStatus: m.paymentStatus, payments: [], paymentReason: opt(m.paymentWriteOffReason), notes: m.notes ?? '',
+    paymentStatus: m.paymentStatus,
+    payments: m.payments.map(p => ({ amount: p.amountInr, paidAt: p.paidAt, receiptUrl: p.receiptUrl, recordedAt: p.recordedAt, recordedBy: p.recordedBy })),
+    paymentReason: opt(m.paymentWriteOffReason), notes: m.notes ?? '',
     deliverables: m.deliverables.map(toDeliverable), addedAt: m.addedAt, addedBy: m.addedBy,
   }
 }

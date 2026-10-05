@@ -18,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,11 @@ public class CampaignMember {
     @OrderBy("id ASC")
     private List<Deliverable> deliverables = new ArrayList<>();
 
+    // amount paid = sum of these; append-only
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    private List<Payment> payments = new ArrayList<>();
+
     @Column(name = "added_at", nullable = false, updatable = false)
     private Instant addedAt;
     @Column(name = "added_by", nullable = false, updatable = false)
@@ -94,6 +100,68 @@ public class CampaignMember {
 
     public List<Deliverable> getDeliverables() {
         return List.copyOf(deliverables);
+    }
+
+    public List<Payment> getPayments() {
+        return List.copyOf(payments);
+    }
+
+    public int amountPaidInr() {
+        return payments.stream().mapToInt(Payment::getAmountInr).sum();
+    }
+
+    /** Each payment needs an amount, a date and a link to proof of payment (receipt / screenshot). */
+    void recordPayment(Integer amountInr, LocalDate paidAt, String receiptUrl, String actor) {
+        if (stage != MemberStage.AGREED) throw new RuleViolationException("Payments are recorded after terms are agreed");
+        if (compensation == Compensation.BARTER) throw new RuleViolationException("Barter collaborations have no cash payment");
+        if (paymentStatus == PaymentStatus.PAID || paymentStatus == PaymentStatus.WAIVED) {
+            throw new RuleViolationException("Nothing left to pay");
+        }
+        List<String> errors = new ArrayList<>();
+        if (amountInr == null || amountInr <= 0) errors.add("Amount must be more than 0");
+        if (paidAt == null) errors.add("Enter the payment date");
+        if (!Links.isWebLink(receiptUrl)) errors.add("Add a link to the payment receipt (https://…)");
+        if (!errors.isEmpty()) throw new ValidationException(errors);
+        payments.add(new Payment(this, amountInr, paidAt, receiptUrl.trim(), actor));
+        paymentStatus = paymentStatusFor(agreedFeeInr);
+    }
+
+    /**
+     * DUE / PARTIALLY_PAID -> WAIVED: the rest won't be paid in cash (settled with product instead). The deal
+     * changes with it, so the budget shows what's really spent: nothing paid -> BARTER with no fee; partly paid ->
+     * CASH_AND_PRODUCT with the fee cut to what was paid. Needs a reason.
+     */
+    void writeOffPayment(String reason) {
+        if (paymentStatus != PaymentStatus.DUE && paymentStatus != PaymentStatus.PARTIALLY_PAID) {
+            throw new RuleViolationException("Nothing is outstanding");
+        }
+        if (isBlank(reason)) throw new ValidationException("A reason is required to write off a payment");
+        int paid = amountPaidInr();
+        compensation = paid == 0 ? Compensation.BARTER : Compensation.CASH_AND_PRODUCT;
+        agreedFeeInr = paid == 0 ? null : paid;
+        paymentStatus = PaymentStatus.WAIVED;
+        paymentWriteOffReason = reason.trim();
+    }
+
+    /** Fee change after agreement: needs a reason (kept as the stage reason); payment status follows the new fee. */
+    void changeFee(Integer feeInr, String reason) {
+        if (stage != MemberStage.AGREED || compensation == Compensation.BARTER) {
+            throw new RuleViolationException("Fee can be changed only on agreed, paid collaborations");
+        }
+        if (paymentStatus == PaymentStatus.WAIVED) throw new RuleViolationException("The payment was written off; the fee is settled");
+        List<String> errors = new ArrayList<>();
+        if (feeInr == null || feeInr <= 0) errors.add("Fee must be more than 0");
+        if (isBlank(reason)) errors.add("A reason is required to change an agreed fee");
+        if (!errors.isEmpty()) throw new ValidationException(errors);
+        agreedFeeInr = feeInr;
+        stageReason = "Fee changed: " + reason.trim();
+        paymentStatus = paymentStatusFor(feeInr);
+    }
+
+    private PaymentStatus paymentStatusFor(Integer feeInr) {
+        if (paymentStatus == PaymentStatus.WAIVED) return PaymentStatus.WAIVED;
+        if (feeInr != null && amountPaidInr() >= feeInr) return PaymentStatus.PAID;
+        return payments.isEmpty() ? PaymentStatus.DUE : PaymentStatus.PARTIALLY_PAID;
     }
 
     Deliverable deliverable(long deliverableId) {
@@ -195,8 +263,9 @@ public class CampaignMember {
         return removeBlocker().isEmpty();
     }
 
-    /** Why this member can't be removed or un-agreed, if anything. (Payments join this check in the next step.) */
+    /** Why this member can't be removed or un-agreed, if anything. */
     Optional<String> removeBlocker() {
+        if (!payments.isEmpty()) return Optional.of("They have been paid; decline them instead");
         if (deliverables.stream().anyMatch(Deliverable::hasWork)) return Optional.of("They have submitted content; it must stay on record");
         return Optional.empty();
     }

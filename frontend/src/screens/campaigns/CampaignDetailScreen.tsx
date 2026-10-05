@@ -4,8 +4,8 @@ import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users
 import { useStore } from '../../store'
 import { apiEnabled, errorText } from '../../api/client'
 import {
-  agreeTermsApi, changeCampaignStatusApi, duplicateCampaignApi, markPostedApi, removeMemberApi, reviewDraftApi, setMemberNotesApi,
-  setMemberStageApi, submitDraftApi, updateCampaignApi,
+  agreeTermsApi, changeCampaignStatusApi, changeFeeApi, duplicateCampaignApi, markPostedApi, recordPaymentApi, removeMemberApi,
+  reviewDraftApi, setMemberNotesApi, setMemberStageApi, submitDraftApi, updateCampaignApi, writeOffPaymentApi,
 } from '../../api/campaigns'
 import { useCampaignDetail } from '../../hooks/useCampaigns'
 import { fmt, igUrl, inr } from '../../lib/format'
@@ -241,6 +241,9 @@ export function CampaignDetailScreen() {
             submitDraft: (d, url) => save(() => submitDraftApi(c.id, member.influencerId, d, url)),
             review: (d, decision, feedback) => save(() => reviewDraftApi(c.id, member.influencerId, d, decision, feedback)),
             posted: (d, url, date) => save(() => markPostedApi(c.id, member.influencerId, d, url, date)),
+            pay: (amount, date, receipt) => save(() => recordPaymentApi(c.id, member.influencerId, amount, date, receipt)),
+            writeOff: reason => save(() => writeOffPaymentApi(c.id, member.influencerId, reason)),
+            changeFee: (fee, reason) => save(() => changeFeeApi(c.id, member.influencerId, fee, reason)),
             setStage: (to, reason) => save(() => setMemberStageApi(c.id, member.influencerId, to, reason)),
             setNotes: notes => save(() => setMemberNotesApi(c.id, member.influencerId, notes)),
             remove: () => save(() => removeMemberApi(c.id, member.influencerId)),

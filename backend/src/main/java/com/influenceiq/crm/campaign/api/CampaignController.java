@@ -119,6 +119,25 @@ public class CampaignController {
         return queries.get(id);
     }
 
+    /** Record one payment (amount, date, receipt link). Several are fine: advance, then the rest. */
+    @PostMapping("/{id}/members/{influencerId}/payments")
+    public CampaignResponse recordPayment(@PathVariable long id, @PathVariable long influencerId, @RequestBody PaymentRequest body) {
+        campaigns.recordPayment(id, influencerId, body.amountInr(), body.paidAt(), body.receiptUrl(), currentUser.name());
+        return queries.get(id);
+    }
+
+    @PostMapping("/{id}/members/{influencerId}/payments/write-off")
+    public CampaignResponse writeOffPayment(@PathVariable long id, @PathVariable long influencerId, @RequestBody ReasonRequest body) {
+        campaigns.writeOffPayment(id, influencerId, body.reason());
+        return queries.get(id);
+    }
+
+    @PutMapping("/{id}/members/{influencerId}/fee")
+    public CampaignResponse changeFee(@PathVariable long id, @PathVariable long influencerId, @RequestBody FeeRequest body) {
+        campaigns.changeFee(id, influencerId, body.feeInr(), body.reason());
+        return queries.get(id);
+    }
+
     private ResponseEntity<CampaignResponse> created(Campaign c) {
         return ResponseEntity.created(URI.create("/api/campaigns/" + c.getId())).body(queries.get(c.getId()));
     }

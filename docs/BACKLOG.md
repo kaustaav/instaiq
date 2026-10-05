@@ -62,7 +62,7 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
         status/stage/terms/drafts/payments/notes view-only in API mode until steps 2-4
   - [x] 2. Campaign status machine + member stages (with reasons) + member notes, API and UI
   - [x] 3. Agree terms, deliverables + draft review loop (API + UI; suggested fee from the rate card)
-  - [ ] 4. Payments (receipt links), write-off, budget warning
+  - [x] 4. Payments (receipt links), fee change, write-off (API + UI)
   - [ ] 5. CSV export of a campaign
 - [ ] No way to rename/remove a custom niche or language yet (needs an admin screen + rules for influencers using it).
 - [ ] Discovery source isn't on the add/edit form yet (API defaults to OTHER; edits keep the stored value).

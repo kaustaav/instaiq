@@ -8,6 +8,7 @@ import com.influenceiq.crm.campaign.Deliverable;
 import com.influenceiq.crm.campaign.DeliverableStatus;
 import com.influenceiq.crm.campaign.DeliverableType;
 import com.influenceiq.crm.campaign.DraftRevision;
+import com.influenceiq.crm.campaign.Payment;
 import com.influenceiq.crm.campaign.ReviewDecision;
 import com.influenceiq.crm.campaign.DisplayStage;
 import com.influenceiq.crm.campaign.MemberStage;
@@ -73,6 +74,15 @@ public record CampaignResponse(
         }
     }
 
+    public record PaymentView(long id, int amountInr, LocalDate paidAt, String receiptUrl, Instant recordedAt,
+                              String recordedBy) {
+
+        static PaymentView from(Payment p) {
+            return new PaymentView(p.getId(), p.getAmountInr(), p.getPaidAt(), p.getReceiptUrl(), p.getRecordedAt(),
+                    p.getRecordedBy());
+        }
+    }
+
     public record DeliverableView(long id, DeliverableType type, int seq, DeliverableStatus status, String liveUrl,
                                   LocalDate postedAt, List<RevisionView> revisions) {
 
@@ -85,13 +95,14 @@ public record CampaignResponse(
     public record MemberView(InfluencerBrief influencer, MemberStage stage, DisplayStage displayStage,
                              String stageReason, Instant stageUpdatedAt, String stageUpdatedBy,
                              Compensation compensation, Integer agreedFeeInr, PaymentStatus paymentStatus,
-                             String paymentWriteOffReason, String notes, Instant addedAt, String addedBy,
-                             List<DeliverableView> deliverables) {
+                             String paymentWriteOffReason, int amountPaidInr, List<PaymentView> payments, String notes,
+                             Instant addedAt, String addedBy, List<DeliverableView> deliverables) {
 
         static MemberView from(CampaignMember m, Influencer i, Rates rates) {
             return new MemberView(InfluencerBrief.from(i, rates), m.getStage(), m.displayStage(), m.getStageReason(),
                     m.getStageUpdatedAt(), m.getStageUpdatedBy(), m.getCompensation(), m.getAgreedFeeInr(),
-                    m.getPaymentStatus(), m.getPaymentWriteOffReason(), m.getNotes(), m.getAddedAt(), m.getAddedBy(),
+                    m.getPaymentStatus(), m.getPaymentWriteOffReason(), m.amountPaidInr(),
+                    m.getPayments().stream().map(PaymentView::from).toList(), m.getNotes(), m.getAddedAt(), m.getAddedBy(),
                     m.getDeliverables().stream().map(DeliverableView::from).toList());
         }
     }

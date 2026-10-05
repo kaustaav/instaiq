@@ -44,18 +44,22 @@ export function displayStage(m: Member): DisplayStage {
 
 /**
  * Actual vs target. Confirmed = members whose terms are agreed (in production, live or completed);
- * content counts only what's actually posted; committed = agreed fees, paid = payments recorded.
+ * content counts only what's actually posted; committed = agreed fees.
+ * Payable now = full fees of members whose content is all posted; paidOnPayable = what we've paid them, counted up
+ * to each fee (so an advance to one influencer can't hide what's due to another).
  */
 export function campaignProgress(c: Campaign) {
   const agreed = c.members.filter(m => m.stage === 'AGREED')
   const posted = (t: DeliverableType) => agreed.reduce((n, m) => n + m.deliverables.filter(d => d.type === t && d.status === 'POSTED').length, 0)
+  const due = agreed.filter(m => m.agreedFee != null && (displayStage(m) === 'LIVE' || displayStage(m) === 'COMPLETED'))
   return {
+    payableNow: due.reduce((sum, m) => sum + (m.agreedFee ?? 0), 0),
+    paidOnPayable: due.reduce((sum, m) => sum + Math.min(amountPaid(m), m.agreedFee ?? 0), 0),
     confirmed: agreed.length,
     reels: posted('REEL'),
     stories: posted('STORY'),
     posts: posted('POST'),
     committed: budgetUsed(c),
-    paid: c.members.reduce((sum, m) => sum + amountPaid(m), 0),
   }
 }
 
@@ -309,6 +313,7 @@ const paymentFor = (m: Member, fee: number | null): Member['paymentStatus'] => {
 export function changeFee(c: Campaign, infId: number, fee: number, reason: string): Campaign {
   return updateMember(c, infId, m => {
     if (m.stage !== 'AGREED' || m.compensation === 'BARTER') throw new Error('Fee can be changed only on agreed, paid collaborations')
+    if (m.paymentStatus === 'WAIVED') throw new Error('The payment was written off; the fee is settled')
     if (!(fee > 0)) throw new Error('Fee must be more than 0')
     if (!reason.trim()) throw new Error('A reason is required to change an agreed fee')
     return { ...m, agreedFee: fee, stageReason: `Fee changed: ${reason.trim()}`, paymentStatus: paymentFor(m, fee) }
@@ -373,9 +378,17 @@ export const recordPayment = (c: Campaign, infId: number, amount: number, paidAt
     return { ...paid, paymentStatus: paymentFor(paid, m.agreedFee) }
   })
 
+/**
+ * The rest won't be paid in cash (settled with product). The deal changes so the budget shows what's really spent:
+ * nothing paid → Barter, no fee; partly paid → Paid + product, fee = what was paid.
+ */
 export const writeOffPayment = (c: Campaign, infId: number, reason: string) =>
   updateMember(c, infId, m => {
     if (m.paymentStatus !== 'DUE' && m.paymentStatus !== 'PARTIALLY_PAID') throw new Error('Nothing is outstanding')
     if (!reason.trim()) throw new Error('A reason is required to write off a payment')
-    return { ...m, paymentStatus: 'WAIVED', paymentReason: reason.trim() }
+    const paid = amountPaid(m)
+    return {
+      ...m, paymentStatus: 'WAIVED', paymentReason: reason.trim(),
+      compensation: paid ? 'CASH_AND_PRODUCT' : 'BARTER', agreedFee: paid || null,
+    }
   })
