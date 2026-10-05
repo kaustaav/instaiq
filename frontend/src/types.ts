@@ -110,6 +110,11 @@ export type Campaign = {
   startDate?: string // ISO date
   endDate?: string
   budget: number | null // INR
+  /** What the brand wants: influencers (required) and optional content totals for the whole campaign. */
+  targetInfluencers: number
+  targetReels: number | null
+  targetStories: number | null
+  targetPosts: number | null
   status: CampaignStatus
   statusReason?: string
   statusChangedAt: string

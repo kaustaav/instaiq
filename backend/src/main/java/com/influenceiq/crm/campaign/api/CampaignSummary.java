@@ -20,6 +20,7 @@ public record CampaignSummary(
         LocalDate endDate,
         Integer budgetInr,
         int budgetUsedInr,
+        CampaignResponse.Targets targets,
         int memberCount,
         Map<DisplayStage, Long> stageCounts, // only stages with members
         Instant createdAt) {
@@ -28,6 +29,7 @@ public record CampaignSummary(
         Map<DisplayStage, Long> stages = c.getMembers().stream().collect(Collectors.groupingBy(
                 CampaignMember::displayStage, () -> new EnumMap<>(DisplayStage.class), Collectors.counting()));
         return new CampaignSummary(c.getId(), c.getName(), c.getBrand(), c.getStatus(), c.getStartDate(),
-                c.getEndDate(), c.getBudgetInr(), c.budgetUsedInr(), c.getMembers().size(), stages, c.getCreatedAt());
+                c.getEndDate(), c.getBudgetInr(), c.budgetUsedInr(), CampaignResponse.Targets.of(c), c.getMembers().size(),
+                stages, c.getCreatedAt());
     }
 }

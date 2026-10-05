@@ -47,7 +47,8 @@ class CampaignApiTest {
 
     private int campaign(String name) throws Exception {
         return read(send("POST", "/api/campaigns", """
-                {"name": "%s", "brand": "Acme Tea", "startDate": "2026-11-01", "endDate": "2026-11-30", "budgetInr": 200000}"""
+                {"name": "%s", "brand": "Acme Tea", "startDate": "2026-11-01", "endDate": "2026-11-30", "budgetInr": 200000,
+                 "targetInfluencers": 10, "targetReels": 12, "targetStories": 20}"""
                 .formatted(name)), "$.id");
     }
 
@@ -55,24 +56,29 @@ class CampaignApiTest {
     void createValidateAndEdit() throws Exception {
         MvcTestResult created = send("POST", "/api/campaigns", """
                 {"name": " Diwali push ", "brand": "Acme Tea", "brief": "Festive reels", "startDate": "2026-10-20",
-                 "endDate": "2026-11-05", "budgetInr": 150000}""");
+                 "endDate": "2026-11-05", "budgetInr": 150000, "targetInfluencers": 8, "targetReels": 10}""");
         assertThat(created).hasStatus(HttpStatus.CREATED);
         int id = read(created, "$.id");
         assertThat(created.getResponse().getHeader("Location")).isEqualTo("/api/campaigns/" + id);
         assertThat(created).bodyJson()
                 .hasPathSatisfying("$.name", v -> assertThat(v).isEqualTo("Diwali push"))
                 .hasPathSatisfying("$.status", v -> assertThat(v).isEqualTo("DRAFT"))
+                .hasPathSatisfying("$.targets.influencers", v -> assertThat(v).isEqualTo(8))
+                .hasPathSatisfying("$.targets.reels", v -> assertThat(v).isEqualTo(10))
+                .hasPathSatisfying("$.targets.stories", v -> assertThat(v).isNull()) // optional
                 .hasPathSatisfying("$.members", v -> assertThat(v).asArray().isEmpty());
 
         MvcTestResult bad = send("POST", "/api/campaigns", """
-                {"name": "", "brand": " ", "startDate": "2026-11-05", "endDate": "2026-10-20", "budgetInr": -1}""");
+                {"name": "", "brand": " ", "startDate": "2026-11-05", "endDate": "2026-10-20", "budgetInr": -1,
+                 "targetReels": -2}""");
         assertThat(bad).hasStatus(HttpStatus.BAD_REQUEST);
         assertThat((List<String>) read(bad, "$.errors")).containsExactly(
-                "Name is required", "Brand is required", "End date is before start date", "Budget can't be negative");
+                "Name is required", "Brand is required", "End date is before start date", "Budget can't be negative",
+                "Number of influencers is required (at least 1)", "Number of reels can't be negative");
 
         String uri = "/api/campaigns/" + id;
         String edit = """
-                {"name": "Diwali push", "brand": "Acme Tea", "budgetInr": 180000, "version": %d}""";
+                {"name": "Diwali push", "brand": "Acme Tea", "budgetInr": 180000, "targetInfluencers": 8, "version": %d}""";
         assertThat(send("PUT", uri, edit.replace(", \"version\": %d", ""))).hasStatus(HttpStatus.BAD_REQUEST); // no version
         MvcTestResult edited = send("PUT", uri, edit.formatted(0));
         assertThat(edited).hasStatusOk().bodyJson()
@@ -150,6 +156,8 @@ class CampaignApiTest {
                 .hasPathSatisfying("$.name", v -> assertThat(v).isEqualTo("Original (copy)"))
                 .hasPathSatisfying("$.budgetInr", v -> assertThat(v).isEqualTo(200000))
                 .hasPathSatisfying("$.startDate", v -> assertThat(v).isNull())
+                .hasPathSatisfying("$.targets.influencers", v -> assertThat(v).isEqualTo(10))
+                .hasPathSatisfying("$.targets.stories", v -> assertThat(v).isEqualTo(20))
                 .hasPathSatisfying("$.status", v -> assertThat(v).isEqualTo("DRAFT"))
                 .hasPathSatisfying("$.members", v -> assertThat(v).asArray().isEmpty());
         assertThat(mvc.get().uri("/api/campaigns/987654").exchange()).hasStatus(HttpStatus.NOT_FOUND);

@@ -82,3 +82,20 @@ a.btn-plain:hover, a.btn-ghost:hover { text-decoration: none; }
 .md-payments td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--iq-border); }
 .md-payments .r { text-align: right; }
 .md-payments a { display: inline-flex; align-items: center; gap: 2px; }
+
+/* Targets vs actual (TargetsChart) */
+.tchart { display: flex; flex-direction: column; gap: 9px; max-width: 720px; }
+.tchart-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 2px; }
+.tchart-legend { display: flex; gap: 12px; font-size: 11px; color: var(--iq-fg-3); }
+.tchart-legend > span { display: inline-flex; align-items: center; gap: 4px; }
+.tchart-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.tchart-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 290px; align-items: center; gap: 12px; }
+.tchart-label { font-size: 12px; color: var(--iq-fg-2); }
+.tchart-track { position: relative; height: 10px; border-radius: 5px; background: var(--iq-gray-100); overflow: hidden; }
+.tchart-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; transition: width 280ms ease; }
+.tchart-value { font-size: 12px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.tchart-note { font-family: var(--iq-font-sans); font-size: 11px; color: var(--iq-fg-3); }
+@media (max-width: 768px) {
+  .tchart-row { grid-template-columns: 1fr auto; gap: 4px 10px; }
+  .tchart-track { grid-column: 1 / -1; grid-row: 2; }
+}

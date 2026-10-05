@@ -59,6 +59,8 @@ filter panel or form opens.
 | `brief` | text | |
 | `start_date`, `end_date` | date | end ≥ start |
 | `budget_inr` | int NULL | |
+| `target_influencers` | int NOT NULL (> 0) | how many influencers the brand wants |
+| `target_reels`, `target_stories`, `target_posts` | int NULL (≥ 0) | optional content totals for the whole campaign; targets only, never block |
 | `status` | enum `DRAFT` · `ACTIVE` · `COMPLETED` · `CANCELLED` · `ARCHIVED` | |
 | `archived_from` | `COMPLETED` · `CANCELLED` | set only while `ARCHIVED`; where "unarchive" returns to |
 | `status_reason`, `status_changed_at`, `status_changed_by` | | latest reason only |

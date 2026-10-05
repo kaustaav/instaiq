@@ -18,9 +18,14 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
     startDate: editing?.startDate ?? '',
     endDate: editing?.endDate ?? '',
     budget: editing?.budget != null ? String(editing.budget) : '',
+    influencers: editing ? String(editing.targetInfluencers) : '',
+    reels: editing?.targetReels != null ? String(editing.targetReels) : '',
+    stories: editing?.targetStories != null ? String(editing.targetStories) : '',
+    posts: editing?.targetPosts != null ? String(editing.targetPosts) : '',
   })
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const count = (v: string) => (v.trim() ? +v : null)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(p => ({ ...p, [k]: e.target.value }))
 
   useEffect(() => {
@@ -33,6 +38,8 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
     const input: CampaignInput = {
       name: f.name, brand: f.brand, brief: f.brief, startDate: f.startDate || undefined, endDate: f.endDate || undefined,
       budget: f.budget.trim() ? Math.round(+f.budget) : null,
+      targetInfluencers: f.influencers.trim() ? +f.influencers : 0, // 0 fails validation: it's required
+      targetReels: count(f.reels), targetStories: count(f.stories), targetPosts: count(f.posts),
     }
     const err = validateCampaign(input)
     if (err) return setError(err)
@@ -61,6 +68,17 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
           <div className="form-grid-2">
             <label className="field"><span>Start date</span><input type="date" className="input" value={f.startDate} onChange={set('startDate')} /></label>
             <label className="field"><span>End date</span><input type="date" className="input" value={f.endDate} onChange={set('endDate')} /></label>
+          </div>
+          <div>
+            <div className="form-grid-4">
+              <label className="field"><span>Influencers *</span>
+                <input type="number" min={1} step={1} className="input mono" placeholder="0" value={f.influencers} onChange={set('influencers')} />
+              </label>
+              <label className="field"><span>Reels</span><input type="number" min={0} step={1} className="input mono" placeholder="0" value={f.reels} onChange={set('reels')} /></label>
+              <label className="field"><span>Stories</span><input type="number" min={0} step={1} className="input mono" placeholder="0" value={f.stories} onChange={set('stories')} /></label>
+              <label className="field"><span>Posts</span><input type="number" min={0} step={1} className="input mono" placeholder="0" value={f.posts} onChange={set('posts')} /></label>
+            </div>
+            <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>How many the brand wants. Reels, stories and posts are optional totals for the whole campaign.</div>
           </div>
           <label className="field"><span>Budget (₹)</span>
             <input type="number" min={0} className="input mono" placeholder="0" value={f.budget} onChange={set('budget')} />

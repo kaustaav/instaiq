@@ -117,7 +117,7 @@ export function CampaignListScreen() {
                     </div>
                     <div className="camp-card-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
                     <div className="camp-card-meta">
-                      {c.members} influencer{c.members !== 1 ? 's' : ''}
+                      {c.members} of {c.targetInfluencers} influencer{c.targetInfluencers !== 1 ? 's' : ''}
                       {c.deliverables > 0 && <> · {c.posted}/{c.deliverables} posts live</>}
                       {c.inReview > 0 && <> · <b style={{ color: '#3D2F99' }}>{c.inReview} draft{c.inReview > 1 ? 's' : ''} to review</b></>}
                       {live > 0 && c.unpaid > 0 && <> · <b style={{ color: '#8B5E00' }}>{c.unpaid} unpaid</b></>}

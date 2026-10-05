@@ -42,6 +42,23 @@ export function displayStage(m: Member): DisplayStage {
   return m.paymentStatus === 'PAID' || m.paymentStatus === 'WAIVED' ? 'COMPLETED' : 'LIVE'
 }
 
+/**
+ * Actual vs target. Confirmed = members whose terms are agreed (in production, live or completed);
+ * content counts only what's actually posted; committed = agreed fees, paid = payments recorded.
+ */
+export function campaignProgress(c: Campaign) {
+  const agreed = c.members.filter(m => m.stage === 'AGREED')
+  const posted = (t: DeliverableType) => agreed.reduce((n, m) => n + m.deliverables.filter(d => d.type === t && d.status === 'POSTED').length, 0)
+  return {
+    confirmed: agreed.length,
+    reels: posted('REEL'),
+    stories: posted('STORY'),
+    posts: posted('POST'),
+    committed: budgetUsed(c),
+    paid: c.members.reduce((sum, m) => sum + amountPaid(m), 0),
+  }
+}
+
 /** Budget used = agreed fees of members whose terms are agreed. */
 export const budgetUsed = (c: Campaign) =>
   c.members.reduce((sum, m) => sum + (m.stage === 'AGREED' ? m.agreedFee ?? 0 : 0), 0)
@@ -142,15 +159,24 @@ export function changeStatus(c: Campaign, action: StatusAction, reason: string, 
 }
 
 // ---------- campaign details ----------
-export type CampaignInput = Pick<Campaign, 'name' | 'brand' | 'brief' | 'startDate' | 'endDate' | 'budget'>
+export type CampaignInput = Pick<Campaign,
+  'name' | 'brand' | 'brief' | 'startDate' | 'endDate' | 'budget' | 'targetInfluencers' | 'targetReels' | 'targetStories' | 'targetPosts'>
 
 export function validateCampaign(i: CampaignInput): string {
   if (!i.name.trim()) return 'Name is required'
   if (!i.brand.trim()) return 'Brand is required'
   if (i.startDate && i.endDate && i.endDate < i.startDate) return 'End date is before start date'
   if (i.budget != null && i.budget < 0) return 'Budget can’t be negative'
+  if (!(Number.isInteger(i.targetInfluencers) && i.targetInfluencers >= 1)) return 'Number of influencers is required (at least 1)'
+  for (const [label, v] of [['reels', i.targetReels], ['stories', i.targetStories], ['posts', i.targetPosts]] as const) {
+    if (v != null && !(Number.isInteger(v) && v >= 0)) return `Number of ${label} must be a whole number, 0 or more`
+  }
   return ''
 }
+
+const targets = (i: CampaignInput) => ({
+  targetInfluencers: i.targetInfluencers, targetReels: i.targetReels, targetStories: i.targetStories, targetPosts: i.targetPosts,
+})
 
 export function newCampaign(id: number, i: CampaignInput): Campaign {
   const err = validateCampaign(i)
@@ -158,7 +184,7 @@ export function newCampaign(id: number, i: CampaignInput): Campaign {
   const t = now()
   return {
     id, name: i.name.trim(), brand: i.brand.trim(), brief: i.brief.trim(), startDate: i.startDate || undefined,
-    endDate: i.endDate || undefined, budget: i.budget, status: 'DRAFT', statusChangedAt: t, statusChangedBy: CURRENT_USER,
+    endDate: i.endDate || undefined, budget: i.budget, ...targets(i), status: 'DRAFT', statusChangedAt: t, statusChangedBy: CURRENT_USER,
     createdAt: t, createdBy: CURRENT_USER, members: [],
   }
 }
@@ -167,12 +193,12 @@ export function editCampaign(c: Campaign, i: CampaignInput): Campaign {
   assertEditable(c)
   const err = validateCampaign(i)
   if (err) throw new Error(err)
-  return { ...c, name: i.name.trim(), brand: i.brand.trim(), brief: i.brief.trim(), startDate: i.startDate || undefined, endDate: i.endDate || undefined, budget: i.budget }
+  return { ...c, name: i.name.trim(), brand: i.brand.trim(), brief: i.brief.trim(), startDate: i.startDate || undefined, endDate: i.endDate || undefined, budget: i.budget, ...targets(i) }
 }
 
 /** Same setup, empty pipeline. */
 export const duplicateCampaign = (c: Campaign, id: number): Campaign =>
-  newCampaign(id, { name: `${c.name} (copy)`, brand: c.brand, brief: c.brief, startDate: undefined, endDate: undefined, budget: c.budget })
+  newCampaign(id, { name: `${c.name} (copy)`, brand: c.brand, brief: c.brief, startDate: undefined, endDate: undefined, budget: c.budget, ...targets(c) })
 
 // ---------- members ----------
 function assertEditable(c: Campaign) {

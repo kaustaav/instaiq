@@ -19,7 +19,7 @@ import { Pagination } from '../../components/Pagination'
 import { ReasonDialog } from '../../components/ReasonDialog'
 import { CampaignFormDrawer } from './CampaignFormDrawer'
 import { MemberDrawer } from './MemberDrawer'
-import { BudgetBar } from './BudgetBar'
+import { TargetsChart } from './TargetsChart'
 import './campaigns.css'
 
 const PAGE_SIZE = 50
@@ -160,12 +160,8 @@ export function CampaignDetailScreen() {
               </div>
             </div>
 
-            <div className="camp-budget">
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                <span className="label">Budget</span>
-                <span className="mono">{inr(used)} <span className="muted">/ {c.budget != null ? inr(c.budget) : 'not set'}</span></span>
-              </div>
-              <BudgetBar used={used} total={c.budget} />
+            <div>
+              <TargetsChart c={c} />
               {over && <div className="camp-warn"><AlertTriangle size={12} />Over budget by {inr(used - (c.budget ?? 0))}</div>}
             </div>
 

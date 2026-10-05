@@ -9,9 +9,11 @@ import java.time.LocalDate;
  * @param version PUT only: the version the client loaded (optimistic locking)
  */
 public record CampaignRequest(String name, String brand, String brief, LocalDate startDate, LocalDate endDate,
-                              Integer budgetInr, Integer version) {
+                              Integer budgetInr, Integer targetInfluencers, Integer targetReels,
+                              Integer targetStories, Integer targetPosts, Integer version) {
 
     CampaignDetails toDetails() {
-        return new CampaignDetails(name, brand, brief, startDate, endDate, budgetInr);
+        return new CampaignDetails(name, brand, brief, startDate, endDate, budgetInr, targetInfluencers, targetReels,
+                targetStories, targetPosts);
     }
 }

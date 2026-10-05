@@ -51,6 +51,16 @@ public class Campaign extends Auditable {
     @Column(name = "budget_inr")
     private Integer budgetInr;
 
+    // targets: what the brand wants (influencers required; content totals optional)
+    @Column(name = "target_influencers", nullable = false)
+    private int targetInfluencers;
+    @Column(name = "target_reels")
+    private Integer targetReels;
+    @Column(name = "target_stories")
+    private Integer targetStories;
+    @Column(name = "target_posts")
+    private Integer targetPosts;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CampaignStatus status = CampaignStatus.DRAFT;
@@ -123,6 +133,10 @@ public class Campaign extends Auditable {
         this.startDate = d.startDate();
         this.endDate = d.endDate();
         this.budgetInr = d.budgetInr();
+        this.targetInfluencers = d.targetInfluencers();
+        this.targetReels = d.targetReels();
+        this.targetStories = d.targetStories();
+        this.targetPosts = d.targetPosts();
     }
 
     private void assertEditable() {

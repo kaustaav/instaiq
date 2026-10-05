@@ -41,11 +41,12 @@ public class CampaignService {
         return c;
     }
 
-    /** Same setup (name, brand, brief, budget), no dates, empty pipeline, starts as DRAFT. */
+    /** Same setup (name, brand, brief, budget, targets), no dates, empty pipeline, starts as DRAFT. */
     public Campaign duplicate(long id, String actor) {
         Campaign src = campaigns.findById(id).orElseThrow(() -> new NotFoundException("Campaign", id));
         return create(new CampaignDetails(src.getName() + " (copy)", src.getBrand(), src.getBrief(), null, null,
-                src.getBudgetInr()), actor);
+                src.getBudgetInr(), src.getTargetInfluencers(), src.getTargetReels(), src.getTargetStories(),
+                src.getTargetPosts()), actor);
     }
 
     /** One influencer that couldn't be added, and why. */

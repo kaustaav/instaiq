@@ -56,7 +56,7 @@ export const SEED_CAMPAIGNS: Campaign[] = [
   camp({
     id: 1, name: 'Diwali Bridal Push', brand: 'Kesar Jewels', status: 'ACTIVE', created: '2026-09-15', changed: '2026-09-28',
     brief: 'Festive bridal sets for Diwali–wedding season. Tricity + Jaipur creators, polki and kundan focus. Reels must show the set worn, not flat-lay.',
-    startDate: '2026-10-05', endDate: '2026-11-08', budget: 150000,
+    startDate: '2026-10-05', endDate: '2026-11-08', budget: 150000, targetInfluencers: 8, targetReels: 8, targetStories: 6, targetPosts: null,
     members: [
       mem(1, 'AGREED', '2026-09-16', {
         fee: 12000, paymentStatus: 'PARTIALLY_PAID', payments: [pay(6000, '2026-09-30')], notes: '50% advance paid on signing.',
@@ -86,7 +86,7 @@ export const SEED_CAMPAIGNS: Campaign[] = [
   }),
   camp({
     id: 2, name: 'Winter Fitness Reset', brand: 'FitDesi Studio', status: 'ACTIVE', created: '2026-09-20', changed: '2026-09-26',
-    brief: 'New-year-ready home workouts using the FitDesi resistance band kit.', startDate: '2026-10-01', endDate: '2026-12-15', budget: 40000,
+    brief: 'New-year-ready home workouts using the FitDesi resistance band kit.', startDate: '2026-10-01', endDate: '2026-12-15', budget: 40000, targetInfluencers: 4, targetReels: 3, targetStories: null, targetPosts: 2,
     members: [
       mem(5, 'AGREED', '2026-09-21', { fee: 8000, deliverables: [del('REEL', 1, 'IN_REVIEW', [rev(1, '2026-10-01')]), del('POST', 1, 'APPROVED', [rev(1, '2026-09-30', ['APPROVED'])])] }),
       mem(14, 'NEGOTIATING', '2026-09-21', { notes: 'Wants product + cash; checking budget.' }),
@@ -94,23 +94,23 @@ export const SEED_CAMPAIGNS: Campaign[] = [
   }),
   camp({
     id: 3, name: 'Chandigarh Food Fest', brand: 'Masala Box', status: 'DRAFT', created: '2026-09-28',
-    brief: 'Sector 17 food festival, 3-day event. Looking for local food creators for on-ground coverage.', startDate: '2026-11-14', endDate: '2026-11-30', budget: 60000,
+    brief: 'Sector 17 food festival, 3-day event. Looking for local food creators for on-ground coverage.', startDate: '2026-11-14', endDate: '2026-11-30', budget: 60000, targetInfluencers: 5, targetReels: 5, targetStories: 10, targetPosts: null,
     members: [mem(2, 'SHORTLISTED', '2026-09-28'), mem(7, 'SHORTLISTED', '2026-09-28'), mem(12, 'SHORTLISTED', '2026-09-28'), mem(18, 'SHORTLISTED', '2026-09-28')],
   }),
   camp({
     id: 4, name: 'Bridal Jewellery Q2 2025', brand: 'Noor Adornments', status: 'COMPLETED', created: '2025-05-12', changed: '2025-07-02',
-    brief: 'Summer bridal collection launch.', startDate: '2025-05-20', endDate: '2025-06-30', budget: 50000,
+    brief: 'Summer bridal collection launch.', startDate: '2025-05-20', endDate: '2025-06-30', budget: 50000, targetInfluencers: 5, targetReels: 4, targetStories: 3, targetPosts: null,
     members: [done(1, '2025-06-10', 9000, ['REEL', 'STORY']), done(4, '2025-06-12', 6000, ['REEL']), done(6, '2025-06-14', 7500, ['REEL']), done(13, '2025-06-15', 7000, ['REEL']), done(16, '2025-06-18', 4000, ['STORY', 'STORY'])],
   }),
   camp({
     id: 5, name: 'Monsoon Beauty Edit', brand: 'Blush Bazaar', status: 'CANCELLED', created: '2026-06-02', changed: '2026-06-20',
     statusReason: 'Brand paused marketing spend for the quarter.',
-    brief: 'Humidity-proof makeup routines.', startDate: '2026-07-01', endDate: '2026-08-15', budget: 45000,
+    brief: 'Humidity-proof makeup routines.', startDate: '2026-07-01', endDate: '2026-08-15', budget: 45000, targetInfluencers: 4, targetReels: null, targetStories: null, targetPosts: null,
     members: [mem(3, 'CONTACTED', '2026-06-03'), mem(8, 'SHORTLISTED', '2026-06-03'), mem(19, 'SHORTLISTED', '2026-06-03')],
   }),
   camp({
     id: 6, name: 'Summer Travel Diaries 2025', brand: 'Pahadi Stays', status: 'ARCHIVED', archivedFrom: 'COMPLETED', created: '2025-04-01', changed: '2025-08-01',
-    brief: 'Weekend stays in Himachal.', startDate: '2025-04-15', endDate: '2025-06-15', budget: 30000,
+    brief: 'Weekend stays in Himachal.', startDate: '2025-04-15', endDate: '2025-06-15', budget: 30000, targetInfluencers: 2, targetReels: 2, targetStories: 1, targetPosts: null,
     members: [done(9, '2025-05-10', 6000, ['REEL', 'STORY']), done(20, '2025-05-20', 5500, ['REEL'])],
   }),
 ]

@@ -43,6 +43,7 @@ export type CampaignCard = {
   endDate?: string
   budget: number | null
   budgetUsed: number
+  targetInfluencers: number
   members: number
   stages: Map<DisplayStage, number>
   deliverables: number
@@ -56,7 +57,7 @@ export function cardFromCampaign(c: Campaign): CampaignCard {
   const s = campaignSummary(c)
   return {
     id: c.id, name: c.name, brand: c.brand, status: c.status, startDate: c.startDate, endDate: c.endDate, budget: c.budget,
-    budgetUsed: budgetUsed(c), members: s.members, stages: s.stages, deliverables: s.deliverables, posted: s.posted,
+    budgetUsed: budgetUsed(c), targetInfluencers: c.targetInfluencers, members: s.members, stages: s.stages, deliverables: s.deliverables, posted: s.posted,
     inReview: s.inReview, unpaid: s.unpaid, createdAt: c.createdAt,
   }
 }

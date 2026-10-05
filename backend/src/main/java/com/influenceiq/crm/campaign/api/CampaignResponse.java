@@ -25,6 +25,7 @@ public record CampaignResponse(
         LocalDate endDate,
         Integer budgetInr,
         int budgetUsedInr,
+        Targets targets,
         CampaignStatus status,
         CampaignStatus archivedFrom,
         String statusReason,
@@ -35,6 +36,14 @@ public record CampaignResponse(
         Instant updatedAt,
         int version,
         List<MemberView> members) {
+
+    /** What the brand wants. Content counts are campaign totals; null = not specified. */
+    public record Targets(int influencers, Integer reels, Integer stories, Integer posts) {
+
+        static Targets of(Campaign c) {
+            return new Targets(c.getTargetInfluencers(), c.getTargetReels(), c.getTargetStories(), c.getTargetPosts());
+        }
+    }
 
     /** Just enough of the influencer for the campaign screens (cards, pipeline). */
     public record InfluencerBrief(long id, String handle, String name, int followers, BigDecimal engagementRate,
@@ -62,7 +71,7 @@ public record CampaignResponse(
     /** @param influencers every member's influencer, by id */
     static CampaignResponse from(Campaign c, Map<Long, Influencer> influencers) {
         return new CampaignResponse(c.getId(), c.getName(), c.getBrand(), c.getBrief(), c.getStartDate(),
-                c.getEndDate(), c.getBudgetInr(), c.budgetUsedInr(), c.getStatus(), c.getArchivedFrom(),
+                c.getEndDate(), c.getBudgetInr(), c.budgetUsedInr(), Targets.of(c), c.getStatus(), c.getArchivedFrom(),
                 c.getStatusReason(), c.getStatusChangedAt(), c.getStatusChangedBy(), c.getCreatedAt(),
                 c.getCreatedBy(), c.getUpdatedAt(), c.getVersion(),
                 c.getMembers().stream().map(m -> MemberView.from(m, influencers.get(m.getInfluencerId()))).toList());

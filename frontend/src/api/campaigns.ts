@@ -33,9 +33,11 @@ type ApiMember = {
   addedBy: string
 }
 
+type ApiTargets = { influencers: number; reels: number | null; stories: number | null; posts: number | null }
+
 export type ApiCampaign = {
   id: number; name: string; brand: string; brief: string | null
-  startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number
+  startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number; targets: ApiTargets
   status: CampaignStatus; archivedFrom: 'COMPLETED' | 'CANCELLED' | null
   statusReason: string | null; statusChangedAt: string; statusChangedBy: string
   createdAt: string; createdBy: string; updatedAt: string; version: number
@@ -44,7 +46,7 @@ export type ApiCampaign = {
 
 type ApiCampaignSummary = {
   id: number; name: string; brand: string; status: CampaignStatus
-  startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number
+  startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number; targets: ApiTargets
   memberCount: number; stageCounts: Partial<Record<DisplayStage, number>>; createdAt: string
 }
 
@@ -63,7 +65,8 @@ export type ApiInfluencerCampaign = {
 // ---------- calls ----------
 const body = (i: CampaignInput, version?: number) => ({
   name: i.name, brand: i.brand, brief: i.brief, startDate: i.startDate ?? null, endDate: i.endDate ?? null,
-  budgetInr: i.budget, version,
+  budgetInr: i.budget, targetInfluencers: i.targetInfluencers, targetReels: i.targetReels, targetStories: i.targetStories,
+  targetPosts: i.targetPosts, version,
 })
 
 export const listCampaigns = (_key: string, signal: AbortSignal) =>
@@ -85,7 +88,7 @@ const opt = <T,>(v: T | null): T | undefined => v ?? undefined
 function cardFromSummary(s: ApiCampaignSummary): CampaignCard {
   return {
     id: s.id, name: s.name, brand: s.brand, status: s.status, startDate: opt(s.startDate), endDate: opt(s.endDate),
-    budget: s.budgetInr, budgetUsed: s.budgetUsedInr, members: s.memberCount,
+    budget: s.budgetInr, budgetUsed: s.budgetUsedInr, targetInfluencers: s.targets.influencers, members: s.memberCount,
     stages: new Map(Object.entries(s.stageCounts) as [DisplayStage, number][]),
     // deliverables and payments arrive in later steps; until then there's nothing to count
     deliverables: 0, posted: 0, inReview: 0, unpaid: 0, createdAt: s.createdAt,
@@ -119,7 +122,8 @@ export function toCampaign(a: ApiCampaign, loc: Region[]): { campaign: Campaign;
   return {
     campaign: {
       id: a.id, name: a.name, brand: a.brand, brief: a.brief ?? '', startDate: opt(a.startDate), endDate: opt(a.endDate),
-      budget: a.budgetInr, status: a.status, statusReason: opt(a.statusReason), statusChangedAt: a.statusChangedAt,
+      budget: a.budgetInr, targetInfluencers: a.targets.influencers, targetReels: a.targets.reels,
+      targetStories: a.targets.stories, targetPosts: a.targets.posts, status: a.status, statusReason: opt(a.statusReason), statusChangedAt: a.statusChangedAt,
       statusChangedBy: a.statusChangedBy, archivedFrom: opt(a.archivedFrom), createdAt: a.createdAt, createdBy: a.createdBy,
       members: a.members.map(toMember), version: a.version,
     },
