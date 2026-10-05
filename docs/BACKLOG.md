@@ -7,14 +7,14 @@ Open items agreed in planning but not done yet. Tick them off (or delete) as the
       secret scanning, **push protection** (blocks a push that contains a key), Dependabot security updates.
       `gh api -X PATCH repos/kaustaav/instaiq -F 'security_and_analysis[secret_scanning][status]=enabled' -F 'security_and_analysis[secret_scanning_push_protection][status]=enabled'`
       plus Dependabot under Settings → Code security. Verify: `gh api repos/kaustaav/instaiq --jq .security_and_analysis`
-- [ ] Never create long-lived AWS access keys. CI deploys use GitHub OIDC → an IAM role (temporary credentials).
-- [ ] Secrets (DB password, signing keys) in SSM Parameter Store, read by the EC2 instance role. Nothing secret in the repo or the UI bundle.
+- [x] No long-lived AWS access keys (instance role + Session Manager). Keep it so: CI must use GitHub OIDC.
+- [x] Secrets (DB password) in SSM Parameter Store, read by the EC2 instance role. Nothing secret in the repo or the UI bundle.
 
 ## AWS cost guardrails (when backend infra exists)
 - [ ] CloudWatch log groups: set retention to 7–14 days (default is "never expire"); production logging at INFO.
-- [ ] Teardown checklist in `docs/DEPLOYMENT.md` for EC2 / RDS / EBS volumes + snapshots / public IPs / CloudFront.
+- [x] Teardown checklist in `docs/DEPLOYMENT.md` for EC2 / EBS volumes + snapshots / public IPs / CloudFront.
       Remember: a stopped RDS instance restarts by itself after 7 days.
-- [ ] No NAT Gateway, no load balancer, no Multi-AZ RDS, no WAF in Phase 1.
+- [x] No NAT Gateway, no load balancer, no RDS, no WAF in develop (see the turned-off list in DEPLOYMENT.md).
 - [x] Everything in one region: **ap-southeast-2 (Sydney)**, decided 2026-10-02. Region is config, never hard-coded.
 - [ ] Billing data lags up to ~24h; check Credits page / Cost Explorer (excluding credits) for real usage.
 
@@ -32,19 +32,18 @@ The client uses its own email domain. Keep the real domain/name OUT of this publ
 - [ ] Add `main`/custom-domain origins to the Google client when going live.
 - [ ] Roles (e.g. view-only) if ever needed.
 
-## Backend on AWS (walking skeleton)
-Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /actuator/health; then torn down
-(instance terminated, SG deleted). Kept: IAM role `crm-ec2-role` (SSM only) for reuse.
-- [ ] Commit pending: ASCII-only `deploy/ec2-user-data.sh` + this backlog.
-- [x] Torn down after the test (instance + security group).
-- [ ] No auto-redeploy on push. Today: manual via Session Manager (git pull, docker build, rm, run).
-      Target: GitHub Actions builds image -> ECR -> deploy via SSM Run Command (needs `workflow` token scope + GitHub OIDC role).
-- [ ] EC2 Launch Template (versioned: AMI, type, SG, role, encryption, credits, user data) instead of re-clicking the wizard.
-- [ ] If user data fetches the script from GitHub instead of pasting, pin to a commit SHA (not `main`).
-- [ ] HTTPS + stable address: CloudFront in front of EC2 (or a domain + certificate).
-- [ ] Build images in CI, not on the server (removes the 1 GB RAM / swap / ~8 min build).
-- [ ] Add EC2 section to `docs/DEPLOYMENT.md` (launch, redeploy, logs, teardown).
-- [ ] Later: infrastructure as code (Terraform/CDK) for EC2 + RDS + CloudFront.
+## Backend on AWS
+Develop environment live since 2026-10-06; full record in `docs/DEPLOYMENT.md` ("Backend on AWS"), handover in `docs/HANDOVER.md`.
+- [x] EC2 t4g.micro + Docker (app + Postgres 17), separate encrypted data disk, Elastic IP, SG open to CloudFront only.
+- [x] Settings in Parameter Store, read by the instance role; nightly pg_dump to S3 (14 days); verified a backup.
+- [x] HTTPS via CloudFront (caching off, headers passed through); Amplify `develop` points at it with Google sign-in.
+- [x] EC2 section in `docs/DEPLOYMENT.md` (operate, cost, teardown, gotchas, turned-off list).
+- [ ] No auto-redeploy on push: today `deploy.sh` via Session Manager. Target: GitHub Actions builds image -> ECR ->
+      deploy via SSM Run Command (needs `workflow` token scope + GitHub OIDC role).
+- [ ] Build images in CI, not on the server (removes swap / ~8 min build / 2 min startup pressure).
+- [ ] EC2 Launch Template or infrastructure as code (Terraform/CDK) so the environment can be recreated exactly.
+- [ ] Turn on EC2 termination protection for `influenceiq-develop` (if not done).
+- [ ] Revisit the "turned off to save money" list in DEPLOYMENT.md when there's budget (WAF, RDS, t4g.small, CI, alarms).
 
 ## Backend (next milestone)
 - [x] Run `./mvnw spring-boot:run` in `backend/`, check `/actuator/health` → `{"status":"UP"}`.
