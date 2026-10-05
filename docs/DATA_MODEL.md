@@ -60,9 +60,10 @@ filter panel or form opens.
 | `start_date`, `end_date` | date | end ≥ start |
 | `budget_inr` | int NULL | |
 | `status` | enum `DRAFT` · `ACTIVE` · `COMPLETED` · `CANCELLED` · `ARCHIVED` | |
+| `archived_from` | `COMPLETED` · `CANCELLED` | set only while `ARCHIVED`; where "unarchive" returns to |
 | `status_reason`, `status_changed_at`, `status_changed_by` | | latest reason only |
 
-### `campaign_member` (PK `campaign_id, influencer_id`: one influencer once per campaign)
+### `campaign_member` (own `id`; UNIQUE `campaign_id, influencer_id`: one influencer once per campaign)
 | Column | Type | Notes |
 |---|---|---|
 | `stage` | enum `SHORTLISTED` · `CONTACTED` · `NEGOTIATING` · `AGREED` · `DECLINED` | `IN_PRODUCTION`, `LIVE`, `COMPLETED` are derived (below) |

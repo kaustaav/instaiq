@@ -2,8 +2,11 @@ package com.influenceiq.crm.common.api;
 
 import com.influenceiq.crm.common.ConflictException;
 import com.influenceiq.crm.common.NotFoundException;
+import com.influenceiq.crm.common.RuleViolationException;
 import com.influenceiq.crm.common.ValidationException;
 import com.influenceiq.crm.ingestion.DuplicateInfluencerException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,6 +20,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * <pre>{"title":"Invalid input","status":400,"detail":"...","errors":["Unknown city: Atlantis"]}</pre>
  * Controllers just throw; they never build error responses themselves.
  */
+@Slf4j
 @RestControllerAdvice // applies to every @RestController
 public class ApiExceptionHandler {
 
@@ -48,6 +52,29 @@ public class ApiExceptionHandler {
     ProblemDetail conflict(RuntimeException e) {
         ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
                 e instanceof ConflictException ? e.getMessage() : "This record was changed by someone else. Reload and try again.");
+        p.setTitle("Edit conflict");
+        return p;
+    }
+
+    /** Allowed input, but not in the current state (e.g. a completed campaign is read-only). Every reason listed. */
+    @ExceptionHandler(RuleViolationException.class)
+    ProblemDetail ruleViolation(RuleViolationException e) {
+        ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        p.setTitle("Not allowed right now");
+        p.setProperty("errors", e.getReasons());
+        return p;
+    }
+
+    /**
+     * A database constraint caught something the code didn't, typically two requests racing (both add the same
+     * influencer to a campaign at the same moment). Safe to retry after a reload; never shown as a 500.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ProblemDetail dataIntegrity(DataIntegrityViolationException e) {
+        // logged: if this isn't a race but a missing check in our code, we want to see it
+        log.warn("Constraint violation returned as 409: {}", e.getMostSpecificCause().getMessage());
+        ProblemDetail p = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "This conflicts with a change saved at the same moment. Reload and try again.");
         p.setTitle("Edit conflict");
         return p;
     }
