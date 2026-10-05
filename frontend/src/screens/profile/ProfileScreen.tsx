@@ -8,7 +8,8 @@ import { dstr, fmt, freshness, igUrl, mon } from '../../lib/format'
 import { stateOf } from '../../lib/locations'
 import type { Influencer, InfluencerStatus } from '../../types'
 import { Avatar, CategoryBadges, FreshPill, Pill } from '../../components/ui'
-import { CAMPAIGN_STATUS_LABEL, displayStage, STAGE_LABEL } from '../../lib/campaigns'
+import { CAMPAIGN_STATUS_LABEL, STAGE_LABEL } from '../../lib/campaigns'
+import { useInfluencerCampaigns } from '../../hooks/useCampaigns'
 import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
 import './profile.css'
 
@@ -36,11 +37,10 @@ const STATUS_COLORS = {
 }
 
 export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign }: Props) {
-  const { loc, setNote, campaigns, dataChanged } = useStore()
-  // derived from campaign membership, newest first
-  const history = campaigns
-    .flatMap(c => c.members.filter(m => m.influencerId === inf.id).map(m => ({ c, m })))
-    .sort((a, b) => (b.c.startDate ?? b.c.createdAt).localeCompare(a.c.startDate ?? a.c.createdAt))
+  const { loc, setNote, dataChanged } = useStore()
+  // every campaign they're in, newest first (built-in campaigns, or the API)
+  const memberships = useInfluencerCampaigns(inf.id)
+  const history = memberships.kind === 'ready' ? memberships.data : []
   const [histOpen, setHistOpen] = useState(false)
   const [noteDraft, setNoteDraft] = useState<string | null>(null) // null = not editing
   const [noteError, setNoteError] = useState('')
@@ -185,25 +185,23 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                         <tr><th>Campaign</th><th>Brand</th><th>Start</th><th>Stage</th><th>Posts</th><th>Campaign</th></tr>
                       </thead>
                       <tbody>
-                        {history.map(({ c, m }) => {
-                          const s = displayStage(m)
-                          const posted = m.deliverables.filter(d => d.status === 'POSTED').length
-                          return (
-                            <tr key={c.id}>
-                              <td style={{ fontWeight: 500 }}><Link to={`/campaigns/${c.id}?member=${inf.id}`}>{c.name}</Link></td>
-                              <td className="sub">{c.brand}</td>
-                              <td className="muted mono" style={{ fontSize: 11 }}>{fmtDate(c.startDate)}</td>
-                              <td><Pill tone={STAGE_TONE[s]}>{STAGE_LABEL[s]}</Pill></td>
-                              <td className="sub">{m.deliverables.length ? `${posted}/${m.deliverables.length}` : '—'}</td>
-                              <td><Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill></td>
-                            </tr>
-                          )
-                        })}
+                        {history.map(h => (
+                          <tr key={h.campaignId}>
+                            <td style={{ fontWeight: 500 }}><Link to={`/campaigns/${h.campaignId}?member=${inf.id}`}>{h.name}</Link></td>
+                            <td className="sub">{h.brand}</td>
+                            <td className="muted mono" style={{ fontSize: 11 }}>{fmtDate(h.startDate)}</td>
+                            <td><Pill tone={STAGE_TONE[h.stage]}>{STAGE_LABEL[h.stage]}</Pill></td>
+                            <td className="sub">{h.deliverables ? `${h.posted}/${h.deliverables}` : '—'}</td>
+                            <td><Pill tone={CAMPAIGN_TONE[h.campaignStatus]}>{CAMPAIGN_STATUS_LABEL[h.campaignStatus]}</Pill></td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <div className="muted" style={{ padding: '12px 0', textAlign: 'center', fontSize: 13 }}>Not in any campaign yet</div>
+                  <div className="muted" style={{ padding: '12px 0', textAlign: 'center', fontSize: 13 }}>
+                    {memberships.kind === 'loading' ? 'Loading…' : memberships.kind === 'error' ? 'Couldn’t load campaign history' : 'Not in any campaign yet'}
+                  </div>
                 )}
                 {inf.camps.length > 0 && (
                   <>

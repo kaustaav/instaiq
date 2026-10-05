@@ -105,7 +105,7 @@ const price = (v: number | null): string => (v == null ? '—' : inr(v))
 const toPricing = (r: ApiRates | null): Pricing => ({ story: price(r?.storyInr ?? null), reel: price(r?.reelInr ?? null), post: price(r?.postInr ?? null) })
 
 /** The UI keeps only *state-only* entries in `states`; the API returns cities' states too. */
-const stateOnly = (cities: string[], states: string[], loc: Region[]) =>
+export const stateOnly = (cities: string[], states: string[], loc: Region[]) =>
   states.filter(s => !cities.some(c => stateOf(loc, c) === s))
 
 function base(a: ApiSummary | ApiProfile, loc: Region[]): Omit<Influencer, 'followers' | 'eng' | 'likes' | 'comments' | 'pricing' | 'rates' | 'updatedAt'> {

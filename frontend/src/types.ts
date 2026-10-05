@@ -118,6 +118,8 @@ export type Campaign = {
   createdAt: string
   createdBy: string
   members: Member[]
+  /** API mode: sent back on edit so the server can spot a conflicting save. */
+  version?: number
 }
 
 export type Region = { state: string; cities: string[] }

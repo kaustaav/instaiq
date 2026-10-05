@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ExternalLink, Lock, X } from 'lucide-react'
 import { useStore } from '../../store'
+import { apiEnabled } from '../../api/client'
 import { inr } from '../../lib/format'
 import {
   agreeTerms, amountPaid, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, displayStage, isReadOnly, markPosted, recordPayment,
@@ -14,15 +15,25 @@ import { Avatar, IgLink, Pill } from '../../components/ui'
 import { ReasonDialog } from '../../components/ReasonDialog'
 import '../../overlays/overlays.css'
 
-type Props = { campaign: Campaign; member: Member; influencer?: Influencer; onClose: () => void }
+type Props = {
+  campaign: Campaign
+  member: Member
+  influencer?: Influencer
+  onClose: () => void
+  /** API mode: removes through the server ('' = done, else the error). Demo mode uses the in-browser rules. */
+  onRemove?: () => Promise<string>
+}
 
-type Confirm = { title: string; reasonLabel?: string; confirmLabel: string; danger?: boolean; run: (reason: string) => string }
+type Confirm = { title: string; reasonLabel?: string; confirmLabel: string; danger?: boolean; run: (reason: string) => string | Promise<string> }
 
-export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose }: Props) {
+export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose, onRemove }: Props) {
   const { runCampaign } = useStore()
   const [error, setError] = useState('')
   const [confirm, setConfirm] = useState<Confirm | null>(null)
-  const readOnly = isReadOnly(c)
+  const campaignReadOnly = isReadOnly(c)
+  // API mode: stages, terms, drafts, payments and notes aren't on the server yet (next steps), so they're view-only
+  const pending = apiEnabled()
+  const readOnly = campaignReadOnly || pending
   const stage = displayStage(m)
   const name = inf?.name ?? `Influencer #${m.influencerId}`
 
@@ -67,7 +78,10 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose 
         </div>
 
         <div className="drawer-body">
-          {readOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
+          {campaignReadOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
+          {pending && !campaignReadOnly && (
+            <div className="muted" style={{ fontSize: 12 }}>Stage changes, terms, drafts, payments and notes aren’t connected to the server yet; they come in the next steps.</div>
+          )}
 
           {/* ---- Stage ---- */}
           <section className="md-section">
@@ -161,13 +175,13 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose 
             <NotesEditor value={m.notes} readOnly={readOnly} onSave={v => run(x => setMemberNotes(x, m.influencerId, v))} />
           </section>
 
-          {!readOnly && (
+          {!campaignReadOnly && (
             <section className="md-section">
               <button type="button" className="btn btn-ghost md-danger" disabled={!!blocker} title={blocker || undefined}
                 onClick={() => setConfirm({
                   title: `Remove ${name} from ${c.name}?`, confirmLabel: 'Remove', danger: true,
-                  run: () => {
-                    const err = runCampaign(c.id, x => removeMember(x, m.influencerId))
+                  run: async () => {
+                    const err = onRemove ? await onRemove() : runCampaign(c.id, x => removeMember(x, m.influencerId))
                     if (!err) onClose()
                     return err
                   },

@@ -1,4 +1,5 @@
-import type { CampaignStatus, DeliverableStatus, DisplayStage, PaymentStatus } from '../types'
+import type { Campaign, CampaignStatus, DeliverableStatus, DisplayStage, PaymentStatus } from '../types'
+import { budgetUsed, campaignSummary } from './campaigns'
 
 export type Tone = { bg: string; fg: string }
 const GRAY: Tone = { bg: '#F4F4F5', fg: '#3F3F46' }
@@ -31,3 +32,31 @@ export const fmtDate = (iso?: string) =>
   iso ? new Date(iso.length === 10 ? iso + 'T00:00:00' : iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
 
 export const fmtRange = (a?: string, b?: string) => (a || b ? `${fmtDate(a)} → ${fmtDate(b)}` : 'Dates not set')
+
+/** What a campaign card (list, add-to-campaign popup) shows. Built from a full campaign (demo) or an API summary. */
+export type CampaignCard = {
+  id: number
+  name: string
+  brand: string
+  status: CampaignStatus
+  startDate?: string
+  endDate?: string
+  budget: number | null
+  budgetUsed: number
+  members: number
+  stages: Map<DisplayStage, number>
+  deliverables: number
+  posted: number
+  inReview: number
+  unpaid: number
+  createdAt: string
+}
+
+export function cardFromCampaign(c: Campaign): CampaignCard {
+  const s = campaignSummary(c)
+  return {
+    id: c.id, name: c.name, brand: c.brand, status: c.status, startDate: c.startDate, endDate: c.endDate, budget: c.budget,
+    budgetUsed: budgetUsed(c), members: s.members, stages: s.stages, deliverables: s.deliverables, posted: s.posted,
+    inReview: s.inReview, unpaid: s.unpaid, createdAt: c.createdAt,
+  }
+}

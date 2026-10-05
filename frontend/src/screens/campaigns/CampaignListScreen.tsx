@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { Megaphone, Plus, Search } from 'lucide-react'
+import { Megaphone, Plus, Search, WifiOff } from 'lucide-react'
 import { useStore } from '../../store'
 import { inr } from '../../lib/format'
-import { budgetUsed, CAMPAIGN_STATUS_LABEL, campaignSummary } from '../../lib/campaigns'
-import { CAMPAIGN_TONE, fmtRange } from '../../lib/campaignUi'
+import { CAMPAIGN_STATUS_LABEL } from '../../lib/campaigns'
+import { CAMPAIGN_TONE, fmtRange, type CampaignCard } from '../../lib/campaignUi'
+import { apiEnabled, errorText } from '../../api/client'
+import { createCampaignApi } from '../../api/campaigns'
+import { useCampaignCards } from '../../hooks/useCampaigns'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
-import type { Campaign, CampaignStatus } from '../../types'
+import type { CampaignStatus } from '../../types'
 import { EmptyState, Pill } from '../../components/ui'
 import { Pagination } from '../../components/Pagination'
 import { CampaignFormDrawer } from './CampaignFormDrawer'
@@ -21,7 +24,9 @@ const STATUS_ORDER: Record<CampaignStatus, number> = { ACTIVE: 0, DRAFT: 1, COMP
 
 /** /campaigns?q=&status=&brand=&page= */
 export function CampaignListScreen() {
-  const { campaigns, createCampaign } = useStore()
+  const { createCampaign, dataChanged } = useStore()
+  const cards = useCampaignCards() // built-in campaigns, or the API
+  const campaigns = cards.kind === 'ready' ? cards.data : []
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const [creating, setCreating] = useState(false)
@@ -43,7 +48,7 @@ export function CampaignListScreen() {
   }
 
   // "All" hides archived campaigns, like archived influencers
-  const inStatus = (c: Campaign) => (status === 'ALL' ? c.status !== 'ARCHIVED' : c.status === status)
+  const inStatus = (c: CampaignCard) => (status === 'ALL' ? c.status !== 'ARCHIVED' : c.status === status)
   const count = (s: (typeof STATUS_FILTERS)[number]) => campaigns.filter(c => (s === 'ALL' ? c.status !== 'ARCHIVED' : c.status === s)).length
   const brands = [...new Set(campaigns.map(c => c.brand))].sort()
   const ql = q.toLowerCase()
@@ -90,13 +95,19 @@ export function CampaignListScreen() {
           </select>
         </div>
 
-        {rows.total === 0 ? (
+        {cards.kind === 'error' ? (
+          <div style={{ textAlign: 'center' }}>
+            <EmptyState icon={WifiOff} title="Couldn’t load campaigns" sub={cards.message} />
+            <button type="button" className="btn btn-ghost" onClick={cards.retry}>Try again</button>
+          </div>
+        ) : cards.kind === 'loading' ? (
+          <div className="empty"><div className="empty-sub">Loading campaigns…</div></div>
+        ) : rows.total === 0 ? (
           <EmptyState icon={Megaphone} title="No campaigns match" sub={campaigns.length ? 'Try another filter' : 'Create your first campaign'} />
         ) : (
           <div className="camp-cards">
             {rows.items.map(c => {
-              const s = campaignSummary(c)
-              const live = (s.stages.get('LIVE') ?? 0) + (s.stages.get('COMPLETED') ?? 0)
+              const live = (c.stages.get('LIVE') ?? 0) + (c.stages.get('COMPLETED') ?? 0)
               return (
                 <Link key={c.id} to={`/campaigns/${c.id}`} className="camp-card">
                   <div className="camp-card-main">
@@ -106,16 +117,16 @@ export function CampaignListScreen() {
                     </div>
                     <div className="camp-card-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
                     <div className="camp-card-meta">
-                      {s.members} influencer{s.members !== 1 ? 's' : ''}
-                      {s.deliverables > 0 && <> · {s.posted}/{s.deliverables} posts live</>}
-                      {s.inReview > 0 && <> · <b style={{ color: '#3D2F99' }}>{s.inReview} draft{s.inReview > 1 ? 's' : ''} to review</b></>}
-                      {live > 0 && s.unpaid > 0 && <> · <b style={{ color: '#8B5E00' }}>{s.unpaid} unpaid</b></>}
+                      {c.members} influencer{c.members !== 1 ? 's' : ''}
+                      {c.deliverables > 0 && <> · {c.posted}/{c.deliverables} posts live</>}
+                      {c.inReview > 0 && <> · <b style={{ color: '#3D2F99' }}>{c.inReview} draft{c.inReview > 1 ? 's' : ''} to review</b></>}
+                      {live > 0 && c.unpaid > 0 && <> · <b style={{ color: '#8B5E00' }}>{c.unpaid} unpaid</b></>}
                     </div>
                   </div>
                   <div className="camp-card-budget">
-                    <BudgetBar used={budgetUsed(c)} total={c.budget} />
+                    <BudgetBar used={c.budgetUsed} total={c.budget} />
                     <div className="muted mono" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
-                      {inr(budgetUsed(c))} / {c.budget != null ? inr(c.budget) : 'no budget'}
+                      {inr(c.budgetUsed)} / {c.budget != null ? inr(c.budget) : 'no budget'}
                     </div>
                   </div>
                 </Link>
@@ -130,11 +141,22 @@ export function CampaignListScreen() {
         <CampaignFormDrawer
           editing={null}
           onClose={() => setCreating(false)}
-          onSubmit={input => {
-            const r = createCampaign(input)
-            if (typeof r === 'string') return r
+          onSubmit={async input => {
+            let id: number
+            if (apiEnabled()) {
+              try {
+                id = (await createCampaignApi(input)).id
+                dataChanged()
+              } catch (e) {
+                return errorText(e)
+              }
+            } else {
+              const r = createCampaign(input)
+              if (typeof r === 'string') return r
+              id = r.id
+            }
             setCreating(false)
-            navigate(`/campaigns/${r.id}`)
+            navigate(`/campaigns/${id}`)
             return ''
           }}
         />

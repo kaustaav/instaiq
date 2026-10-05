@@ -8,7 +8,8 @@ type Props = {
   reasonLabel?: string
   confirmLabel: string
   danger?: boolean
-  onConfirm: (reason: string) => string // returns an error message, or '' to close
+  /** Returns an error message, or '' to close. May be async (API calls). */
+  onConfirm: (reason: string) => string | Promise<string>
   onClose: () => void
 }
 
@@ -16,6 +17,7 @@ type Props = {
 export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger, onConfirm, onClose }: Props) {
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -23,8 +25,10 @@ export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const confirm = () => {
-    const err = onConfirm(reason)
+  const confirm = async () => {
+    setBusy(true)
+    const err = await onConfirm(reason)
+    setBusy(false)
     if (err) setError(err)
     else onClose()
   }
@@ -47,7 +51,7 @@ export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger
         {error && <div role="alert" style={{ padding: '10px 18px 0', fontSize: 12, color: 'var(--iq-down)', whiteSpace: 'pre-line' }}>{error}</div>}
         <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={danger ? { background: 'var(--iq-down)' } : undefined} onClick={confirm}>{confirmLabel}</button>
+          <button type="button" className="btn btn-blue" style={danger ? { background: 'var(--iq-down)' } : undefined} disabled={busy} onClick={confirm}>{busy ? 'Working…' : confirmLabel}</button>
         </div>
       </div>
     </div>

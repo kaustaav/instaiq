@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users, WifiOff } from 'lucide-react'
 import { useStore } from '../../store'
+import { apiEnabled, errorText } from '../../api/client'
+import { duplicateCampaignApi, removeMemberApi, updateCampaignApi } from '../../api/campaigns'
+import { useCampaignDetail } from '../../hooks/useCampaigns'
 import { fmt, igUrl, inr } from '../../lib/format'
 import {
   ACTION_LABEL, ACTION_NEEDS_REASON, amountPaid, budgetUsed, CAMPAIGN_STATUS_LABEL, changeStatus, COMPENSATION_LABEL, DISPLAY_STAGES,
@@ -54,15 +57,17 @@ type Dialog = { action: StatusAction; blockers: string[] }
 
 /** /campaigns/:id?stage=&member=&page= */
 export function CampaignDetailScreen() {
-  const { campaigns, infs, runCampaign, duplicateCampaign } = useStore()
+  const { runCampaign, duplicateCampaign, dataChanged } = useStore()
   const { id } = useParams()
+  const api = apiEnabled()
+  const detail = useCampaignDetail(id) // built-in campaigns, or the API
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const [editing, setEditing] = useState(false)
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const c = campaigns.find(x => String(x.id) === id)
+  const c = detail.kind === 'ready' ? detail.data.campaign : undefined
   const stageParam = params.get('stage')
   const stage = DISPLAY_STAGES.find(s => s === stageParam) ?? null
   const memberId = Number(params.get('member')) || null
@@ -77,7 +82,18 @@ export function CampaignDetailScreen() {
   const rows = paginate(filtered, page, PAGE_SIZE)
   useScrollTopOnChange(scrollRef, rows.page)
 
-  if (!c) {
+  if (detail.kind === 'loading') {
+    return <div className="screen-col" style={{ justifyContent: 'center' }}><div className="empty"><div className="empty-sub">Loading campaign…</div></div></div>
+  }
+  if (detail.kind === 'error') {
+    return (
+      <div className="screen-col" style={{ justifyContent: 'center' }}>
+        <EmptyState icon={WifiOff} title="Couldn’t load this campaign" sub={detail.message} />
+        <div style={{ textAlign: 'center' }}><button type="button" className="btn btn-ghost" onClick={detail.retry}>Try again</button></div>
+      </div>
+    )
+  }
+  if (!c || detail.kind !== 'ready') {
     return (
       <div className="screen-col" style={{ justifyContent: 'center' }}>
         <EmptyState icon={Users} title="Campaign not found" sub="It may have been removed, or the link is wrong." />
@@ -86,7 +102,7 @@ export function CampaignDetailScreen() {
     )
   }
 
-  const infOf = (iid: number) => infs.find(i => i.id === iid)
+  const infOf = detail.data.infOf
   const nameOf = (iid: number) => infOf(iid)?.name ?? `Influencer #${iid}`
   const readOnly = isReadOnly(c)
   const used = budgetUsed(c)
@@ -96,6 +112,17 @@ export function CampaignDetailScreen() {
   const member = memberId != null ? c.members.find(m => m.influencerId === memberId) : undefined
 
   const openAction = (action: StatusAction) => setDialog({ action, blockers: statusBlockers(c, action, nameOf) })
+
+  const duplicate = async () => {
+    if (!api) return navigate(`/campaigns/${duplicateCampaign(c.id).id}`)
+    try {
+      const copy = await duplicateCampaignApi(c.id)
+      dataChanged()
+      navigate(`/campaigns/${copy.id}`)
+    } catch (e) {
+      window.alert(errorText(e))
+    }
+  }
 
   return (
     <div className="screen-col" style={{ background: 'var(--iq-gray-50)' }}>
@@ -121,12 +148,14 @@ export function CampaignDetailScreen() {
               </div>
               <div className="camp-actions">
                 {STATUS_ACTIONS[c.status].map(a => (
-                  <button key={a} type="button" className={a === 'complete' || a === 'activate' ? 'btn btn-blue' : 'btn btn-ghost'} onClick={() => openAction(a)}>
+                  // API mode: status changes are the next backend step
+                  <button key={a} type="button" className={a === 'complete' || a === 'activate' ? 'btn btn-blue' : 'btn btn-ghost'}
+                    disabled={api} title={api ? 'Not connected to the server yet (next step)' : undefined} onClick={() => openAction(a)}>
                     {ACTION_LABEL[a]}
                   </button>
                 ))}
                 <button type="button" className="btn btn-ghost" disabled={readOnly} title={readOnly ? 'Read-only' : undefined} onClick={() => setEditing(true)}><Pencil size={12} />Edit</button>
-                <button type="button" className="btn btn-ghost" title="Same setup, no influencers" onClick={() => navigate(`/campaigns/${duplicateCampaign(c.id).id}`)}><Copy size={12} />Duplicate</button>
+                <button type="button" className="btn btn-ghost" title="Same setup, no influencers" onClick={duplicate}><Copy size={12} />Duplicate</button>
                 <button type="button" className="btn btn-ghost" disabled={!c.members.length} onClick={() => exportCsv(c, infOf)}><Download size={12} />CSV</button>
               </div>
             </div>
@@ -198,13 +227,30 @@ export function CampaignDetailScreen() {
 
       {member && (
         <MemberDrawer key={member.influencerId} campaign={c} member={member} influencer={infOf(member.influencerId)}
-          onClose={() => setParam({ member: null })} />
+          onClose={() => setParam({ member: null })}
+          onRemove={api ? async () => {
+            try {
+              await removeMemberApi(c.id, member.influencerId)
+              dataChanged()
+              return ''
+            } catch (e) {
+              return errorText(e)
+            }
+          } : undefined} />
       )}
 
       {editing && (
         <CampaignFormDrawer editing={c} onClose={() => setEditing(false)}
-          onSubmit={input => {
-            const err = runCampaign(c.id, x => editCampaign(x, input))
+          onSubmit={async input => {
+            let err = ''
+            if (api) {
+              try {
+                await updateCampaignApi(c.id, input, c.version)
+                dataChanged()
+              } catch (e) {
+                err = errorText(e)
+              }
+            } else err = runCampaign(c.id, x => editCampaign(x, input))
             if (!err) setEditing(false)
             return err
           }} />

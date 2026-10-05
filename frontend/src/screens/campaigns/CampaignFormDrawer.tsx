@@ -6,7 +6,7 @@ import '../../overlays/overlays.css'
 
 type Props = {
   editing: Campaign | null // null = new
-  onSubmit: (input: CampaignInput) => string // '' on success, else an error to show
+  onSubmit: (input: CampaignInput) => string | Promise<string> // '' on success, else an error to show
   onClose: () => void
 }
 
@@ -20,6 +20,7 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
     budget: editing?.budget != null ? String(editing.budget) : '',
   })
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(p => ({ ...p, [k]: e.target.value }))
 
   useEffect(() => {
@@ -28,13 +29,16 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const save = () => {
+  const save = async () => {
     const input: CampaignInput = {
       name: f.name, brand: f.brand, brief: f.brief, startDate: f.startDate || undefined, endDate: f.endDate || undefined,
       budget: f.budget.trim() ? Math.round(+f.budget) : null,
     }
-    const err = validateCampaign(input) || onSubmit(input)
-    if (err) setError(err)
+    const err = validateCampaign(input)
+    if (err) return setError(err)
+    setSaving(true)
+    setError((await onSubmit(input)) || '')
+    setSaving(false)
   }
 
   return (
@@ -65,9 +69,9 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
           {!editing && <div className="muted" style={{ fontSize: 12 }}>New campaigns start as <b>Draft</b>. Activate once dates are set and at least one influencer is added.</div>}
         </div>
         <div className="drawer-foot">
-          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)' }}>{error}</div>
+          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)', whiteSpace: 'pre-line' }}>{error}</div>
           <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} onClick={save}>{editing ? 'Save changes' : 'Create campaign'}</button>
+          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create campaign'}</button>
         </div>
       </div>
     </div>

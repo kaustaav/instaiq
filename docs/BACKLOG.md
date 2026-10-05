@@ -52,8 +52,19 @@ Done 2026-10-03: EC2 t4g.micro (Sydney) built the image from GitHub and served /
 - [x] `develop` connected to Amplify: https://develop.d360lwuskrbgul.amplifyapp.com (password-protected, demo mode until an API is deployed).
 - [x] Write APIs: create/edit influencer (via Ingestion Service), notes, status, rate cards. Optimistic locking (`version`), 409 duplicate/conflict.
 - [x] UI writes through the API in API mode: add/edit drawer, notes, status, Manage list (`fresh=` filter) with archive instead of delete.
-- [ ] API mode gaps: adding new niches/languages/cities (reference data is fixed); campaigns still use built-in data, so
-      influencers created via the API show as "Influencer #id" in campaigns until the campaigns backend exists.
+- [x] Custom niches/languages: `POST /api/reference/categories|languages` (idempotent, case-insensitive); API mode loads
+      the lists from `GET /api/reference`.
+- [ ] API mode gaps: adding new cities (geo list is fixed); campaigns still use built-in data, so influencers created
+      via the API show as "Influencer #id" in campaigns until the campaigns backend exists.
+- [ ] Campaigns backend (full, as designed), in steps:
+  - [x] 1a. API: campaigns + members (create, edit with version, duplicate, list summaries, add members in bulk, remove)
+  - [x] 1b. UI on the campaigns API (API mode): list, create/edit, duplicate, add (one/all), remove, profile history;
+        status/stage/terms/drafts/payments/notes view-only in API mode until steps 2-4
+  - [ ] 2. Campaign status machine + member stages (with reasons)
+  - [ ] 3. Deliverables + draft review loop
+  - [ ] 4. Payments (receipt links), write-off, budget warning
+  - [ ] 5. CSV export of a campaign
+- [ ] No way to rename/remove a custom niche or language yet (needs an admin screen + rules for influencers using it).
 - [ ] Discovery source isn't on the add/edit form yet (API defaults to OTHER; edits keep the stored value).
 - [ ] Campaign tables + API (port `frontend/src/lib/campaigns.ts` rules to a Java service).
 - [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the

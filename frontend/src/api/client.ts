@@ -22,7 +22,7 @@ export class ApiError extends Error {
 }
 
 /** One JSON request. `signal` lets callers cancel stale requests (e.g. the user typed again). */
-async function request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   if (!API_URL) throw new Error('API is not configured (VITE_API_URL is unset)')
   let res: Response
   try {
@@ -43,6 +43,11 @@ async function request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: u
   return res.json() as Promise<T>
 }
 
+/** Text for showing an error to a person: every problem the server listed, one per line. */
+export const errorText = (e: unknown, fallback = 'Something went wrong') =>
+  e instanceof ApiError ? (e.errors.length ? e.errors.join('\n') : e.message) : fallback
+
 export const apiGet = <T>(path: string, signal?: AbortSignal) => request<T>('GET', path, undefined, signal)
 export const apiPost = <T>(path: string, body: unknown) => request<T>('POST', path, body)
 export const apiPut = <T>(path: string, body: unknown) => request<T>('PUT', path, body)
+export const apiDelete = <T>(path: string) => request<T>('DELETE', path)

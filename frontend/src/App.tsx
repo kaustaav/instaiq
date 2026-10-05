@@ -7,6 +7,7 @@ import { StoreProvider, useStore } from './store'
 import type { Influencer } from './types'
 import type { ProfileNavState } from './hooks/useOpenProfile'
 import { useInfluencerProfile } from './hooks/useInfluencerProfile'
+import { useCampaignCards } from './hooks/useCampaigns'
 import { apiEnabled } from './api/client'
 import { getInfluencer, profileToInfluencer } from './api/influencers'
 import { SearchScreen } from './screens/search/SearchScreen'
@@ -67,7 +68,9 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
 }
 
 function Shell() {
-  const { infs, campaigns, loc } = useStore()
+  const { infs, loc } = useStore()
+  const cards = useCampaignCards()
+  const openCampaigns = cards.kind === 'ready' ? cards.data.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length : 0
   const navigate = useNavigate()
   // influencer ids for the Add to campaign modal: one from a card/profile, many from "Add all" on search
   const [modalIds, setModalIds] = useState<number[] | null>(null)
@@ -99,7 +102,7 @@ function Shell() {
 
   return (
     <div className="app">
-      <Sidebar campaignCount={campaigns.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length} influencerCount={infs.length}
+      <Sidebar campaignCount={openCampaigns} influencerCount={infs.length}
         mobileOpen={mobileNav} onMobileClose={() => setMobileNav(false)} />
       {mobileNav && <div className="sb-backdrop" onClick={() => setMobileNav(false)} />}
       <main className="app-main">
