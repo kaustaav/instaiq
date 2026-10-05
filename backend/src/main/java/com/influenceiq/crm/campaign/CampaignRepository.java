@@ -17,6 +17,8 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     Optional<Campaign> findForUpdateById(long id);
 
+    boolean existsByNameAndBrand(String name, String brand);
+
     /** Newest first, members loaded in the same query (no query per campaign). */
     @EntityGraph(attributePaths = "members")
     List<Campaign> findAllByOrderByIdDesc();

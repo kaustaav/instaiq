@@ -21,7 +21,8 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Loads 500 fictional influencers (src/main/resources/demo/influencers.json) into an empty database.
+ * Loads 500 fictional influencers (src/main/resources/demo/influencers.json) into an empty database, then the
+ * demo campaigns (DemoCampaignLoader) if they aren't there yet.
  * <p>
  * Off by default. Turned on locally with DEMO_DATA=true in .env; never on a real deployment, which is why this
  * is a loader and not a Flyway migration (migrations run on every database, including production).
@@ -38,9 +39,15 @@ class DemoDataLoader implements ApplicationRunner { // ApplicationRunner = runs 
     private final InfluencerRepository influencers;
     private final InfluencerIngestionService ingestion;
     private final JsonMapper json;
+    private final DemoCampaignLoader campaigns;
 
     @Override
     public void run(ApplicationArguments args) throws IOException {
+        loadInfluencers();
+        campaigns.load();
+    }
+
+    private void loadInfluencers() throws IOException {
         if (influencers.count() > 0) {
             log.info("Demo data: skipped, {} influencers already exist", influencers.count());
             return;

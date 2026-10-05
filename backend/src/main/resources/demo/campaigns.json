@@ -1,0 +1,689 @@
+[
+  {
+    "name": "Diwali Bridal Push",
+    "brand": "Kesar Jewels",
+    "brief": "Festive bridal sets for Diwali–wedding season. Tricity + Jaipur creators, polki and kundan focus. Reels must show the set worn, not flat-lay.",
+    "startDate": "2026-10-05",
+    "endDate": "2026-11-08",
+    "budgetInr": 150000,
+    "targetInfluencers": 8,
+    "targetReels": 8,
+    "targetStories": 6,
+    "targetPosts": null,
+    "status": "ACTIVE",
+    "statusReason": null,
+    "archivedFrom": null,
+    "members": [
+      {
+        "handle": "priyajewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": "50% advance paid on signing.",
+        "compensation": "CASH",
+        "feeInr": 12000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120261002/",
+            "postedAt": "2026-10-02",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "CHANGES_REQUESTED",
+                "feedback": "Show the clasp close-up; music is too loud over the voiceover."
+              },
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "REEL",
+            "seq": 2,
+            "status": "IN_REVIEW",
+            "liveUrl": null,
+            "postedAt": null,
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": null,
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "STORY",
+            "seq": 1,
+            "status": "AWAITING_DRAFT",
+            "liveUrl": null,
+            "postedAt": null,
+            "revisions": []
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 6000,
+            "paidAt": "2026-09-30",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "manpreetjewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 5000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120260930/",
+            "postedAt": "2026-09-30",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "STORY",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/stories/demo120260930/",
+            "postedAt": "2026-09-30",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 2500,
+            "paidAt": "2026-09-20",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          },
+          {
+            "amountInr": 2500,
+            "paidAt": "2026-10-01",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "simranjewelry",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": "Keeps the kundan set (₹14k retail) in exchange for 1 reel.",
+        "compensation": "BARTER",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "CHANGES_REQUESTED",
+            "liveUrl": null,
+            "postedAt": null,
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "CHANGES_REQUESTED",
+                "feedback": "Brand tag missing; add #KesarDiwali in the first 3 seconds."
+              }
+            ]
+          }
+        ],
+        "payments": []
+      },
+      {
+        "handle": "tanyajewels",
+        "stage": "NEGOTIATING",
+        "stageReason": null,
+        "notes": "Asked ₹9,000 for 2 reels; we countered at ₹7,500.",
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "divyajewels",
+        "stage": "CONTACTED",
+        "stageReason": null,
+        "notes": "DM sent 22 Sep, follow up on WhatsApp.",
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "ishitafashion",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "shrutistyles",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "vandanatyagi",
+        "stage": "DECLINED",
+        "stageReason": "Exclusive with another jeweller until December.",
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      }
+    ]
+  },
+  {
+    "name": "Winter Fitness Reset",
+    "brand": "FitDesi Studio",
+    "brief": "New-year-ready home workouts using the FitDesi resistance band kit.",
+    "startDate": "2026-10-01",
+    "endDate": "2026-12-15",
+    "budgetInr": 40000,
+    "targetInfluencers": 4,
+    "targetReels": 3,
+    "targetStories": null,
+    "targetPosts": 2,
+    "status": "ACTIVE",
+    "statusReason": null,
+    "archivedFrom": null,
+    "members": [
+      {
+        "handle": "kavyafitlife",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 8000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "IN_REVIEW",
+            "liveUrl": null,
+            "postedAt": null,
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": null,
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "POST",
+            "seq": 1,
+            "status": "APPROVED",
+            "liveUrl": null,
+            "postedAt": null,
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": []
+      },
+      {
+        "handle": "poojafitness",
+        "stage": "NEGOTIATING",
+        "stageReason": null,
+        "notes": "Wants product + cash; checking budget.",
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      }
+    ]
+  },
+  {
+    "name": "Chandigarh Food Fest",
+    "brand": "Masala Box",
+    "brief": "Sector 17 food festival, 3-day event. Looking for local food creators for on-ground coverage.",
+    "startDate": "2026-11-14",
+    "endDate": "2026-11-30",
+    "budgetInr": 60000,
+    "targetInfluencers": 5,
+    "targetReels": 5,
+    "targetStories": 10,
+    "targetPosts": null,
+    "status": "DRAFT",
+    "statusReason": null,
+    "archivedFrom": null,
+    "members": [
+      {
+        "handle": "ananyaeats",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "riyafoodstories",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "ritikacooks",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "jasleenkitchen",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      }
+    ]
+  },
+  {
+    "name": "Bridal Jewellery Q2 2025",
+    "brand": "Noor Adornments",
+    "brief": "Summer bridal collection launch.",
+    "startDate": "2025-05-20",
+    "endDate": "2025-06-30",
+    "budgetInr": 50000,
+    "targetInfluencers": 5,
+    "targetReels": 4,
+    "targetStories": 3,
+    "targetPosts": null,
+    "status": "COMPLETED",
+    "statusReason": null,
+    "archivedFrom": null,
+    "members": [
+      {
+        "handle": "priyajewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 9000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250610/",
+            "postedAt": "2025-06-10",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "STORY",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/stories/demo220250610/",
+            "postedAt": "2025-06-10",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 9000,
+            "paidAt": "2025-06-10",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "simranjewelry",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 6000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250612/",
+            "postedAt": "2025-06-12",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 6000,
+            "paidAt": "2025-06-12",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "divyajewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 7500,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250614/",
+            "postedAt": "2025-06-14",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 7500,
+            "paidAt": "2025-06-14",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "tanyajewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 7000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250615/",
+            "postedAt": "2025-06-15",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 7000,
+            "paidAt": "2025-06-15",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "manpreetjewels",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 4000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "STORY",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/stories/demo120250618/",
+            "postedAt": "2025-06-18",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "STORY",
+            "seq": 2,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/stories/demo220250618/",
+            "postedAt": "2025-06-18",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 4000,
+            "paidAt": "2025-06-18",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Monsoon Beauty Edit",
+    "brand": "Blush Bazaar",
+    "brief": "Humidity-proof makeup routines.",
+    "startDate": "2026-07-01",
+    "endDate": "2026-08-15",
+    "budgetInr": 45000,
+    "targetInfluencers": 4,
+    "targetReels": null,
+    "targetStories": null,
+    "targetPosts": null,
+    "status": "CANCELLED",
+    "statusReason": "Brand paused marketing spend for the quarter.",
+    "archivedFrom": null,
+    "members": [
+      {
+        "handle": "meerastyle",
+        "stage": "CONTACTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "nehabelook",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      },
+      {
+        "handle": "roshnibeauty",
+        "stage": "SHORTLISTED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": null,
+        "paymentWriteOffReason": null,
+        "deliverables": [],
+        "payments": []
+      }
+    ]
+  },
+  {
+    "name": "Summer Travel Diaries 2025",
+    "brand": "Pahadi Stays",
+    "brief": "Weekend stays in Himachal.",
+    "startDate": "2025-04-15",
+    "endDate": "2025-06-15",
+    "budgetInr": 30000,
+    "targetInfluencers": 2,
+    "targetReels": 2,
+    "targetStories": 1,
+    "targetPosts": null,
+    "status": "ARCHIVED",
+    "statusReason": null,
+    "archivedFrom": "COMPLETED",
+    "members": [
+      {
+        "handle": "gurpreettravel",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 6000,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250510/",
+            "postedAt": "2025-05-10",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          },
+          {
+            "type": "STORY",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/stories/demo220250510/",
+            "postedAt": "2025-05-10",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 6000,
+            "paidAt": "2025-05-10",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      },
+      {
+        "handle": "vandanatyagi",
+        "stage": "AGREED",
+        "stageReason": null,
+        "notes": null,
+        "compensation": "CASH",
+        "feeInr": 5500,
+        "paymentWriteOffReason": null,
+        "deliverables": [
+          {
+            "type": "REEL",
+            "seq": 1,
+            "status": "POSTED",
+            "liveUrl": "https://www.instagram.com/reel/demo120250520/",
+            "postedAt": "2025-05-20",
+            "revisions": [
+              {
+                "draftUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing",
+                "decision": "APPROVED",
+                "feedback": null
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "amountInr": 5500,
+            "paidAt": "2025-05-20",
+            "receiptUrl": "https://drive.google.com/file/d/1WXTGUsTnOLlavA0tg2Ot6QV4qZDo3App/view?usp=sharing"
+          }
+        ]
+      }
+    ]
+  }
+]
