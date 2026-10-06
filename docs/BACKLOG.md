@@ -65,7 +65,8 @@ Develop environment live since 2026-10-06; full record in `docs/DEPLOYMENT.md` (
   - [x] 3. Agree terms, deliverables + draft review loop (API + UI; suggested fee from the rate card)
   - [x] 4. Payments (receipt links), fee change, write-off (API + UI)
   - [ ] 5. CSV export of a campaign
-- [ ] No way to rename/remove a custom niche or language yet (needs an admin screen + rules for influencers using it).
+- [x] Rename / merge / delete custom niches and languages (Manage → "Niches & languages"); renames update every
+      influencer (version bumped), delete only when unused, built-ins protected.
 - [ ] Discovery source isn't on the add/edit form yet (API defaults to OTHER; edits keep the stored value).
 - [ ] Campaign tables + API (port `frontend/src/lib/campaigns.ts` rules to a Java service).
 - [ ] Reference data (cities, categories, languages): `GET /api/reference` with ETag, cached in backend memory and in the

@@ -5,6 +5,7 @@ import { useStore } from '../store'
 import { apiEnabled, ApiError } from '../api/client'
 import { createInfluencer, draftToRequest, profileToInfluencer, updateInfluencer } from '../api/influencers'
 import { addCategoryApi, addLanguageApi, type Added } from '../api/reference'
+import { normalizeOption } from '../lib/options'
 import { categoryColor, collapse, freshness, mon, toggle } from '../lib/format'
 import { MoreChip } from '../components/ui'
 import { blankDraft, draftFrom, validate, type Draft } from '../lib/influencerForm'
@@ -98,7 +99,15 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
         setError({ message: e instanceof ApiError ? [e.message, ...e.errors.filter(x => x !== e.message)].join(' ') : 'Could not add it' })
         return false
       }
-    } else value = raw
+    } else {
+      // demo mode: the same rules as the server (capitalized, allowed characters)
+      const n = normalizeOption(kind, raw)
+      if ('error' in n) {
+        setError({ message: n.error })
+        return false
+      }
+      value = n.value
+    }
     const v = kind === 'cats' ? addCategory(value) : addLanguage(value)
     setError(null)
     setF(prev => (prev[kind].includes(v) ? prev : { ...prev, [kind]: [...prev[kind], v] }))

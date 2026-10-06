@@ -10,6 +10,7 @@ import { parseGeo, stateOf } from './lib/locations'
 import { toInfluencer, type Draft } from './lib/influencerForm'
 import { apiEnabled } from './api/client'
 import { getReference } from './api/reference'
+import { mergeTarget, normalizeOption, replaceIn, usage, type CustomOption, type OptionKind, type Renamed } from './lib/options'
 import { addMembers, duplicateCampaign, newCampaign, type CampaignInput } from './lib/campaigns'
 
 const ago = (days: number) => Date.now() - days * DAY
@@ -70,6 +71,12 @@ type Store = {
    *  API mode: call the API first, then this with the value it returns. */
   addCategory: (name: string) => string
   addLanguage: (name: string) => string
+  /** Demo mode: user-added niches/languages with usage (API mode reads GET /api/reference/custom). */
+  customOptions: (kind: OptionKind) => CustomOption[]
+  /** Demo mode: rename (or merge into an existing value) everywhere. Returns the result, or an error message. */
+  renameOption: (kind: OptionKind, from: string, to: string) => Renamed | string
+  /** Demo mode: delete an unused custom value. '' or an error message. */
+  removeOption: (kind: OptionKind, value: string) => string
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -165,6 +172,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       addCategory: raw => addTo(cats, setCats, raw),
       addLanguage: raw => addTo(langs, setLangs, raw),
+      customOptions: kind => {
+        const builtIn = kind === 'cats' ? SEED_CATEGORIES : SEED_LANGUAGES
+        return (kind === 'cats' ? cats : langs).filter(v => !builtIn.includes(v)).map(value => ({ value, usedBy: usage(infs, kind, value) }))
+      },
+      renameOption: (kind, from, to) => {
+        const n = normalizeOption(kind, to)
+        if ('error' in n) return n.error
+        const list = kind === 'cats' ? cats : langs
+        const into = mergeTarget(list, from, n.value) // renaming onto an existing value = merge
+        const merged = into !== undefined
+        const target = into ?? n.value
+        const updated = usage(infs, kind, from)
+        ;(kind === 'cats' ? setCats : setLangs)(merged ? list.filter(v => v !== from) : list.map(v => (v === from ? target : v)))
+        setInfs(xs => xs.map(i => (i[kind].includes(from) ? { ...i, [kind]: replaceIn(i[kind], from, target) } : i)))
+        return { value: target, merged, influencersUpdated: updated }
+      },
+      removeOption: (kind, value) => {
+        const used = usage(infs, kind, value)
+        if (used) return `"${value}" is used by ${used} influencer${used === 1 ? '' : 's'}. Rename or merge it instead.`
+        ;(kind === 'cats' ? setCats : setLangs)(xs => xs.filter(v => v !== value))
+        return ''
+      },
     }
   }, [infs, campaigns, loc, cats, langs, dataRev])
 

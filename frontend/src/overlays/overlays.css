@@ -148,3 +148,8 @@
 @media (max-width: 480px) {
   .form-grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Niches & languages drawer */
+.opt-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--iq-border); border-radius: 8px; }
+.opt-row .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.opt-msg { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: #E7F7EF; color: #005E3B; }

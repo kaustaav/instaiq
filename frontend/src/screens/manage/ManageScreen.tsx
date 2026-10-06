@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Archive, Pencil, Search, Trash2, Upload, UserPlus } from 'lucide-react'
+import { Archive, Pencil, Search, Tags, Trash2, Upload, UserPlus } from 'lucide-react'
 import { useStore } from '../../store'
+import { OptionsDrawer } from '../../overlays/OptionsDrawer'
 import { apiEnabled, ApiError } from '../../api/client'
 import { changeStatus } from '../../api/influencers'
 import { useApiSearchPage, useTierCounts } from '../../hooks/useApiSearchPage'
@@ -34,6 +35,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
   const { infs, loc, deleteInfluencer, dataChanged } = useStore()
   const api = apiEnabled()
   const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [optionsOpen, setOptionsOpen] = useState(false)
   const onOpenProfile = useOpenProfile('Manage Data')
 
   // URL: /manage?q=&tier=stale&page=2 (defaults omitted)
@@ -99,6 +101,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
           <div className="btn btn-soon" title="CSV import is coming soon" aria-disabled="true" style={{ gap: 5 }}>
             <Upload size={12} />Import CSV<Soon />
           </div>
+          <button type="button" className="btn btn-ghost" onClick={() => setOptionsOpen(true)}><Tags size={12} />Niches &amp; languages</button>
           <button type="button" className="btn btn-blue" onClick={onAdd}><UserPlus size={12} />Add influencer</button>
         </div>
       </div>
@@ -180,6 +183,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
         </div>
         <Pagination page={rows} onPage={p => go({ page: p })} />
       </div>
+      {optionsOpen && <OptionsDrawer onClose={() => setOptionsOpen(false)} />}
     </div>
   )
 }

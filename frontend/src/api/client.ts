@@ -48,6 +48,7 @@ async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: strin
     const p = await res.json().catch(() => ({})) as Problem
     throw new ApiError(res.status, p.detail ?? p.title ?? `Request failed (${res.status})`, p.errors ?? [], p.existingId)
   }
+  if (res.status === 204) return undefined as T // e.g. DELETE: no body
   return res.json() as Promise<T>
 }
 
