@@ -19,8 +19,13 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - **OCI is the fallback** if AWS goes over budget: redeploy the whole stack on OCI Always Free (Arm VM, home region in India).
 - Therefore keep the app **portable**: Docker for everything, plain Postgres, config via env vars. Avoid AWS-only services inside the application code (e.g. prefer Spring Security/OIDC over Cognito-specific APIs); AWS-specific pieces stay in infrastructure, not in the app.
 
-## Backlog
-Open items (security toggles, cost guardrails, backend next steps, UI gaps) live in `docs/BACKLOG.md`. Check it when planning; tick items off as they land.
+## Work tracking (decided 2026-10-07)
+- Open work lives in **GitHub Issues** (https://github.com/kaustaav/instaiq/issues), labels `priority: …`, `type: story|task`,
+  `area: …`, `go-live`, `phase-2`. Manage them with `gh issue …`. Jira was considered; not used for now.
+- **Every change starts from an issue.** Before starting, find or propose the issue (create it with `gh` once the user
+  agrees). Commit messages reference it: `Closes #12` when it finishes the issue, `Refs #12` for partial work.
+- New ideas, bugs found and follow-ups become issues instead of notes in chat or docs.
+- Issue text is public (the repo is public): never put the client's name, domain or emails in it.
 
 ## Branches and the client demo (decided 2026-10-06)
 - **One branch: `main`.** It's the app: Amplify `main` (API mode, Google sign-in) + the EC2 backend (deployed from `main`).
