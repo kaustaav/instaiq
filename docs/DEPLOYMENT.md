@@ -112,6 +112,23 @@ disk, backup timer) -> `deploy/server/deploy.sh` (every deploy) and `deploy/serv
 
 Startup takes ~2 minutes on t4g.micro (126 s measured), ~10 s on a laptop: expect a short outage per deploy.
 
+### Monitoring and alerts (since 2026-10-07; all free)
+Everything alerts by email through **one SNS topic, `influenceiq-alerts`** (Standard, **unencrypted on purpose**: the
+default SNS key would stop CloudWatch from publishing), except UptimeRobot, which emails directly.
+
+| What | Watches | Fires when | Action |
+|---|---|---|---|
+| CloudWatch alarm `influenceiq-prod-system-check` | AWS side: host hardware/network (`StatusCheckFailed_System`) | max >= 1 for 2 of 2 minutes | email (ALARM + OK) + **Recover** (same disks + IP on a healthy host). AWS's own auto-recovery is also on (Default) |
+| CloudWatch alarm `influenceiq-prod-instance-check` | our side: the OS (`StatusCheckFailed_Instance`) | max >= 1 for 3 of 3 minutes | email + **Reboot** (Docker restarts app + DB) |
+| AWS Budget `influenceiq-monthly-usage-20` | monthly **usage** cost, credits and refunds excluded | actual > 90% (\$18) or forecast > 100% (\$20) | email via the SNS topic (the topic policy allows `budgets.amazonaws.com`, this account only). Direct email recipients can't be verified: the AWS Organization blocks `notifications-contacts:*` |
+| UptimeRobot keyword monitor (external) | the whole user path: CloudFront -> EC2 -> app -> DB | `/actuator/health` doesn't contain `"readiness"],"status":"UP"` | email on down and on recovery; checks every 5 min |
+
+Tested: the alarm chain (a faked ALARM on the system check ran a **real recovery**, which worked unattended: data disk
+remounted, Docker restarted app + DB), and the uptime monitor (stopped the app container -> Down, started -> Up).
+**Never fake ALARM on an alarm whose actions you don't want** (Recover/Reboot run for real); to test email delivery,
+use SNS -> topic -> Publish message. Expect an occasional uptime email during deploys (~2 min of downtime).
+The account's **\$20 spend limit pauses the project** (app offline) when reached; the budget alerts are the warning.
+
 ### Monthly cost (on-demand Sydney, approx.)
 EC2 t4g.micro ~$7.70 + public IPv4 ~$3.65 + disks 22 GB ~$1.80 + S3 <$0.01 + Parameter Store $0 + CloudFront $0 (always-free
 tier: 1 TB / 10M requests) = **~$13/month**. The account has a **$20/month spend limit**.
