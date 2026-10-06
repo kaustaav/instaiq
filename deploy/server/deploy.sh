@@ -1,10 +1,10 @@
 #!/bin/bash
 # Deploy (first time and every update): fetch settings from Parameter Store, get the latest code, build the app
 # image, start the database if needed, replace the app container, wait until it's healthy.
-#   sudo bash /opt/instaiq/deploy/server/deploy.sh develop develop
+#   sudo bash /opt/instaiq/deploy/server/deploy.sh prod main      (args: environment, branch)
 set -euo pipefail
-source "$(dirname "$0")/common.sh" "${1:-develop}"
-BRANCH="${2:-develop}"
+source "$(dirname "$0")/common.sh" "${1:-prod}"
+BRANCH="${2:-main}"
 
 # 1. Settings: /influenceiq/<env>/NAME -> NAME=value, in root-only files on this server (never in git).
 mkdir -p "$CONF_DIR" && chmod 700 "$CONF_DIR"

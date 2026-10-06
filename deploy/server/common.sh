@@ -3,7 +3,7 @@
 # or account), so the same scripts work in another region or AWS account.
 set -euo pipefail
 
-ENV="${1:-develop}"
+ENV="${1:-prod}"
 APP_DIR=/opt/instaiq
 CONF_DIR=/etc/influenceiq            # generated settings files, root-only
 DATA_DIR=/data                       # the separate data disk

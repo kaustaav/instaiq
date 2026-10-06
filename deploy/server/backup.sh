@@ -5,7 +5,7 @@
 #   Restore:   aws s3 cp s3://<bucket>/db/<file>.dump /tmp/r.dump
 #              docker exec -i crm-db pg_restore -U influenceiq -d influenceiq --clean --if-exists < /tmp/r.dump
 set -euo pipefail
-source "$(dirname "$0")/common.sh" "${1:-develop}"
+source "$(dirname "$0")/common.sh" "${1:-prod}"
 
 FILE="influenceiq-$(date -u +%Y-%m-%dT%H%M%SZ).dump"
 docker exec "$DB_CONTAINER" pg_dump -U "$DB_USER" -Fc "$DB_NAME" > "/tmp/$FILE"

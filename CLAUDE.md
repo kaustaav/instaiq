@@ -22,12 +22,15 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 ## Backlog
 Open items (security toggles, cost guardrails, backend next steps, UI gaps) live in `docs/BACKLOG.md`. Check it when planning; tick items off as they land.
 
-## Branches and demo freeze (decided 2026-10-04)
-- **`main` = what's live on Amplify** (auto-deploys on push). **`develop` = where all work happens.** Merge to `main` only when the user explicitly says so.
-- **Demo freeze:** a client demo is coming up. Until the user lifts it: **never push to `main`, never publish to `gh-pages`.**
-- The demo UI is tag **`demo-2026-10`** (commit `e0542cf`); both GitHub Pages and Amplify were built from it.
-- Amplify **auto-build on `main` is disabled** during the freeze (2026-10-04). **Re-enable it after the demo** (App settings -> Branch settings -> main -> Enable auto build).
-- New UI work must keep working without a backend: use the API only when `VITE_API_URL` is set, otherwise the built-in demo data.
+## Branches and the client demo (decided 2026-10-06)
+- **One branch: `main`.** It's the app: Amplify `main` (API mode, Google sign-in) + the EC2 backend (deployed from `main`).
+  `develop` (branch and AWS environment) was retired on 2026-10-06; AWS settings live under `/influenceiq/prod/`. For risky or large work use a short-lived branch, merge it when done; no
+  deploys or environments per branch. Safety = CI on every push + local testing + quick rollback.
+- **Client demo = GitHub Pages** (built-in demo data, no backend), from tag **`demo-2026-10`** (commit `e0542cf`).
+  **Never publish to `gh-pages`** unless the user asks.
+- The app started with **no data** on 2026-10-06 (`DEMO_DATA=false`): never load demo influencers/campaigns into it.
+- New UI work must keep working without a backend: use the API only when `VITE_API_URL` is set, otherwise the built-in
+  demo data (that's what GitHub Pages and local demo mode show).
 
 ## Working style
 - Build in very small steps. After each step, stop and give exact local test steps; the user tests before anything else is written.
@@ -49,11 +52,11 @@ Open items (security toggles, cost guardrails, backend next steps, UI gaps) live
 - Search query params (`q`, repeated `loc=city:X|state:Y`, `cat`, `lang`, `fmin`, `fmax`, `er`, `page`, `view`) are defined in `frontend/src/lib/search.ts` and are the contract for the search API.
 - Deployment: whatever serves the frontend must fall back to `index.html` for unknown paths, or refreshing a deep link 404s.
 - Deployments, rollback, teardown and console-only settings: see `docs/DEPLOYMENT.md`. Verify any deploy with `scripts/smoke-test.sh <url>`.
-- **AWS develop backend (since 2026-10-06):** EC2 + Docker (app + Postgres) behind CloudFront, settings in Parameter Store,
+- **AWS backend = environment `prod` (since 2026-10-06; runs branch `main`, real data, renamed from `develop`):** EC2 + Docker (app + Postgres) behind CloudFront, settings in Parameter Store,
   nightly S3 backups. Every resource, command, cost and gotcha is in `docs/DEPLOYMENT.md` ("Backend on AWS"); things
   deliberately turned off to save money are listed there, so raise them whenever budget is discussed. Going live for the
   company: `docs/HANDOVER.md`. Record every AWS change in DEPLOYMENT.md as it happens.
-- AWS Amplify: https://main.d360lwuskrbgul.amplifyapp.com (auto-deploys on push to `main`; build spec `amplify.yml`, headers `customHttp.yml`).
+- AWS Amplify: https://main.d360lwuskrbgul.amplifyapp.com = **the app** (auto-deploys on push to `main`; build spec `amplify.yml`, headers `customHttp.yml`; password-protected for now).
 - Public demo: https://kaustaav.github.io/instaiq/ (GitHub Pages, served from the `gh-pages` branch; repo is public). No CI. To redeploy:
   `cd frontend && npm run build:pages && touch dist/.nojekyll`, then force-push the contents of `dist/` to the `gh-pages` branch.
 

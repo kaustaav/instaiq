@@ -10,7 +10,7 @@ things change. Company-specific values (domain, emails, account IDs) never go in
 - Every setting comes from environment variables (see "Settings" below); nothing is hard-coded per company.
 
 ## Recommended production setup (their AWS account)
-| Piece | Develop (today) | Production (recommended) | Rough cost / month |
+| Piece | Today (owner's test account, env `prod`) | Production (recommended, their account) | Rough cost / month |
 |---|---|---|---|
 | AWS account | owner's test account (member of someone else's Organization, $20 limit) | **the company's own account** | — |
 | Region | ap-southeast-2 (Sydney) | their choice (e.g. **ap-south-1 Mumbai** for India): it's config only | — |
@@ -58,4 +58,5 @@ Total roughly **$35–50/month** for production at their size.
 ### Hand over
 - [ ] Walk their IT team through DEPLOYMENT.md: deploy, logs, settings, backup/restore, teardown.
 - [ ] Give them the list of everything that costs money and where to see the bill.
-- [ ] Shut down the owner's develop environment (DEPLOYMENT.md "Teardown"), or keep it as their staging.
+- [ ] Move the data (restore the latest backup into their RDS), then shut down the owner's environment (DEPLOYMENT.md
+      "Teardown"), or keep it as their staging.

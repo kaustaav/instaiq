@@ -15,9 +15,9 @@ applications:
             - npm ci --cache .npm --prefer-offline
         build:
           commands:
-            # API mode (VITE_API_URL, VITE_GOOGLE_CLIENT_ID from the Amplify console) is for the develop branch only;
-            # every other branch (main = the client demo) builds in demo mode, whatever the console variables say.
-            - if [ "$AWS_BRANCH" != "develop" ]; then unset VITE_API_URL VITE_GOOGLE_CLIENT_ID; fi
+            # API mode (VITE_API_URL, VITE_GOOGLE_CLIENT_ID from the Amplify console) is for the main branch only (the app);
+            # any other branch connected later (a preview) builds in demo mode, whatever the console variables say.
+            - if [ "$AWS_BRANCH" != "main" ]; then unset VITE_API_URL VITE_GOOGLE_CLIENT_ID; fi
             - echo "Branch $AWS_BRANCH, API ${VITE_API_URL:-off (demo mode)}"
             # lint + type-check + build; any failure stops the deploy and the live site stays on the previous build
             - npm run lint

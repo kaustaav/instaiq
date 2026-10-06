@@ -3,8 +3,8 @@
 # then the first deploy. Safe to run again.
 #   bash bootstrap.sh <env> <branch>
 set -euxo pipefail
-source "$(dirname "$0")/common.sh" "${1:-develop}"
-BRANCH="${2:-develop}"
+source "$(dirname "$0")/common.sh" "${1:-prod}"
+BRANCH="${2:-main}"
 
 # 1. Swap: t4g.micro has 1 GB RAM; building the app image needs more for a few minutes.
 if [ ! -f /swapfile ]; then
