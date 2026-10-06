@@ -134,6 +134,12 @@ tier: 1 TB / 10M requests) = **~$13/month**. The account has a **$20/month spend
 - The Amplify console requires a value for "all branches" env variables; the `amplify.yml` guard handles it (above).
 - Attaching an Elastic IP changes the server's public IP: never do it while the first-boot build is downloading.
 - The data disk is found by "the disk that isn't the root disk"; `bootstrap.sh` formats it **only if it's blank**.
+- **Backup restore tested 2026-10-06**: the newest dump restored into a scratch database (`pg_restore`), row counts matched,
+  scratch database dropped. Commands: the "Restore a backup" row above, with `createdb restore_test` first.
+- **2026-10-06 switch to one branch + `prod`**: the database was emptied (`DROP DATABASE ... CREATE DATABASE`), the server
+  re-bootstrapped with `bootstrap.sh prod main`, the old `/influenceiq/develop/*` settings, the develop backup bucket and the
+  `influenceiq-develop-app` policy removed. The server's git copy was a single-branch clone of `develop`, so `deploy.sh`
+  now resets to `FETCH_HEAD` (works whatever branch the clone was made for).
 
 ### Teardown (the backend), in this order
 1. CloudFront: disable the distribution, wait until deployed, then delete.

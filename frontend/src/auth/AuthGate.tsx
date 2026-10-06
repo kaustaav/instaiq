@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import { LogOut, ShieldX } from 'lucide-react'
+import { LogOut, ShieldX, WifiOff } from 'lucide-react'
 import { apiEnabled, apiGet, ApiError } from '../api/client'
 import { useStore } from '../store'
 import { GOOGLE_CLIENT_ID, loadGoogle } from './google'
@@ -29,8 +29,9 @@ function ApiAuthGate({ children }: { children: ReactNode }) {
   const { session, expired } = useSession()
   const { dataChanged } = useStore()
   const [loadError, setLoadError] = useState('')
-  // the server's answer for an email: allowed, or not (checked once per person, not per token)
-  const [access, setAccess] = useState<{ email: string; allowed: boolean } | null>(null)
+  // the server's answer for an email (checked once per person, not per token); 'error' = couldn't ask it
+  const [access, setAccess] = useState<{ email: string; result: 'allowed' | 'denied' | 'error'; message?: string } | null>(null)
+  const [attempt, setAttempt] = useState(0) // "Try again" after an error
 
   useEffect(() => {
     loadGoogle().catch(e => setLoadError(e instanceof Error ? e.message : 'Couldn’t load Google sign-in'))
@@ -52,14 +53,16 @@ function ApiAuthGate({ children }: { children: ReactNode }) {
     if (!email) return
     const controller = new AbortController()
     apiGet('/me', controller.signal)
-      .then(() => setAccess({ email, allowed: true }))
+      .then(() => setAccess({ email, result: 'allowed' }))
       .catch(e => {
         if ((e as Error).name === 'AbortError') return
-        if (e instanceof ApiError && e.status === 403) setAccess({ email, allowed: false })
+        if (e instanceof ApiError && e.status === 403) setAccess({ email, result: 'denied' })
         else if (e instanceof ApiError && e.status === 401) signOut() // token refused: start again
+        // anything else (server down, network, blocked by the browser): say so instead of waiting forever
+        else setAccess({ email, result: 'error', message: e instanceof Error ? e.message : 'Unknown error' })
       })
     return () => controller.abort()
-  }, [email])
+  }, [email, attempt])
 
   // quiet renewal shortly before expiry; if that doesn't happen, ask to sign in again when it runs out
   const expiresAt = session?.expiresAt
@@ -75,7 +78,18 @@ function ApiAuthGate({ children }: { children: ReactNode }) {
   }
   if (!session) return <SignInScreen />
   if (!access || access.email !== session.email) return <Centered><p>Checking your access…</p></Centered>
-  if (!access.allowed) {
+  if (access.result === 'error') {
+    return (
+      <Centered>
+        <WifiOff size={28} />
+        <h1>Can’t reach the server</h1>
+        <p>{access.message} Try again in a moment; if it keeps happening, the server may be restarting or down.</p>
+        <button type="button" className="btn btn-blue" onClick={() => { setAccess(null); setAttempt(a => a + 1) }}>Try again</button>
+        <button type="button" className="btn btn-plain" onClick={doSignOut}><LogOut size={13} />Sign out</button>
+      </Centered>
+    )
+  }
+  if (access.result === 'denied') {
     return (
       <Centered>
         <ShieldX size={28} />

@@ -22,8 +22,9 @@ mv "$CONF_DIR/app.env.new" "$CONF_DIR/app.env" && chmod 600 "$CONF_DIR/app.env"
 DB_PASSWORD=$(sed -n 's/^DB_PASSWORD=//p' "$CONF_DIR/app.env")
 
 # 2. Code
+# FETCH_HEAD = exactly what was just fetched; works even when the server's copy was cloned for another branch only
 git -C "$APP_DIR" fetch --depth 1 origin "$BRANCH"
-git -C "$APP_DIR" reset --hard "origin/$BRANCH"
+git -C "$APP_DIR" reset --hard FETCH_HEAD
 echo "Deploying $(git -C "$APP_DIR" log -1 --format='%h %s')"
 
 # 3. Image (build before stopping anything: if the build fails, the running app stays up)
