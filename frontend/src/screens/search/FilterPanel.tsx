@@ -36,7 +36,7 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
   const langList = collapse(langs, f.langs, LANG_VISIBLE, langMore)
 
   const inkChip = (active: boolean) => ({
-    background: active ? 'var(--iq-gray-800)' : 'var(--iq-gray-100)',
+    background: active ? 'var(--iq-navy)' : 'var(--iq-gray-100)',
     color: active ? 'white' : 'var(--iq-fg-2)',
   })
 

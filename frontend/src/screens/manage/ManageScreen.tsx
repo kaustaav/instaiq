@@ -117,7 +117,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
               const on = tier === c.key
               return (
                 <button key={c.key} type="button" className="chip" aria-pressed={on}
-                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: on ? 'var(--iq-gray-800)' : 'white', color: on ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: on ? 'var(--iq-navy)' : 'white', color: on ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)' }}
                   onClick={() => go({ tier: c.key, page: 1 })}>
                   <span className="dot" style={{ background: c.dot }} />{c.label} {count(c.key)}
                 </button>

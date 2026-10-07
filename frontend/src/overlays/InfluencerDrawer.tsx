@@ -194,7 +194,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
                 const on = f.langs.includes(l)
                 return (
                   <button key={l} type="button" className="chip" aria-pressed={on}
-                    style={{ padding: '4px 10px', background: on ? 'var(--iq-gray-800)' : 'var(--iq-gray-100)', color: on ? 'white' : 'var(--iq-fg-2)' }}
+                    style={{ padding: '4px 10px', background: on ? 'var(--iq-navy)' : 'var(--iq-gray-100)', color: on ? 'white' : 'var(--iq-fg-2)' }}
                     onClick={() => set({ langs: toggle(f.langs, l) })}>
                     {l}
                   </button>

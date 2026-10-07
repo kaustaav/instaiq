@@ -30,5 +30,5 @@
 .pager-btn:hover:not(:disabled):not(.on) { background: var(--iq-gray-100); }
 .pager-btn:focus-visible { outline: 2px solid var(--iq-brand-500); outline-offset: 1px; }
 .pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.pager-btn.on { background: var(--iq-gray-800); border-color: var(--iq-gray-800); color: white; font-weight: 600; cursor: default; }
+.pager-btn.on { background: var(--iq-navy); border-color: var(--iq-navy); color: white; font-weight: 600; cursor: default; }
 .pager-gap { min-width: 20px; text-align: center; color: var(--iq-fg-3); font-size: 12px; }

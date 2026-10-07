@@ -4,8 +4,8 @@ import { budgetUsed, campaignSummary } from './campaigns'
 export type Tone = { bg: string; fg: string }
 const GRAY: Tone = { bg: '#F4F4F5', fg: '#3F3F46' }
 const MUTED: Tone = { bg: '#E8E8EA', fg: '#71717A' }
-const BLUE: Tone = { bg: '#EEF0FF', fg: '#2E39C2' }
-const NAVY: Tone = { bg: '#EEF0FF', fg: '#1D2477' }
+const BLUE: Tone = { bg: '#E8F7FC', fg: '#075670' }
+const NAVY: Tone = { bg: '#E9EAF2', fg: '#141627' }
 const PURPLE: Tone = { bg: '#EEE9FF', fg: '#3D2F99' }
 const TEAL: Tone = { bg: '#E4F3F8', fg: '#1A6480' }
 const AMBER: Tone = { bg: '#FEF4E4', fg: '#8B5E00' }

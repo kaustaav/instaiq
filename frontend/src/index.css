@@ -43,7 +43,7 @@ a:hover { text-decoration: underline; }
     gap: 6px;
     flex-shrink: 0;
     padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px 6px;
-    background: var(--iq-gray-900);
+    background: var(--iq-navy);
     border-bottom: 1px solid var(--iq-dark-border);
   }
   .mobile-bar-btn {

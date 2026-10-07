@@ -83,7 +83,7 @@ export function CampaignListScreen() {
           <div className="chips">
             {STATUS_FILTERS.map(s => (
               <button key={s} type="button" className="chip" aria-pressed={status === s}
-                style={{ background: status === s ? 'var(--iq-gray-800)' : 'white', color: status === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
+                style={{ background: status === s ? 'var(--iq-navy)' : 'white', color: status === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
                 onClick={() => go({ status: s, page: 1 })}>
                 {s === 'ALL' ? 'All' : CAMPAIGN_STATUS_LABEL[s]} {count(s)}
               </button>

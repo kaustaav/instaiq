@@ -186,13 +186,13 @@ export function CampaignDetailScreen() {
           <div className="camp-members-head">
             <div className="chips">
               <button type="button" className="chip" aria-pressed={!stage}
-                style={{ background: !stage ? 'var(--iq-gray-800)' : 'white', color: !stage ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
+                style={{ background: !stage ? 'var(--iq-navy)' : 'white', color: !stage ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
                 onClick={() => setParam({ stage: null, page: null })}>
                 All {c.members.length}
               </button>
               {DISPLAY_STAGES.filter(s => counts.get(s)).map(s => (
                 <button key={s} type="button" className="chip" aria-pressed={stage === s}
-                  style={{ background: stage === s ? 'var(--iq-gray-800)' : 'white', color: stage === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
+                  style={{ background: stage === s ? 'var(--iq-navy)' : 'white', color: stage === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
                   onClick={() => setParam({ stage: s, page: null })}>
                   {STAGE_LABEL[s]} {counts.get(s)}
                 </button>

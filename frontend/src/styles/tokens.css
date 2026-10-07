@@ -1,41 +1,41 @@
 /* =====================================================================
    InfluenceIQ design tokens: colours, type, elevation, motion.
    All UI styles use these variables (--iq-*). Fonts are open-licensed
-   (Inter and JetBrains Mono, SIL Open Font License).
+   (Manrope and JetBrains Mono, SIL Open Font License).
    ===================================================================== */
 
 /* ---------- Fonts ---------- */
 @font-face {
-  font-family: "Inter";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-400-normal.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-500-normal.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-500-normal.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-600-normal.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-600-normal.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-700-normal.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-700-normal.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-800-normal.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-800-normal.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -63,17 +63,23 @@
 }
 
 :root {
-  /* ---------- Brand: InfluenceIQ blue ---------- */
-  --iq-brand-50:  #EEF0FF;
-  --iq-brand-100: #DCE0FF;
-  --iq-brand-200: #B9C0FF;
-  --iq-brand-300: #8C97FA;
-  --iq-brand-400: #5F6CF2;
-  --iq-brand-500: #3B48E6; /* primary: buttons, links, focus */
-  --iq-brand-600: #2E39C2; /* primary hover */
-  --iq-brand-700: #252E9C;
-  --iq-brand-800: #1D2477;
-  --iq-brand-900: #151A55;
+  /* ---------- Brand: cyan ----------
+     400 is the brand cyan itself: accents, chart fills, focus rings.
+     500 is darker so white text on buttons passes WCAG AA (4.6:1). */
+  --iq-brand-50:  #E8F7FC;
+  --iq-brand-100: #CDEEF8;
+  --iq-brand-200: #9EDDF0;
+  --iq-brand-300: #62C6E4;
+  --iq-brand-400: #11A6D2;
+  --iq-brand-500: #0B7FA3; /* primary: buttons, links */
+  --iq-brand-600: #096A88; /* primary hover */
+  --iq-brand-700: #075670;
+  --iq-brand-800: #064257;
+  --iq-brand-900: #04303F;
+
+  /* ---------- Brand: navy and lime ---------- */
+  --iq-navy:   #141627; /* dark surfaces: sidebar, mobile bar, selected chips */
+  --iq-accent: #8CC641; /* lime: small highlights only, never text on white */
 
   /* ---------- Neutrals ---------- */
   --iq-gray-0:   #FFFFFF;
@@ -100,13 +106,13 @@
   --iq-border: var(--iq-gray-100);
 
   /* ---------- Dark surfaces (sidebar, mobile bar) ---------- */
-  --iq-dark-border: #2A2A2F;
-  --iq-dark-fg-1:   #F4F4F5;
-  --iq-dark-fg-2:   #A6A6AE;
-  --iq-dark-fg-3:   #71717A;
+  --iq-dark-border: #262A42;
+  --iq-dark-fg-1:   #F4F5FA;
+  --iq-dark-fg-2:   #A9AEC7;
+  --iq-dark-fg-3:   #737896;
 
   /* ---------- Type ---------- */
-  --iq-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --iq-font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --iq-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* ---------- Elevation ---------- */
@@ -118,7 +124,7 @@
 }
 
 /* ---------- Element defaults ---------- */
-html { -webkit-text-size-adjust: 100%; font-feature-settings: "ss01", "cv11"; }
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--iq-font-sans);

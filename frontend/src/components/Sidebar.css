@@ -2,7 +2,7 @@
   --sb-ease: cubic-bezier(0.32, 0.72, 0, 1);
   width: 216px;
   min-width: 216px;
-  background: var(--iq-gray-900);
+  background: var(--iq-navy);
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--iq-dark-border);
@@ -87,7 +87,7 @@ a.sb-item:focus-visible { outline: 2px solid var(--iq-brand-400); }
   background: rgba(255, 255, 255, 0.1);
   color: white;
   font-weight: 600;
-  border-left-color: var(--iq-brand-400);
+  border-left-color: var(--iq-accent);
 }
 .sb-item.disabled { color: var(--iq-dark-fg-3); opacity: 0.5; }
 .sb-item svg { flex-shrink: 0; }

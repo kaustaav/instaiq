@@ -18,11 +18,11 @@ export const igUrl = (handle: string) => 'https://www.instagram.com/' + handle.r
 export const initials = (name: string) =>
   name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
-const AVATAR_COLORS = ['#2E21DE', '#573EBB', '#3488A3', '#007B4D', '#D97706', '#7C2D12', '#18181B']
+const AVATAR_COLORS = ['#0B7FA3', '#573EBB', '#141627', '#007B4D', '#D97706', '#7C2D12', '#4D6B1F']
 export const avatarColor = (id: number) => AVATAR_COLORS[(id - 1) % AVATAR_COLORS.length]
 
 const CATEGORY_COLORS: Record<string, { bg: string; fg: string }> = {
-  Jewellery: { bg: '#EEF0FF', fg: '#1D2477' },
+  Jewellery: { bg: '#E9EAF2', fg: '#141627' },
   Fashion: { bg: '#EEE9FF', fg: '#3D2F99' },
   Beauty: { bg: '#FEF4E4', fg: '#8B5E00' },
   Food: { bg: '#E7F7EF', fg: '#005E3B' },

@@ -63,10 +63,10 @@ Derived: `statesOf(inf) = unique(cities.map(stateOf) ∪ inf.states)`.
 ## Screens
 
 ### App shell
-- Full-height flex row: **Sidebar** + content. Body bg `--iq-gray-50`, base font 13px Inter, text `--iq-fg-1`.
+- Full-height flex row: **Sidebar** + content. Body bg `--iq-gray-50`, base font 13px Manrope, text `--iq-fg-1`.
 - **Sidebar** (dark `#0E0E10`, right border `#2A2A2F`): width **216px open / 52px collapsed**, transition `width 280ms cubic-bezier(0.32,0.72,0,1)`. Labels fade: opacity 1→0 in 120ms on close; 0→1 in 200ms with 90ms delay on open. Content is clipped (`overflow:hidden; white-space:nowrap`), not unmounted.
-  - Header (min-height 58px, bottom border): brand "InfluenceIQ" (Inter 800, 16px, white, -0.02em) + "INFLUENCER CRM" (10px, 500, uppercase, 0.08em, `#71717A`). Toggle button **on the right** when open (32×32, radius 6, icon `panel-left` 17px, `#A6A6AE`); when collapsed only the toggle shows. Tooltip "Close sidebar (Ctrl+.)" / "Open sidebar (Ctrl+.)". **Ctrl/Cmd + .** toggles. Persist in `localStorage['iiq-sb']`.
-  - Nav items (padding 7×10, radius 6, 13px, gap 9, icon 14px): Search & Browse (`search`), Campaigns (`megaphone`, badge = campaign count), Manage Data (`database`, badge = influencer count). Active: bg `rgba(255,255,255,0.1)`, white, 600, left border 2px `#5F6CF2`. Inactive `#A6A6AE`, 400. Hover bg `rgba(255,255,255,0.07)`. Badge: 11px, bg `rgba(255,255,255,0.13)`, pill. Collapsed: `title` = label.
+  - Header (min-height 58px, bottom border): brand "InfluenceIQ" (Manrope 800, 16px, white, -0.02em) + "INFLUENCER CRM" (10px, 500, uppercase, 0.08em, `#71717A`). Toggle button **on the right** when open (32×32, radius 6, icon `panel-left` 17px, `#A6A6AE`); when collapsed only the toggle shows. Tooltip "Close sidebar (Ctrl+.)" / "Open sidebar (Ctrl+.)". **Ctrl/Cmd + .** toggles. Persist in `localStorage['iiq-sb']`.
+  - Nav items (padding 7×10, radius 6, 13px, gap 9, icon 14px): Search & Browse (`search`), Campaigns (`megaphone`, badge = campaign count), Manage Data (`database`, no badge). Active: bg `rgba(255,255,255,0.1)`, white, 600, left border 2px `#5F6CF2`. Inactive `#A6A6AE`, 400. Hover bg `rgba(255,255,255,0.07)`. Badge: 11px, bg `rgba(255,255,255,0.13)`, pill. Collapsed: `title` = label.
   - Divider, then "COMING SOON" (10px uppercase) + disabled Analytics (`bar-chart-3`) and Outreach (`send`) at 50% opacity.
   - Footer: 28px avatar circle `--iq-brand-500` "AK", "Aisha Khan" 12/500, "Campaign Manager" 11px, settings icon.
 
@@ -89,7 +89,7 @@ Section labels: 10px/600 uppercase, 0.06em, `--iq-fg-3`. "Clear all" link appear
 **Results header** (white, padding 12×16): search input (name, bio, hashtag, handle; clear ×) · "N influencers" · Grid/List toggle.
 
 **Grid** — `repeat(auto-fill, minmax(252px, 1fr))`, gap 10. Card: white, 1px border, radius 8, hover `shadow-3` and translateY(-1px).
-- Top: 38px avatar (initials, color by id from `#2E21DE,#573EBB,#3488A3,#007B4D,#D97706,#7C2D12,#18181B`), name 13/600 with a **7px freshness dot** on the right (title = label), line "@handle (blue link) · cities/states", category badges.
+- Top: 38px avatar (initials, color by id from `#0B7FA3,#573EBB,#141627,#007B4D,#D97706,#7C2D12,#4D6B1F`), name 13/600 with a **7px freshness dot** on the right (title = label), line "@handle (blue link) · cities/states", category badges.
 - Middle: 3-column stats — Followers / Eng. Rate (`--iq-success` #00A96B) / Avg Likes (mono 13/600, labels 9px uppercase).
 - Bottom: 2 hashtag chips (blue on `--iq-brand-50`), "+ Shortlist" button → Add to Campaign modal.
 
@@ -151,15 +151,16 @@ Screen and selected influencer id; search query; `locF[]`, `cF[]`, `lF[]`, `fMin
 
 ## Design Tokens
 Colors:
-- Brand: 50 `#EEF0FF` · 400 `#5F6CF2` · **500 `#3B48E6` (primary)** · 600 `#2E39C2` (primary hover)
+- Brand cyan: 50 `#E8F7FC` · 400 `#11A6D2` (the brand cyan: accents, chart fills, focus) · **500 `#0B7FA3` (primary: buttons, links; white text passes WCAG AA)** · 600 `#096A88` (primary hover)
+- Navy `#141627` (sidebar, mobile bar, selected chips) · Accent lime `#8CC641` (small highlights such as the active nav marker; never text on white)
 - Gray: 0 `#FFFFFF` · 25 `#FAFAFA` · 50 `#F4F4F5` · 100 `#E8E8EA` · 200 `#D4D4D8` · 300 `#A6A6AE` · 400 `#71717A` · 600 `#3F3F46` · 800 `#18181B` · 900 `#0E0E10`
 - Text: fg-1 `#0E0E10` · fg-2 `#3F3F46` · fg-3 `#71717A`
 - Border `#E8E8EA`
-- Dark: border `#2A2A2F` · fg-1 `#F4F4F5` · fg-2 `#A6A6AE` · fg-3 `#71717A`
+- Dark (on navy): border `#262A42` · fg-1 `#F4F5FA` · fg-2 `#A9AEC7` · fg-3 `#737896`
 - Success `#00A96B` · Danger `#E5484D`
 
 Category pairs (bg / fg):
-- Jewellery `#EEF0FF`/`#1D2477`
+- Jewellery `#E9EAF2`/`#141627`
 - Fashion `#EEE9FF`/`#3D2F99`
 - Beauty `#FEF4E4`/`#8B5E00`
 - Food `#E7F7EF`/`#005E3B`
@@ -167,7 +168,7 @@ Category pairs (bg / fg):
 - Travel `#E4F5F4`/`#1A7070`
 - Lifestyle and any custom niche `#F4F4F5`/`#3F3F46`
 
-Typography: Sans **Inter** (the wordmark uses Inter 800); Mono **JetBrains Mono** (all numbers and prices). Sizes in use: 9, 10, 11, 12, 13 (base), 14, 16, 19, 20.
+Typography: Sans **Manrope** (the wordmark uses Manrope 800); Mono **JetBrains Mono** (all numbers and prices). Sizes in use: 9, 10, 11, 12, 13 (base), 14, 16, 19, 20.
 
 Radius: 4 (small buttons and tags) · 6 (buttons, inputs) · 8 (cards, tables) · 10 (profile header, modal) · 999 (pills).
 
@@ -179,7 +180,7 @@ Motion: ease-out `cubic-bezier(0.22,1,0.36,1)` for card hover (180ms); sidebar `
 
 ## Assets
 - Icons: Lucide (`lucide-react` in production). Used: search, megaphone, database, bar-chart-3, send, settings, panel-left, layout-grid, list, x, search-x, plus, arrow-left, chevron-right, map-pin, languages, pencil, external-link, bookmark-plus, mail, phone, share-2, download, trash-2, bookmark, history, upload, user-plus, check, refresh-cw.
-- Fonts: Inter and JetBrains Mono (SIL Open Font License).
+- Fonts: Manrope and JetBrains Mono (SIL Open Font License), loaded from the fontsource packages on jsdelivr.
 - No imagery. Avatars are initials.
 
 ## Out of scope / Coming soon
