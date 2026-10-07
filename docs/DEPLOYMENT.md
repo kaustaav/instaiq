@@ -120,6 +120,7 @@ default SNS key would stop CloudWatch from publishing), except UptimeRobot, whic
 |---|---|---|---|
 | CloudWatch alarm `influenceiq-prod-system-check` | AWS side: host hardware/network (`StatusCheckFailed_System`) | max >= 1 for 2 of 2 minutes | email (ALARM + OK) + **Recover** (same disks + IP on a healthy host). AWS's own auto-recovery is also on (Default) |
 | CloudWatch alarm `influenceiq-prod-instance-check` | our side: the OS (`StatusCheckFailed_Instance`) | max >= 1 for 3 of 3 minutes | email + **Reboot** (Docker restarts app + DB) |
+| CloudWatch alarm `influenceiq-prod-cpu-credits-low` | CPU credit balance (t4g bursts on credits; Standard mode throttles to 10% at zero instead of billing) | minimum < 50 for 3 of 3 five-minute periods | email only; normal deploys use ~25-30 of the 288 maximum |
 | AWS Budget `influenceiq-monthly-usage-20` | monthly **usage** cost, credits and refunds excluded | actual > 90% (\$18) or forecast > 100% (\$20) | email via the SNS topic (the topic policy allows `budgets.amazonaws.com`, this account only). Direct email recipients can't be verified: the AWS Organization blocks `notifications-contacts:*` |
 | UptimeRobot keyword monitor (external) | the whole user path: CloudFront -> EC2 -> app -> DB | `/actuator/health` doesn't contain `"readiness"],"status":"UP"` | email on down and on recovery; checks every 5 min |
 
