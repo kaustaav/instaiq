@@ -96,7 +96,7 @@ button { font-family: inherit; }
 }
 
 .mono { font-family: var(--iq-font-mono); }
-.up { color: var(--iq-up); }
+.up { color: var(--iq-success); }
 .muted { color: var(--iq-fg-3); }
 
 .card { background: white; border: 1px solid var(--iq-border); border-radius: 8px; }
@@ -121,7 +121,7 @@ button { font-family: inherit; }
 .table tbody tr:hover td { background: var(--iq-gray-25); }
 .table .r { text-align: right; }
 .table .num { text-align: right; font-family: var(--iq-font-mono); font-size: 12px; font-weight: 500; color: var(--iq-fg-1); }
-.table .num.up { color: var(--iq-up); font-weight: 600; }
+.table .num.up { color: var(--iq-success); font-weight: 600; }
 .table .sub { font-size: 12px; color: var(--iq-fg-2); }
 .clickable { cursor: pointer; }
 

@@ -87,7 +87,7 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
           {!editing && <div className="muted" style={{ fontSize: 12 }}>New campaigns start as <b>Draft</b>. Activate once dates are set and at least one influencer is added.</div>}
         </div>
         <div className="drawer-foot">
-          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)', whiteSpace: 'pre-line' }}>{error}</div>
+          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-danger)', whiteSpace: 'pre-line' }}>{error}</div>
           <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
           <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create campaign'}</button>
         </div>

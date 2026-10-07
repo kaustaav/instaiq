@@ -50,7 +50,7 @@ export function TargetsChart({ c }: { c: Campaign }) {
         const pct = hasTarget ? (r.actual / r.target!) * 100 : 0
         const met = hasTarget && r.actual >= r.target!
         const over = hasTarget && r.actual > r.target!
-        const fill = over && r.overIsBad ? 'var(--iq-down)' : met ? '#12A363' : 'var(--iq-brand-500)'
+        const fill = over && r.overIsBad ? 'var(--iq-danger)' : met ? '#12A363' : 'var(--iq-brand-500)'
         const value = hasTarget ? `${r.fmt(r.actual)} / ${r.fmt(r.target!)}` : `${r.fmt(r.actual)} · no target`
         const extra = hasTarget ? r.fmt(r.actual - r.target!) : ''
         const note = !hasTarget ? ''
@@ -64,7 +64,7 @@ export function TargetsChart({ c }: { c: Campaign }) {
             </div>
             <div className="tchart-value mono">
               {value}
-              {note && <span className="tchart-note" style={{ color: over && r.overIsBad ? 'var(--iq-down)' : met ? '#0B7A4B' : r.due ? '#8B5E00' : undefined }}>{note}</span>}
+              {note && <span className="tchart-note" style={{ color: over && r.overIsBad ? 'var(--iq-danger)' : met ? '#0B7A4B' : r.due ? '#8B5E00' : undefined }}>{note}</span>}
             </div>
           </div>
         )

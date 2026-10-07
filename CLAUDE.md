@@ -4,8 +4,8 @@ Internal CRM for an influencer marketing agency: store Instagram micro/nano infl
 
 ## Repo layout
 - `backend/` — Spring Boot 4.1 (Java 21, Maven wrapper `./mvnw`), package `com.influenceiq.crm`
-- `frontend/` — React 19 + TypeScript + Vite + React Router; working UI prototype on in-memory seed data (500 synthetic influencers)
-- `docs/design/design_handoff_influencer_crm/` — high-fidelity HTML prototype + handoff spec (`README.md`). Open `Influencer CRM v2.dc.html` in a browser.
+- `frontend/` — React 19 + TypeScript + Vite + React Router; API mode (backend) or demo mode (built-in data, 500 synthetic influencers)
+- `docs/design/UI_SPEC.md` — how each screen looks and behaves (the app is the source of truth; keep the spec in sync)
 
 ## Stack (Phase 1)
 Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose locally → AWS (EC2, RDS).
@@ -83,7 +83,8 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - Sidebar collapses like Claude's: toggle on the right when open, 216↔52px, 280ms, labels fade, Ctrl/Cmd+. shortcut, state persisted.
 - Coming soon (disabled with a "Soon" tag): CSV import, Previous campaigns, Analytics, Outreach.
 
-## Frontend implementation notes (from prototype)
-- Use `lucide-react` for icons in production (the prototype's CSS-mask spans are a prototype workaround).
+## Frontend implementation notes
+- Icons: `lucide-react`.
 - Tables sit in `overflow-x:auto` wrappers so action columns stay reachable at narrow widths.
-- Design tokens: `docs/design/design_handoff_influencer_crm/_ds/influenceiq-design-system-…/colors_and_type.css` (`--iq-*` variables).
+- Design tokens: `frontend/src/styles/tokens.css` (`--iq-*` variables): InfluenceIQ's own palette and type. Fonts are open-licensed only
+  (Inter, JetBrains Mono). Don't copy other companies' design systems, brand colours or font files into this repo.

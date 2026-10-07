@@ -225,7 +225,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           )}
         </div>
 
-        {error && <div className="drawer-foot"><div role="alert" style={{ fontSize: 12, color: 'var(--iq-down)', whiteSpace: 'pre-line' }}>{error}</div></div>}
+        {error && <div className="drawer-foot"><div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', whiteSpace: 'pre-line' }}>{error}</div></div>}
       </div>
 
       {confirm && (

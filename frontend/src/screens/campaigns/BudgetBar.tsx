@@ -5,7 +5,7 @@ export function BudgetBar({ used, total }: { used: number; total: number | null 
   const over = used > total
   return (
     <div className="budget-bar" title={over ? `Over budget by ₹${(used - total).toLocaleString('en-IN')}` : `${Math.round(pct)}% of budget`}>
-      <div style={{ width: `${pct}%`, background: over ? 'var(--iq-down)' : pct > 85 ? '#D97706' : 'var(--iq-brand-500)' }} />
+      <div style={{ width: `${pct}%`, background: over ? 'var(--iq-danger)' : pct > 85 ? '#D97706' : 'var(--iq-brand-500)' }} />
     </div>
   )
 }

@@ -51,7 +51,7 @@ a.btn-plain:hover, a.btn-ghost:hover { text-decoration: none; }
 .md-section { display: flex; flex-direction: column; gap: 8px; }
 .md-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .md-section > .md-actions { justify-content: flex-start; }
-.md-danger { color: var(--iq-down) !important; }
+.md-danger { color: var(--iq-danger) !important; }
 .md-quote { font-size: 12px; color: var(--iq-fg-2); font-style: italic; }
 .md-terms { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; font-size: 13px; }
 .md-box {

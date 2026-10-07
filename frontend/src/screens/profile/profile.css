@@ -39,7 +39,7 @@
 .profile-stats > div { padding: 11px 12px; text-align: center; }
 .profile-stats > div + div { border-left: 1px solid var(--iq-border); }
 .profile-stats .mono { font-size: 20px; font-weight: 700; color: var(--iq-fg-1); letter-spacing: -0.02em; }
-.profile-stats .mono.up { color: var(--iq-up); }
+.profile-stats .mono.up { color: var(--iq-success); }
 .profile-stat-label { font-size: 10px; color: var(--iq-fg-3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* minmax(0, …) so the campaign table scrolls inside its card instead of widening the page */

@@ -169,7 +169,7 @@
 .inf-card-stats > div { padding: 6px 0; text-align: center; }
 .inf-card-stats > div + div { border-left: 1px solid var(--iq-border); }
 .inf-card-stats .mono { font-size: 13px; font-weight: 600; color: var(--iq-fg-1); }
-.inf-card-stats .mono.up { color: var(--iq-up); }
+.inf-card-stats .mono.up { color: var(--iq-success); }
 .stat-label { font-size: 9px; color: var(--iq-fg-3); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
 .inf-card-foot { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 

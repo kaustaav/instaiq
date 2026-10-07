@@ -113,7 +113,7 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
             every influencer; renaming onto an existing name merges them. Built-in niches and languages can’t be changed.
           </div>
           {message && <div role="status" className="opt-msg">{message}</div>}
-          {remote.kind === 'error' && <div role="alert" style={{ color: 'var(--iq-down)', fontSize: 12 }}>{remote.message}</div>}
+          {remote.kind === 'error' && <div role="alert" style={{ color: 'var(--iq-danger)', fontSize: 12 }}>{remote.message}</div>}
           {(['cats', 'langs'] as const).map(kind => {
             const list = options(kind)
             return (
@@ -171,7 +171,7 @@ function OptionRow({ option, onRename, onDelete }: {
             onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { e.stopPropagation(); setEditing(false) } }} />
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setEditing(false); setError(''); setValue(option.value) }}>Cancel</button>
           <button type="button" className="btn btn-blue btn-sm" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</button>
-          {error && <div role="alert" style={{ flexBasis: '100%', fontSize: 12, color: 'var(--iq-down)' }}>{error}</div>}
+          {error && <div role="alert" style={{ flexBasis: '100%', fontSize: 12, color: 'var(--iq-danger)' }}>{error}</div>}
         </div>
       ) : (
         <>
@@ -213,7 +213,7 @@ function AddRow({ kind, onAdd }: { kind: OptionKind; onAdd: (raw: string) => Pro
       <button type="button" className="btn btn-ghost btn-sm" style={{ gap: 4 }} disabled={busy || !value.trim()} onClick={submit}>
         <Plus size={11} />{busy ? 'Adding…' : 'Add'}
       </button>
-      {error && <div role="alert" style={{ flexBasis: '100%', fontSize: 12, color: 'var(--iq-down)' }}>{error}</div>}
+      {error && <div role="alert" style={{ flexBasis: '100%', fontSize: 12, color: 'var(--iq-danger)' }}>{error}</div>}
     </div>
   )
 }

@@ -127,7 +127,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
         </div>
 
         {api && remote.error && (
-          <div role="alert" style={{ fontSize: 12, color: 'var(--iq-down)', marginBottom: 8 }}>
+          <div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', marginBottom: 8 }}>
             {remote.error} <button type="button" className="btn btn-plain btn-sm" onClick={remote.retry}>Retry</button>
           </div>
         )}
@@ -160,7 +160,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
                       <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
                         <span className="muted" style={{ fontSize: 11 }}>{removeVerb}?</span>
                         <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '3px 8px', fontWeight: 400 }} onClick={() => setConfirmId(null)}>No</button>
-                        <button type="button" className="btn btn-sm" style={{ padding: '3px 8px', fontWeight: 400, background: 'var(--iq-down)', color: 'white' }}
+                        <button type="button" className="btn btn-sm" style={{ padding: '3px 8px', fontWeight: 400, background: 'var(--iq-danger)', color: 'white' }}
                           onClick={() => remove(i.id)}>
                           Yes
                         </button>
@@ -170,7 +170,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
                         <button type="button" className="btn btn-plain" title="Edit" aria-label={`Edit ${i.name}`} style={{ padding: '5px 7px' }} onClick={() => onEdit(i)}>
                           <Pencil size={12} />
                         </button>
-                        <button type="button" className="btn btn-plain" title={removeVerb} aria-label={`${removeVerb} ${i.name}`} style={{ padding: '5px 7px', color: 'var(--iq-down)' }} onClick={() => setConfirmId(i.id)}>
+                        <button type="button" className="btn btn-plain" title={removeVerb} aria-label={`${removeVerb} ${i.name}`} style={{ padding: '5px 7px', color: 'var(--iq-danger)' }} onClick={() => setConfirmId(i.id)}>
                           {api ? <Archive size={12} /> : <Trash2 size={12} />}
                         </button>
                       </div>

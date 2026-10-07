@@ -59,8 +59,8 @@ a:hover { text-decoration: underline; }
   }
   .mobile-bar-btn:focus-visible { outline: 2px solid var(--iq-brand-400); }
   .mobile-bar-brand {
-    font-family: var(--iq-font-display);
-    font-weight: 900;
+    font-family: var(--iq-font-sans);
+    font-weight: 800;
     font-size: 17px;
     color: white;
     letter-spacing: -0.02em;

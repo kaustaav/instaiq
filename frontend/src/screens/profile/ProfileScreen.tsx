@@ -311,7 +311,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                 ) : (
                   <p className="profile-note">{inf.note || <span className="muted">No notes yet</span>}</p>
                 )}
-                {noteError && <div role="alert" style={{ fontSize: 12, color: 'var(--iq-down)', marginTop: 6 }}>{noteError}</div>}
+                {noteError && <div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', marginTop: 6 }}>{noteError}</div>}
               </section>
             </div>
           </div>

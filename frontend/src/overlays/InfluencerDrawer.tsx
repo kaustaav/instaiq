@@ -232,7 +232,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
         </div>
 
         <div className="drawer-foot">
-          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-down)' }}>
+          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-danger)' }}>
             {error?.message}
             {error?.errors && error.errors.length > 0 && (
               <ul style={{ margin: '2px 0 0', paddingLeft: 16 }}>{error.errors.map(m => <li key={m}>{m}</li>)}</ul>

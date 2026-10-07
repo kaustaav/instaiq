@@ -48,10 +48,10 @@ export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger
             </label>
           </div>
         )}
-        {error && <div role="alert" style={{ padding: '10px 18px 0', fontSize: 12, color: 'var(--iq-down)', whiteSpace: 'pre-line' }}>{error}</div>}
+        {error && <div role="alert" style={{ padding: '10px 18px 0', fontSize: 12, color: 'var(--iq-danger)', whiteSpace: 'pre-line' }}>{error}</div>}
         <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={danger ? { background: 'var(--iq-down)' } : undefined} disabled={busy} onClick={confirm}>{busy ? 'Working…' : confirmLabel}</button>
+          <button type="button" className="btn btn-blue" style={danger ? { background: 'var(--iq-danger)' } : undefined} disabled={busy} onClick={confirm}>{busy ? 'Working…' : confirmLabel}</button>
         </div>
       </div>
     </div>
