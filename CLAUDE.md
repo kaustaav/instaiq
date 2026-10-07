@@ -1,6 +1,6 @@
 # InfluenceIQ — Influencer CRM
 
-Internal CRM for an influencer marketing agency: store Instagram micro/nano influencers once, search/filter them across campaigns, shortlist and export. Phase 1 only (no scraper, no brand access, no campaign management).
+Internal CRM for an influencer marketing agency: store Instagram micro/nano influencers once, search/filter them, run campaigns (shortlist → content → payment) and export. Phase 1: no scraper, no brand or influencer access.
 
 ## Repo layout
 - `backend/` — Spring Boot 4.1 (Java 21, Maven wrapper `./mvnw`), package `com.influenceiq.crm`
@@ -20,10 +20,10 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - Therefore keep the app **portable**: Docker for everything, plain Postgres, config via env vars. Avoid AWS-only services inside the application code (e.g. prefer Spring Security/OIDC over Cognito-specific APIs); AWS-specific pieces stay in infrastructure, not in the app.
 
 ## Work tracking (decided 2026-10-07)
-- Open work lives in **GitHub Issues** (https://github.com/kaustaav/instaiq/issues), labels `priority: …`, `type: story|task`,
+- Open work lives in **GitHub Issues** (https://github.com/kaustaav/instaiq/issues), labels `priority: …`, `type: story|task|bug`,
   `area: …`, `go-live`, `phase-2`. Manage them with `gh issue …`. Jira was considered; not used for now.
-- **Every change starts from an issue.** Before starting, find or propose the issue (create it with `gh` once the user
-  agrees). Commit messages reference it: `Closes #12` when it finishes the issue, `Refs #12` for partial work.
+- **Every change starts from an issue.** Before starting, find the issue or create it with `gh` (no need to ask
+  first; say which one). Commits and pushes still need a yes. Commit messages reference it: `Closes #12` when it finishes the issue, `Refs #12` for partial work.
 - New ideas, bugs found and follow-ups become issues instead of notes in chat or docs.
 - Issue text is public (the repo is public): never put the client's name, domain or emails in it.
 
@@ -86,5 +86,6 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 ## Frontend implementation notes
 - Icons: `lucide-react`.
 - Tables sit in `overflow-x:auto` wrappers so action columns stay reachable at narrow widths.
-- Design tokens: `frontend/src/styles/tokens.css` (`--iq-*` variables): InfluenceIQ's own palette and type. Fonts are open-licensed only
-  (Inter, JetBrains Mono). Don't copy other companies' design systems, brand colours or font files into this repo.
+- Design tokens: `frontend/src/styles/tokens.css` (`--iq-*` variables). Since 2026-10-07 the palette (cyan, navy, lime) and font
+  (Manrope) follow the agency's own brand, because the tool is theirs; don't name the agency in the repo. Fonts are open-licensed only
+  (Manrope, JetBrains Mono), loaded from fontsource. Never copy font files or design-system code from any website into this repo.

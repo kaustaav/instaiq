@@ -2,7 +2,7 @@
 
 PostgreSQL. Decided 2026-10-02. History is kept only where it's needed (rate cards, draft reviews, payments); everything else stores
 the current value plus who changed it and when. Every table has `created_at/by`, `updated_at/by`; editable aggregates
-also have `version` (optimistic locking). `*_by` is the user's email until auth exists, then an FK to `app_user`.
+also have `version` (optimistic locking). `*_by` is the signed-in user's Google email (an `app_user` table may replace it later).
 
 ## Influencers
 

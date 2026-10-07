@@ -1,32 +1,37 @@
-# React + TypeScript + Vite
+# InfluenceIQ frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + TypeScript + Vite + React Router. Icons: `lucide-react`. Styles: plain CSS with the `--iq-*` tokens in
+`src/styles/tokens.css`. How each screen looks and behaves: [docs/design/UI_SPEC.md](../docs/design/UI_SPEC.md).
 
-Currently, two official plugins are available:
+## Two modes
+| Mode | When | Data |
+|---|---|---|
+| **Demo** | `VITE_API_URL` not set | Built-in data (500 fictional influencers, sample campaigns), kept in memory. No server, no sign-in. This is what GitHub Pages serves. |
+| **API** | `VITE_API_URL` set | The Spring Boot backend. Sign-in with Google (`VITE_GOOGLE_CLIENT_ID`). |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+New UI work must keep working in both modes.
 
-## React Compiler
+Settings go in `.env.local` (git-ignored); see `.env.example`. Locally `VITE_API_URL=/api` goes through the Vite dev
+proxy to `localhost:8080` (`vite.config.ts`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Scripts
+| Command | What |
+|---|---|
+| `npm run dev` | Dev server on http://localhost:5173 |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run lint` | Oxlint |
+| `npm run build:pages` | Build for GitHub Pages (base `/instaiq/`, `404.html` fallback) |
+| `npm run generate:influencers` | Regenerate the demo influencers in `src/data/` |
 
-## Expanding the Oxlint configuration
+## Layout
+| Path | What |
+|---|---|
+| `src/screens/` | One folder per screen: search, profile, campaigns, manage |
+| `src/overlays/` | Modals and drawers: add/edit influencer, location picker, add to campaign, niches & languages |
+| `src/components/` | Shared UI: sidebar, pagination, pills, reason dialog |
+| `src/api/` | API client and per-resource calls |
+| `src/lib/` | Pure logic: search params, campaigns, formatting, locations |
+| `src/data/` | Demo-mode data |
+| `src/hooks/`, `src/auth/`, `src/store.tsx` | Data loading, Google sign-in, app state |
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Whatever serves the build must fall back to `index.html` for unknown paths, or refreshing a deep link 404s.
