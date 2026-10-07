@@ -52,13 +52,12 @@ type NavItem = { to: string; paths: string[]; label: string; icon: LucideIcon; b
 
 type Props = {
   campaignCount: number
-  influencerCount: number
   /** Phones: the sidebar is an off-canvas menu opened from the top bar. */
   mobileOpen: boolean
   onMobileClose: () => void
 }
 
-export function Sidebar({ campaignCount, influencerCount, mobileOpen, onMobileClose }: Props) {
+export function Sidebar({ campaignCount, mobileOpen, onMobileClose }: Props) {
   const { open, toggle } = useSidebarOpen()
   const { pathname } = useLocation()
   const user = useSignedInUser()
@@ -66,7 +65,7 @@ export function Sidebar({ campaignCount, influencerCount, mobileOpen, onMobileCl
   const nav: NavItem[] = [
     { to: '/search', paths: ['/search', '/influencers'], label: 'Search & Browse', icon: Search },
     { to: '/campaigns', paths: ['/campaigns'], label: 'Campaigns', icon: Megaphone, badge: campaignCount },
-    { to: '/manage', paths: ['/manage'], label: 'Manage Data', icon: Database, badge: influencerCount },
+    { to: '/manage', paths: ['/manage'], label: 'Manage Data', icon: Database },
   ]
   const toggleTitle = `${open ? 'Close' : 'Open'} sidebar (Ctrl+.)`
   // on phones the same button closes the menu instead of collapsing the rail

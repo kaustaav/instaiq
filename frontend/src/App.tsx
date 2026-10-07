@@ -69,7 +69,7 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
 }
 
 function Shell() {
-  const { infs, loc } = useStore()
+  const { loc } = useStore()
   const cards = useCampaignCards()
   const openCampaigns = cards.kind === 'ready' ? cards.data.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length : 0
   const navigate = useNavigate()
@@ -103,7 +103,7 @@ function Shell() {
 
   return (
     <div className="app">
-      <Sidebar campaignCount={openCampaigns} influencerCount={infs.length}
+      <Sidebar campaignCount={openCampaigns}
         mobileOpen={mobileNav} onMobileClose={() => setMobileNav(false)} />
       {mobileNav && <div className="sb-backdrop" onClick={() => setMobileNav(false)} />}
       <main className="app-main">
