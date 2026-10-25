@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { LazyMotion, m, useMotionValue, useReducedMotion, type Transition } from 'motion/react'
 import { shouldDismiss, useSwipeDismiss } from '../hooks/useSwipeDismiss'
+import { loadFeatures, motionCode } from '../lib/motionLoader'
 
 /**
  * Drawers and dialogs. The dim layer fades; the panel moves on a spring (no bounce: these open from a click,
@@ -11,11 +12,6 @@ import { shouldDismiss, useSwipeDismiss } from '../hooks/useSwipeDismiss'
  * Exit animations need the parent to render the overlay inside <AnimatePresence>.
  */
 type Kind = 'drawer' | 'dialog'
-
-const motionCode = () => import('../lib/motionFeatures')
-const loadFeatures = () => motionCode().then(r => r.default)
-// fetch them shortly after start-up, so even the first drawer animates without waiting
-window.setTimeout(() => void loadFeatures(), 1500)
 
 const SPRING: Transition = { type: 'spring', bounce: 0, visualDuration: 0.34 }
 const DIALOG_SPRING: Transition = { type: 'spring', bounce: 0, visualDuration: 0.24 }

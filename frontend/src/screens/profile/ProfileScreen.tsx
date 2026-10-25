@@ -13,6 +13,9 @@ import { useInfluencerCampaigns } from '../../hooks/useCampaigns'
 import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
 import './profile.css'
 import { RowsSkeleton } from '../../components/Skeletons'
+import { notify } from '../../lib/notify'
+import { ReasonDialog } from '../../components/ReasonDialog'
+import { AnimatePresence } from 'motion/react'
 
 type Props = {
   inf: Influencer
@@ -66,19 +69,20 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
     }
   }
 
+  // anything but Active needs a reason, asked in our own dialog
+  const [statusAsk, setStatusAsk] = useState<InfluencerStatus | null>(null)
+  const applyStatus = async (status: InfluencerStatus, reason?: string) => {
+    await changeStatus(inf.id, status, reason)
+    dataChanged()
+    notify({ kind: 'success', text: status === 'ACTIVE' ? `${inf.name} is active again` : `${inf.name} marked ${STATUS_LABEL[status].toLowerCase()}` })
+  }
   const setStatus = async (status: InfluencerStatus) => {
-    let reason: string | undefined
-    if (status !== 'ACTIVE') {
-      const r = window.prompt(`Why is ${inf.name} ${STATUS_LABEL[status].toLowerCase()}? (required)`)
-      if (r == null) return // cancelled
-      reason = r
-    }
+    if (status !== 'ACTIVE') return setStatusAsk(status)
     setBusy(true)
     try {
-      await changeStatus(inf.id, status, reason)
-      dataChanged()
+      await applyStatus(status)
     } catch (e) {
-      window.alert(message(e))
+      notify({ kind: 'error', text: message(e) })
     } finally {
       setBusy(false)
     }
@@ -320,6 +324,26 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
           </div>
         </div>
       </div>
+      <AnimatePresence>
+        {statusAsk && (
+          <ReasonDialog key="status"
+            title={`Mark ${inf.name} as ${STATUS_LABEL[statusAsk].toLowerCase()}?`}
+            message={statusAsk === 'BANNED' ? 'Banned influencers are hidden from search and can’t be added to campaigns.' : undefined}
+            reasonLabel="Reason *"
+            confirmLabel={`Mark ${STATUS_LABEL[statusAsk].toLowerCase()}`}
+            danger={statusAsk === 'BANNED'}
+            onConfirm={async reason => {
+              if (!reason.trim()) return 'Please give a reason'
+              try {
+                await applyStatus(statusAsk, reason.trim())
+                return ''
+              } catch (e) {
+                return message(e)
+              }
+            }}
+            onClose={() => setStatusAsk(null)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

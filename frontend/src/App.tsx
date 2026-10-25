@@ -20,6 +20,8 @@ import { AddToCampaignModal } from './overlays/AddToCampaignModal'
 import { InfluencerDrawer } from './overlays/InfluencerDrawer'
 import { AnimatePresence } from 'motion/react'
 import { ProfileSkeleton } from './components/Skeletons'
+import { Toaster } from './components/Toasts'
+import { notify } from './lib/notify'
 
 /** Drawer state: closed, adding a new influencer, or editing an existing one. */
 type DrawerState = { mode: 'closed' } | { mode: 'add' } | { mode: 'edit'; inf: Influencer }
@@ -96,11 +98,12 @@ function Shell() {
     if (!apiEnabled() || inf.api) return setDrawer({ mode: 'edit', inf })
     getInfluencer(inf.id)
       .then(p => setDrawer({ mode: 'edit', inf: profileToInfluencer(p, loc) }))
-      .catch(e => window.alert(e instanceof Error ? e.message : 'Could not load this influencer'))
+      .catch(e => notify({ kind: 'error', text: e instanceof Error ? e.message : 'Could not load this influencer' }))
   }
   const onSaved = (saved: Influencer) => {
     const added = drawer.mode === 'add'
     closeDrawer()
+    notify({ kind: 'success', text: added ? `${saved.name} added` : 'Changes saved' })
     if (added && apiEnabled()) navigate(`/influencers/${saved.id}`) // show where the new record landed
   }
 
@@ -142,6 +145,7 @@ function Shell() {
           />
         )}
       </AnimatePresence>
+      <Toaster />
     </div>
   )
 }

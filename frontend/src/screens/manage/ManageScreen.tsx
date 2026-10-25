@@ -16,6 +16,7 @@ import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
 import { AnimatePresence } from 'motion/react'
 import { TableSkeleton } from '../../components/Skeletons'
+import { notify } from '../../lib/notify'
 
 const PAGE_SIZE = 50
 
@@ -82,12 +83,26 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
   // API mode never hard-deletes: the record is archived (hidden from search, history kept)
   const remove = async (id: number) => {
     setConfirmId(null)
-    if (!api) return deleteInfluencer(id)
+    const name = rows.items.find(i => i.id === id)?.name ?? 'Influencer'
+    if (!api) {
+      deleteInfluencer(id)
+      return notify({ kind: 'success', text: `Deleted ${name}` })
+    }
     try {
       await changeStatus(id, 'ARCHIVED', 'Archived from Manage data')
       dataChanged()
+      // forgiveness over confirmation: one tap puts it back
+      notify({
+        kind: 'success', text: `Archived ${name}`,
+        action: {
+          label: 'Undo',
+          run: () => changeStatus(id, 'ACTIVE')
+            .then(() => { dataChanged(); notify({ kind: 'info', text: `${name} restored` }) })
+            .catch(e => notify({ kind: 'error', text: e instanceof ApiError ? e.message : 'Could not restore' })),
+        },
+      })
     } catch (e) {
-      window.alert(e instanceof ApiError ? e.message : 'Could not archive')
+      notify({ kind: 'error', text: e instanceof ApiError ? e.message : 'Could not archive' })
     }
   }
   const removeVerb = api ? 'Archive' : 'Delete'
