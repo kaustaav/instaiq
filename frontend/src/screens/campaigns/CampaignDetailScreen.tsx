@@ -26,6 +26,7 @@ import { TargetsChart } from './TargetsChart'
 import './campaigns.css'
 import { AnimatePresence } from 'motion/react'
 import { CampaignDetailSkeleton } from '../../components/Skeletons'
+import { notify } from '../../lib/notify'
 
 const PAGE_SIZE = 50
 const csvCell = (v: string) => `"${v.replace(/"/g, '""')}"`
@@ -135,8 +136,9 @@ export function CampaignDetailScreen() {
       const copy = await duplicateCampaignApi(c.id)
       dataChanged()
       navigate(`/campaigns/${copy.id}`)
+      notify({ kind: 'success', text: 'Campaign duplicated' })
     } catch (e) {
-      window.alert(errorText(e))
+      notify({ kind: 'error', text: errorText(e) })
     }
   }
 
