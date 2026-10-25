@@ -162,6 +162,8 @@ img.sb-avatar { object-fit: cover; }
     background: rgba(246, 246, 248, 0.9);
   }
   .sb.mobile-open { transform: none; }
+  .sb.mobile-open { touch-action: pan-y; }
+  .sb-backdrop { transition: opacity 300ms; }
   /* the desktop "collapsed" state doesn't apply to the phone menu */
   .sb.closed .sb-fade { opacity: 1; }
   .sb.closed .sb-logo { display: block; }

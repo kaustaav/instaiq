@@ -188,6 +188,7 @@
 
 .filters-head { display: flex; align-items: center; justify-content: space-between; }
 .filters-close, .filters-done, .filters-btn { display: none !important; }
+.sheet-grabber { display: none; }
 .filters-badge {
   min-width: 18px;
   height: 18px;
@@ -220,7 +221,10 @@
     visibility: hidden;
   }
   .filters.open { transform: none; visibility: visible; transition: transform 450ms var(--iq-spring); }
+  .filters { overscroll-behavior: contain; }
   .filters-close { display: inline-flex !important; padding: 6px; }
+  /* the iPhone sheet handle: a hint that the sheet can be swiped down */
+  .sheet-grabber { display: block; width: 36px; height: 5px; border-radius: 999px; background: var(--iq-gray-200); margin: -6px auto -10px; flex-shrink: 0; }
   .filters-done { display: flex !important; justify-content: center; padding: 11px; font-size: 14px; margin-top: auto; }
   .filters-btn { display: inline-flex !important; }
   .filters .chip { padding: 6px 12px; font-size: 13px; }
