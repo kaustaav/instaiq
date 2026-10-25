@@ -21,7 +21,7 @@ const Dismiss = createContext<() => void>(() => {})
 export function Overlay({ kind, z, onDismiss, children }: { kind: Kind; z: number; onDismiss: () => void; children: ReactNode }) {
   return (
     <Dismiss.Provider value={onDismiss}>
-    // LazyMotion + m: only the animation features we use, fetched as a separate file after the page appears
+    {/* LazyMotion + m: only the animation features we use, fetched as a separate file after the page appears */}
     <LazyMotion features={loadFeatures} strict>
     <div className={`layer layer-${kind}`} style={{ zIndex: z }}>
       <m.div className="layer-dim" onClick={onDismiss} aria-hidden="true"
