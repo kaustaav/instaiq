@@ -12,6 +12,7 @@ import { CAMPAIGN_STATUS_LABEL, STAGE_LABEL } from '../../lib/campaigns'
 import { useInfluencerCampaigns } from '../../hooks/useCampaigns'
 import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
 import './profile.css'
+import { RowsSkeleton } from '../../components/Skeletons'
 
 type Props = {
   inf: Influencer
@@ -198,9 +199,11 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                       </tbody>
                     </table>
                   </div>
+                ) : memberships.kind === 'loading' ? (
+                  <RowsSkeleton rows={2} label="Loading campaign history" />
                 ) : (
                   <div className="muted" style={{ padding: '12px 0', textAlign: 'center', fontSize: 13 }}>
-                    {memberships.kind === 'loading' ? 'Loading…' : memberships.kind === 'error' ? 'Couldn’t load campaign history' : 'Not in any campaign yet'}
+                    {memberships.kind === 'error' ? 'Couldn’t load campaign history' : 'Not in any campaign yet'}
                   </div>
                 )}
                 {inf.camps.length > 0 && (

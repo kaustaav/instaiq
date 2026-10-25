@@ -14,6 +14,7 @@ import type { Influencer } from '../../types'
 import { Avatar, CategoryBadges, EmptyState, IgLink, PersonCell, Segmented } from '../../components/ui'
 import { FilterPanel } from './FilterPanel'
 import './search.css'
+import { CardGridSkeleton, TableSkeleton } from '../../components/Skeletons'
 
 type Props = {
   onShortlist: (id: number) => void
@@ -116,7 +117,7 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
               <button type="button" className="btn btn-ghost" style={{ marginTop: 12 }} onClick={retry}>Try again</button>
             </div>
           ) : results.total === 0 && loading ? (
-            <div className="empty"><div className="empty-sub">Searching…</div></div>
+            view === 'grid' ? <CardGridSkeleton /> : <TableSkeleton cols={5} />
           ) : results.total === 0 ? (
             <EmptyState icon={SearchX} title="No influencers match" sub="Try adjusting the filters" />
           ) : view === 'grid' ? (

@@ -19,6 +19,7 @@ import { ManageScreen } from './screens/manage/ManageScreen'
 import { AddToCampaignModal } from './overlays/AddToCampaignModal'
 import { InfluencerDrawer } from './overlays/InfluencerDrawer'
 import { AnimatePresence } from 'motion/react'
+import { ProfileSkeleton } from './components/Skeletons'
 
 /** Drawer state: closed, adding a new influencer, or editing an existing one. */
 type DrawerState = { mode: 'closed' } | { mode: 'add' } | { mode: 'edit'; inf: Influencer }
@@ -37,7 +38,7 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
   const profile = useInfluencerProfile(id) // built-in data, or the API when VITE_API_URL is set
 
   if (profile.kind === 'loading') {
-    return <div className="screen-col" style={{ justifyContent: 'center' }}><div className="empty"><div className="empty-sub">Loading profile…</div></div></div>
+    return <ProfileSkeleton />
   }
   if (profile.kind === 'error') {
     return (
@@ -72,7 +73,8 @@ function ProfileRoute({ onShortlist, onEdit }: Omit<Overlays, 'onAdd'>) {
 function Shell() {
   const { loc } = useStore()
   const cards = useCampaignCards()
-  const openCampaigns = cards.kind === 'ready' ? cards.data.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length : 0
+  // unknown until loaded: the sidebar shows no number rather than a wrong 0
+  const openCampaigns = cards.kind === 'ready' ? cards.data.filter(c => c.status === 'DRAFT' || c.status === 'ACTIVE').length : undefined
   const navigate = useNavigate()
   // influencer ids for the Add to campaign modal: one from a card/profile, many from "Add all" on search
   const [modalIds, setModalIds] = useState<number[] | null>(null)

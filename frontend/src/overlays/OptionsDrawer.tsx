@@ -9,6 +9,7 @@ import { ReasonDialog } from '../components/ReasonDialog'
 import './overlays.css'
 import { AnimatePresence } from 'motion/react'
 import { Overlay, Panel } from '../components/Overlay'
+import { RowsSkeleton } from '../components/Skeletons'
 
 type Confirm = { title: string; message: string; confirmLabel: string; danger?: boolean; run: () => Promise<string> }
 
@@ -121,7 +122,7 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
             return (
               <section key={kind} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div className="label">{KIND_LABEL[kind]}s</div>
-                {list == null ? <div className="muted" style={{ fontSize: 12 }}>Loading…</div>
+                {list == null ? <RowsSkeleton rows={2} label={`Loading ${KIND_LABEL[kind].toLowerCase()}s`} />
                   : list.length === 0 ? <div className="muted" style={{ fontSize: 12 }}>None added yet.</div>
                   : list.map(o => (
                     <OptionRow key={o.value} option={o}
