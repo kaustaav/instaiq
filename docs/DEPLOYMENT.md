@@ -112,6 +112,46 @@ disk, backup timer) -> `deploy/server/deploy.sh` (every deploy) and `deploy/serv
 
 Startup takes ~2 minutes on t4g.micro (126 s measured), ~10 s on a laptop: expect a short outage per deploy.
 
+### Pause and resume (away for a few days)
+Stopping the server is like switching off a computer but keeping its disks: compute stops billing, storage and the
+address don't. Last done: resumed 2026-10-25 after about 2.5 weeks stopped.
+
+**Is it worth it?** Saves ~\$0.25 per day stopped (EC2 compute). Still billed while stopped: public IPv4 ~\$0.12/day and
+disks ~\$0.06/day. The app is **offline for everyone**: tell users first. Data is safe: it lives on the data disk.
+
+**Before you leave**
+1. UptimeRobot: open the monitor → **Pause** (it checks from outside AWS and would email "Down").
+2. EC2 → Instances → `influenceiq-prod` → **Instance state → Stop instance**. Wait for **Stopped**.
+
+Never click **Terminate** (deletes the server) or **Hibernate** (not set up on this instance), and never release the
+Elastic IP (CloudFront would lose the server).
+
+While stopped: CloudWatch alarms go to *Insufficient data* and stay quiet (they email on ALARM only; Recover/Reboot don't
+run); the nightly backup skips those nights; the Amplify UI still loads, but nothing loads after sign-in.
+
+**Coming back**
+1. EC2 → `influenceiq-prod` → **Instance state → Start instance**. State goes Pending → Running in under a minute.
+2. Watch the API: `curl https://d30krgd979e950.cloudfront.net/actuator/health` until it says `"status":"UP"`.
+   Expect no answer while it boots, then **504** (CloudFront can't get a reply yet: means "not yet", not a fault), then UP.
+   **~4 minutes** from Start to UP (measured 2026-10-25). Docker starts Postgres and the app by itself (`--restart unless-stopped`).
+3. Check the UI end to end: `scripts/smoke-test.sh https://main.d360lwuskrbgul.amplifyapp.com` (the **Amplify** URL; run
+   against the API URL every check fails with 401, which is the API correctly asking for sign-in). Then sign in and
+   check your data is there.
+4. UptimeRobot → **Resume**.
+
+**After more than 7 days stopped:** AWS keeps a stopped t4g's CPU credits for 7 days only. The balance restarts near
+zero, the CPU is held to its 10% baseline, so startup is slower and the **CPU-credit alarm emails** for a few hours until
+the balance climbs back above 50; it clears by itself (you get an OK email).
+
+**Not UP after 15 minutes?**
+1. Console → instance → **Status checks**. A failed *system* check is AWS's side (the alarm recovers it, or Stop → Start
+   moves it to healthy hardware); a failed *instance* check is our OS (Actions → Reboot).
+2. Connect → Session Manager, then `sudo docker ps -a` (both `crm-db` and `crm-backend` should be *Up*) and
+   `sudo docker logs --tail 100 crm-backend`.
+3. **App up but no data?** Check the data disk mounted: `mountpoint /data`. It's mounted with `nofail`, so the server
+   boots without it and Postgres would start on an **empty** directory. If it says "is not a mountpoint": EC2 → Volumes →
+   check the data volume is attached to the instance, then `sudo mount /data` and `sudo docker restart crm-db crm-backend`.
+
 ### Monitoring and alerts (since 2026-10-07; all free)
 Everything alerts by email through **one SNS topic, `influenceiq-alerts`** (Standard, **unencrypted on purpose**: the
 default SNS key would stop CloudWatch from publishing), except UptimeRobot, which emails directly.
