@@ -11,6 +11,7 @@ import { useInfluencerProfile } from '../hooks/useInfluencerProfile'
 import { Pill } from '../components/ui'
 import './overlays.css'
 import { Overlay, Panel } from '../components/Overlay'
+import { RowsSkeleton } from '../components/Skeletons'
 
 /**
  * Adds one influencer (card / profile "+ Shortlist") or many (search "Add all to campaign") to an open campaign.
@@ -79,7 +80,7 @@ export function AddToCampaignModal({ influencerIds, onClose }: { influencerIds: 
           </div>
         </div>
         <div style={{ padding: 8, maxHeight: '60vh', overflowY: 'auto' }}>
-          {cards.kind === 'loading' && <div className="muted" style={{ padding: 12, fontSize: 13 }}>Loading campaigns…</div>}
+          {cards.kind === 'loading' && <RowsSkeleton label="Loading campaigns" />}
           {cards.kind === 'error' && <div role="alert" style={{ padding: 12, fontSize: 13, color: 'var(--iq-danger)' }}>{cards.message}</div>}
           {cards.kind === 'ready' && open.length === 0 && <div className="muted" style={{ padding: 12, fontSize: 13 }}>No open campaigns. <Link to="/campaigns" onClick={onClose}>Create one</Link>.</div>}
           {open.map(c => {

@@ -51,7 +51,7 @@ function useSidebarOpen() {
 type NavItem = { to: string; paths: string[]; label: string; icon: LucideIcon; badge?: number }
 
 type Props = {
-  campaignCount: number
+  campaignCount?: number
   /** Phones: the sidebar is an off-canvas menu opened from the top bar. */
   mobileOpen: boolean
   onMobileClose: () => void

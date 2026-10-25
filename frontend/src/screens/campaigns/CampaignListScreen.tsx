@@ -17,6 +17,7 @@ import { CampaignFormDrawer } from './CampaignFormDrawer'
 import { BudgetBar } from './BudgetBar'
 import './campaigns.css'
 import { AnimatePresence } from 'motion/react'
+import { CampaignCardsSkeleton } from '../../components/Skeletons'
 
 const PAGE_SIZE = 50
 const STATUS_FILTERS: ('ALL' | CampaignStatus)[] = ['ALL', 'DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']
@@ -98,7 +99,7 @@ export function CampaignListScreen() {
             <button type="button" className="btn btn-ghost" onClick={cards.retry}>Try again</button>
           </div>
         ) : cards.kind === 'loading' ? (
-          <div className="empty"><div className="empty-sub">Loading campaigns…</div></div>
+          <CampaignCardsSkeleton />
         ) : rows.total === 0 ? (
           <EmptyState icon={Megaphone} title="No campaigns match" sub={campaigns.length ? 'Try another filter' : 'Create your first campaign'} />
         ) : (

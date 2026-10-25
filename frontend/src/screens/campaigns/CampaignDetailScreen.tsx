@@ -25,6 +25,7 @@ import { MemberDrawer } from './MemberDrawer'
 import { TargetsChart } from './TargetsChart'
 import './campaigns.css'
 import { AnimatePresence } from 'motion/react'
+import { CampaignDetailSkeleton } from '../../components/Skeletons'
 
 const PAGE_SIZE = 50
 const csvCell = (v: string) => `"${v.replace(/"/g, '""')}"`
@@ -87,7 +88,7 @@ export function CampaignDetailScreen() {
   useScrollTopOnChange(scrollRef, rows.page)
 
   if (detail.kind === 'loading') {
-    return <div className="screen-col" style={{ justifyContent: 'center' }}><div className="empty"><div className="empty-sub">Loading campaign…</div></div></div>
+    return <CampaignDetailSkeleton />
   }
   if (detail.kind === 'error') {
     return (

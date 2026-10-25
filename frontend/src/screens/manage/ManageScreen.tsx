@@ -15,6 +15,7 @@ import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
 import { AnimatePresence } from 'motion/react'
+import { TableSkeleton } from '../../components/Skeletons'
 
 const PAGE_SIZE = 50
 
@@ -125,6 +126,8 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
             {remote.error} <button type="button" className="btn btn-plain btn-sm" onClick={remote.retry}>Retry</button>
           </div>
         )}
+        {/* first load: placeholder rows; later loads keep the current rows, dimmed */}
+        {api && remote.loading && rows.items.length === 0 ? <TableSkeleton rows={10} cols={7} /> : (
         <div className="table-wrap" style={api && remote.loading ? { opacity: 0.6 } : undefined}>
           <table className="table">
             <thead>
@@ -175,6 +178,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
             </tbody>
           </table>
         </div>
+        )}
         <Pagination page={rows} onPage={p => go({ page: p })} />
       </div>
       <AnimatePresence>{optionsOpen && <OptionsDrawer key="options" onClose={() => setOptionsOpen(false)} />}</AnimatePresence>
