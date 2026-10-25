@@ -31,7 +31,8 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - **One branch: `main`.** It's the app: Amplify `main` (API mode, Google sign-in) + the EC2 backend (deployed from `main`).
   `develop` (branch and AWS environment) was retired on 2026-10-06; AWS settings live under `/influenceiq/prod/`. For risky or large work use a short-lived branch, merge it when done; no
   deploys or environments per branch. Safety = CI on every push + local testing + quick rollback.
-- **Client demo = GitHub Pages** (built-in demo data, no backend), from tag **`demo-2026-10`** (commit `e0542cf`).
+- **Client demo = GitHub Pages** (built-in demo data, no backend), from tag **`demo-2026-10-redesign`** (commit `70c2369`,
+  published 2026-10-25). The earlier demo is tag `demo-2026-10` (`e0542cf`).
   **Never publish to `gh-pages`** unless the user asks.
 - The app started with **no data** on 2026-10-06 (`DEMO_DATA=false`): never load demo influencers/campaigns into it.
 - New UI work must keep working without a backend: use the API only when `VITE_API_URL` is set, otherwise the built-in

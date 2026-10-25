@@ -22,7 +22,7 @@ app name `influencerIq`.
 
 The console doesn't allow an empty "all branches" value, so `amplify.yml` **unsets both on every branch except `main`**:
 any other branch connected later (a preview) builds in demo mode. The build log prints `Branch main, API ...` to confirm.
-The client demo is GitHub Pages (demo mode, built from tag `demo-2026-10`).
+The client demo is GitHub Pages (demo mode, built from tag `demo-2026-10-redesign`; the earlier one is `demo-2026-10`).
 
 ## How an Amplify deploy works
 1. `git push` to `main`.
