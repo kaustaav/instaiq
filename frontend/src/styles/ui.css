@@ -295,6 +295,13 @@ textarea.input { resize: vertical; line-height: 1.5; }
 .layer-dialog { align-items: center; justify-content: center; padding: 16px; }
 .layer-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.24); }
 .layer > [role='dialog'] { position: relative; outline: none; }
+/* drawers sit in a track that follows the finger when swiped (vertical pans still scroll the drawer) */
+.drawer-track { position: relative; display: flex; height: 100%; max-width: 100%; touch-action: pan-y; }
+/* touch-action stops at scroll containers, so the drawer's scrolling body needs it too;
+   sideways-scrolling tables keep normal touch (swipes that start there scroll the table instead) */
+.drawer-track .drawer-body { touch-action: pan-y; }
+.drawer-track .table-wrap, .drawer-track [data-no-swipe] { touch-action: auto; }
+.drawer-track > [role='dialog'] { outline: none; }
 
 /* ---------- Phones ---------- */
 @media (max-width: 768px) {

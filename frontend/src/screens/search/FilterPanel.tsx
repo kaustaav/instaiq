@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useStore } from '../../store'
+import { useSheetSwipe } from '../../hooks/useSheetSwipe'
+import { isMobile } from '../../lib/media'
 import { categoryColor, collapse, toggle } from '../../lib/format'
 import { MoreChip, Segmented } from '../../components/ui'
 import { emptyFilters, hasActiveFilters, type Filters } from '../../lib/search'
@@ -35,6 +37,10 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
   const catList = collapse(cats, f.cats, CAT_VISIBLE, catMore)
   const langList = collapse(langs, f.langs, LANG_VISIBLE, langMore)
 
+  // phones: swipe the sheet down to close it
+  const sheetRef = useRef<HTMLDivElement>(null)
+  useSheetSwipe(sheetRef, { enabled: mobileOpen && isMobile(), handle: '.filters-head, .sheet-grabber', onDismiss: onMobileClose })
+
   const inkChip = (active: boolean) => ({
     background: active ? 'var(--iq-navy)' : 'white',
     color: active ? 'white' : 'var(--iq-fg-1)',
@@ -42,7 +48,8 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
   })
 
   return (
-    <div className={mobileOpen ? 'filters open' : 'filters'} aria-label="Filters">
+    <div ref={sheetRef} className={mobileOpen ? 'filters open' : 'filters'} aria-label="Filters">
+      <div className="sheet-grabber" aria-hidden="true" />
       <div className="filters-head">
         <h3>Filters</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

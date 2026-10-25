@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { BarChart3, Database, LogOut, Megaphone, PanelLeft, Search, Send, Settings } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
 import { isMobile } from '../lib/media'
 import { useSignedInUser } from '../auth/AuthGate'
 import { initials } from '../lib/format'
+import { shouldDismiss, useSwipeDismiss } from '../hooks/useSwipeDismiss'
 import './Sidebar.css'
 
 const STORAGE_KEY = 'iiq-sb'
@@ -67,12 +68,39 @@ export function Sidebar({ campaignCount, mobileOpen, onMobileClose }: Props) {
     { to: '/campaigns', paths: ['/campaigns'], label: 'Campaigns', icon: Megaphone, badge: campaignCount },
     { to: '/manage', paths: ['/manage'], label: 'Manage Data', icon: Database },
   ]
+  // phones: swipe the open menu left to close it; it follows the finger and the dim layer fades with it
+  const asideRef = useRef<HTMLElement>(null)
+  const menuWidth = () => asideRef.current?.offsetWidth ?? 280
+  const backdrop = () => document.querySelector<HTMLElement>('.sb-backdrop')
+  const swipe = useSwipeDismiss({
+    direction: 'left',
+    size: menuWidth,
+    onMove: offset => {
+      const el = asideRef.current
+      if (!el) return
+      el.style.transition = 'none'
+      el.style.transform = `translateX(${-offset}px)`
+      const b = backdrop()
+      if (b) { b.style.transition = 'none'; b.style.opacity = String(Math.max(0, 1 - offset / menuWidth())) }
+    },
+    onEnd: (offset, velocity) => {
+      const el = asideRef.current
+      if (!el) return
+      // hand back to the CSS spring: it continues from where the finger left the menu
+      el.style.transition = ''
+      el.style.transform = ''
+      const b = backdrop()
+      if (b) { b.style.transition = ''; b.style.opacity = '' }
+      if (shouldDismiss(offset, velocity, menuWidth())) onMobileClose()
+    },
+  })
   const toggleTitle = `${open ? 'Close' : 'Open'} sidebar (Ctrl+.)`
   // on phones the same button closes the menu instead of collapsing the rail
   const onToggle = () => (isMobile() ? onMobileClose() : toggle())
 
   return (
-    <aside className={['sb', !open && 'closed', mobileOpen && 'mobile-open'].filter(Boolean).join(' ')}>
+    <aside ref={asideRef} className={['sb', !open && 'closed', mobileOpen && 'mobile-open'].filter(Boolean).join(' ')}
+      onPointerDown={mobileOpen && isMobile() ? swipe.onPointerDown : undefined}>
       <div className="sb-head">
         <img className="sb-logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
         <div className="sb-brand sb-fade" aria-hidden={!open}>
