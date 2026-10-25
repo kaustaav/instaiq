@@ -10,6 +10,7 @@ import { useCampaignCards, useInfluencerCampaigns } from '../hooks/useCampaigns'
 import { useInfluencerProfile } from '../hooks/useInfluencerProfile'
 import { Pill } from '../components/ui'
 import './overlays.css'
+import { Overlay, Panel } from '../components/Overlay'
 
 /**
  * Adds one influencer (card / profile "+ Shortlist") or many (search "Add all to campaign") to an open campaign.
@@ -69,8 +70,8 @@ export function AddToCampaignModal({ influencerIds, onClose }: { influencerIds: 
   }
 
   return (
-    <div className="overlay" style={{ alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="atc-title" style={{ width: 420 }}>
+    <Overlay kind="dialog" z={200} onDismiss={onClose}>
+      <Panel kind="dialog" labelledBy="atc-title" style={{ width: 420 }}>
         <div className="modal-head">
           <div id="atc-title" style={{ fontSize: 14, fontWeight: 600 }}>Add to campaign</div>
           <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
@@ -116,7 +117,7 @@ export function AddToCampaignModal({ influencerIds, onClose }: { influencerIds: 
           <Link to="/campaigns" onClick={onClose} style={{ fontSize: 12 }}>Manage campaigns</Link>
           <button type="button" className="btn btn-ghost" style={{ padding: '6px 14px', fontSize: 13 }} onClick={onClose}>Done</button>
         </div>
-      </div>
-    </div>
+      </Panel>
+    </Overlay>
   )
 }

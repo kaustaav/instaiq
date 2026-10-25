@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import '../overlays/overlays.css'
+import { Overlay, Panel } from './Overlay'
 
 type Props = {
   title: string
@@ -34,8 +35,8 @@ export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger
   }
 
   return (
-    <div className="overlay" style={{ alignItems: 'center', justifyContent: 'center', zIndex: 260 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="rd-title" style={{ width: 400 }}>
+    <Overlay kind="dialog" z={260} onDismiss={onClose}>
+      <Panel kind="dialog" labelledBy="rd-title" style={{ width: 400 }}>
         <div className="modal-head">
           <div id="rd-title" style={{ fontSize: 14, fontWeight: 600 }}>{title}</div>
           {message && <div className="muted" style={{ fontSize: 12, marginTop: 4, whiteSpace: 'pre-line' }}>{message}</div>}
@@ -53,7 +54,7 @@ export function ReasonDialog({ title, message, reasonLabel, confirmLabel, danger
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button type="button" className="btn btn-blue" style={danger ? { background: 'var(--iq-danger)' } : undefined} disabled={busy} onClick={confirm}>{busy ? 'Working…' : confirmLabel}</button>
         </div>
-      </div>
-    </div>
+      </Panel>
+    </Overlay>
   )
 }

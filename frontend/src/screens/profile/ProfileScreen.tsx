@@ -23,17 +23,17 @@ type Props = {
 
 const STATUS_LABEL: Record<InfluencerStatus, string> = { ACTIVE: 'Active', ON_HOLD: 'On hold', BANNED: 'Banned', ARCHIVED: 'Archived' }
 const STATUS_TONE: Record<InfluencerStatus, { bg: string; fg: string }> = {
-  ACTIVE: { bg: '#E7F7EF', fg: '#005E3B' },
-  ON_HOLD: { bg: '#FEF4E4', fg: '#8B5E00' },
-  BANNED: { bg: '#FDECEC', fg: '#A11D1D' },
+  ACTIVE: { bg: '#E5F5E9', fg: '#1D7A35' },
+  ON_HOLD: { bg: '#FFF1E0', fg: '#A04A00' },
+  BANNED: { bg: '#FDE8E7', fg: '#C4161C' },
   ARCHIVED: { bg: 'var(--iq-gray-100)', fg: 'var(--iq-fg-2)' },
 }
 
 const message = (e: unknown) => (e instanceof ApiError ? [e.message, ...e.errors].join(' ') : 'Something went wrong')
 
 const STATUS_COLORS = {
-  Completed: { bg: '#E7F7EF', fg: '#005E3B' },
-  Ongoing: { bg: '#FEF4E4', fg: '#8B5E00' },
+  Completed: { bg: '#E5F5E9', fg: '#1D7A35' },
+  Ongoing: { bg: '#FFF1E0', fg: '#A04A00' },
 }
 
 export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign }: Props) {

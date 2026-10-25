@@ -7,6 +7,8 @@ import { useApiResource } from '../hooks/useApiResource'
 import { KIND_LABEL, mergeTarget, normalizeOption, type CustomOption, type OptionKind } from '../lib/options'
 import { ReasonDialog } from '../components/ReasonDialog'
 import './overlays.css'
+import { AnimatePresence } from 'motion/react'
+import { Overlay, Panel } from '../components/Overlay'
 
 type Confirm = { title: string; message: string; confirmLabel: string; danger?: boolean; run: () => Promise<string> }
 
@@ -101,8 +103,8 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="overlay" style={{ justifyContent: 'flex-end', zIndex: 210 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="drawer" role="dialog" aria-modal="true" aria-labelledby="opt-title" style={{ width: 480 }}>
+    <Overlay kind="drawer" z={210} onDismiss={onClose}>
+      <Panel kind="drawer" labelledBy="opt-title" style={{ width: 480 }}>
         <div className="drawer-head">
           <div id="opt-title" style={{ fontSize: 14, fontWeight: 600 }}>Niches &amp; languages</div>
           <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}><X size={16} /></button>
@@ -134,12 +136,14 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
             )
           })}
         </div>
-      </div>
-      {confirm && (
-        <ReasonDialog title={confirm.title} message={confirm.message} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
-          onConfirm={() => confirm.run()} onClose={() => setConfirm(null)} />
-      )}
-    </div>
+      </Panel>
+      <AnimatePresence>
+        {confirm && (
+          <ReasonDialog title={confirm.title} message={confirm.message} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
+            onConfirm={() => confirm.run()} onClose={() => setConfirm(null)} />
+        )}
+      </AnimatePresence>
+    </Overlay>
   )
 }
 

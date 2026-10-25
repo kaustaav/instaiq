@@ -13,6 +13,8 @@ import type { Campaign, Compensation, Deliverable, Influencer, Member, MemberSta
 import { Avatar, IgLink, Pill } from '../../components/ui'
 import { ReasonDialog } from '../../components/ReasonDialog'
 import '../../overlays/overlays.css'
+import { AnimatePresence } from 'motion/react'
+import { Overlay, Panel } from '../../components/Overlay'
 
 type Props = {
   campaign: Campaign
@@ -79,8 +81,8 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
   const blocker = removeBlocker(m)
 
   return (
-    <div className="overlay" style={{ justifyContent: 'flex-end', zIndex: 220 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="drawer" role="dialog" aria-modal="true" aria-labelledby="md-title">
+    <Overlay kind="drawer" z={220} onDismiss={onClose}>
+      <Panel kind="drawer" labelledBy="md-title">
         <div className="drawer-head">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
             {inf && <Avatar inf={inf} size={32} />}
@@ -226,13 +228,15 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
         </div>
 
         {error && <div className="drawer-foot"><div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', whiteSpace: 'pre-line' }}>{error}</div></div>}
-      </div>
+      </Panel>
 
-      {confirm && (
-        <ReasonDialog title={confirm.title} message={confirm.message} reasonLabel={confirm.reasonLabel} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
-          onConfirm={confirm.run} onClose={() => setConfirm(null)} />
-      )}
-    </div>
+      <AnimatePresence>
+        {confirm && (
+          <ReasonDialog title={confirm.title} message={confirm.message} reasonLabel={confirm.reasonLabel} confirmLabel={confirm.confirmLabel} danger={confirm.danger}
+            onConfirm={confirm.run} onClose={() => setConfirm(null)} />
+        )}
+      </AnimatePresence>
+    </Overlay>
   )
 }
 

@@ -99,7 +99,7 @@ export function LocationFilter({ value, onChange }: Props) {
             aria-controls="loc-listbox"
             aria-expanded={open}
             aria-activedescendant={open && matches.length ? 'locopt-' + idx : undefined}
-            style={{ padding: '6px 0', fontSize: 12 }}
+            style={{ padding: '7px 0', fontSize: 13 }}
             onChange={e => { setQuery(e.target.value); setActive(0); setFocused(true) }}
             onKeyDown={onKeyDown}
             onFocus={() => { clearTimeout(blurTimer.current); setFocused(true) }}
@@ -115,7 +115,7 @@ export function LocationFilter({ value, onChange }: Props) {
                 role="option"
                 aria-selected={k === idx}
                 className="loc-opt"
-                style={{ background: k === idx ? 'var(--iq-gray-100)' : 'white' }}
+                style={{ background: k === idx ? 'var(--iq-brand-500)' : 'white', color: k === idx ? 'white' : undefined }}
                 onMouseDown={e => { e.preventDefault(); pick(m) }}
                 onMouseEnter={() => k !== active && setActive(k)}
               >

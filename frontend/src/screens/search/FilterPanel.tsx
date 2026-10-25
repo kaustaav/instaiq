@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useStore } from '../../store'
 import { categoryColor, collapse, toggle } from '../../lib/format'
-import { MoreChip } from '../../components/ui'
+import { MoreChip, Segmented } from '../../components/ui'
 import { emptyFilters, hasActiveFilters, type Filters } from '../../lib/search'
 import { FollowersSlider } from './FollowersSlider'
 import { LocationFilter } from './LocationFilter'
@@ -36,14 +36,15 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
   const langList = collapse(langs, f.langs, LANG_VISIBLE, langMore)
 
   const inkChip = (active: boolean) => ({
-    background: active ? 'var(--iq-navy)' : 'var(--iq-gray-100)',
-    color: active ? 'white' : 'var(--iq-fg-2)',
+    background: active ? 'var(--iq-navy)' : 'white',
+    color: active ? 'white' : 'var(--iq-fg-1)',
+    boxShadow: active ? 'none' : 'var(--iq-shadow-1)',
   })
 
   return (
     <div className={mobileOpen ? 'filters open' : 'filters'} aria-label="Filters">
       <div className="filters-head">
-        <div className="label" style={{ letterSpacing: '0.08em' }}>Filters</div>
+        <h3>Filters</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {hasActiveFilters(f) && (
             <button type="button" className="btn btn-plain btn-sm" style={{ color: 'var(--iq-brand-500)', padding: '2px 6px' }}
@@ -67,7 +68,7 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
             const cc = categoryColor(c)
             return (
               <button key={c} type="button" className="chip" aria-pressed={on}
-                style={{ background: on ? cc.bg : 'var(--iq-gray-100)', color: on ? cc.fg : 'var(--iq-fg-2)', borderColor: on ? cc.fg : 'transparent' }}
+                style={{ background: on ? cc.bg : 'white', color: on ? cc.fg : 'var(--iq-fg-1)', boxShadow: on ? `inset 0 0 0 1.5px ${cc.fg}` : 'var(--iq-shadow-1)' }}
                 onClick={() => set({ cats: toggle(f.cats, c) })}>
                 {c}
               </button>
@@ -80,16 +81,10 @@ export function FilterPanel({ filters: f, onChange, mobileOpen, onMobileClose, r
       <FollowersSlider min={f.fMin} max={f.fMax} onChange={(fMin, fMax) => set({ fMin, fMax }, true)} />
 
       <div>
-        <div className="label" style={{ marginBottom: 6 }}>Min Eng. Rate</div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {ENG_OPTIONS.map(o => (
-            <button key={o.v} type="button" className="chip" aria-pressed={f.eMin === o.v}
-              style={{ ...inkChip(f.eMin === o.v), flex: 1, textAlign: 'center', padding: '3px 0' }}
-              onClick={() => set({ eMin: o.v })}>
-              {o.label}
-            </button>
-          ))}
-        </div>
+        <div className="label" style={{ marginBottom: 6 }}>Minimum engagement</div>
+        <Segmented label="Minimum engagement rate" className="seg-fill" value={String(f.eMin)}
+          onChange={v => set({ eMin: Number(v) })}
+          options={ENG_OPTIONS.map(o => ({ value: String(o.v), label: o.label }))} />
       </div>
 
       <div>

@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { validateCampaign, type CampaignInput } from '../../lib/campaigns'
 import type { Campaign } from '../../types'
 import '../../overlays/overlays.css'
+import { Overlay, Panel } from '../../components/Overlay'
 
 type Props = {
   editing: Campaign | null // null = new
@@ -49,8 +50,8 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
   }
 
   return (
-    <div className="overlay" style={{ justifyContent: 'flex-end', zIndex: 210 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="drawer" role="dialog" aria-modal="true" aria-labelledby="cf-title" style={{ width: 480 }}>
+    <Overlay kind="drawer" z={210} onDismiss={onClose}>
+      <Panel kind="drawer" labelledBy="cf-title" style={{ width: 480 }}>
         <div className="drawer-head">
           <div id="cf-title" style={{ fontSize: 14, fontWeight: 600 }}>{editing ? 'Edit campaign' : 'New campaign'}</div>
           <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}><X size={16} /></button>
@@ -91,7 +92,7 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
           <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
           <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create campaign'}</button>
         </div>
-      </div>
-    </div>
+      </Panel>
+    </Overlay>
   )
 }

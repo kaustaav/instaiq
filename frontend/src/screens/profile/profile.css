@@ -1,7 +1,9 @@
 .crumbs {
   padding: 10px 20px;
-  background: white;
-  border-bottom: 1px solid var(--iq-border);
+  background: var(--iq-material-bar);
+  -webkit-backdrop-filter: var(--iq-blur);
+  backdrop-filter: var(--iq-blur);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -15,9 +17,9 @@
   flex-direction: column;
   gap: 12px;
 }
-.profile-head { border-radius: 10px; padding: 20px 22px; }
+.profile-head { border-radius: var(--iq-radius-card); padding: 24px 26px; }
 .profile-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.profile-name { font-size: 19px; font-weight: 600; color: var(--iq-fg-1); letter-spacing: -0.01em; }
+.profile-name { font-family: var(--iq-font-display); font-size: 24px; font-weight: 700; color: var(--iq-fg-1); letter-spacing: -0.02em; }
 .profile-loc {
   display: flex;
   align-items: center;
@@ -31,16 +33,14 @@
 .profile-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  margin-top: 16px;
-  border: 1px solid var(--iq-border);
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 8px;
+  margin-top: 20px;
 }
-.profile-stats > div { padding: 11px 12px; text-align: center; }
-.profile-stats > div + div { border-left: 1px solid var(--iq-border); }
-.profile-stats .mono { font-size: 20px; font-weight: 700; color: var(--iq-fg-1); letter-spacing: -0.02em; }
+/* each number in its own soft tile, like Health / Fitness summaries */
+.profile-stats > div { padding: 14px 12px; text-align: center; background: var(--iq-gray-50); border-radius: 12px; }
+.profile-stats .mono { font-family: var(--iq-font-display); font-size: 24px; font-weight: 700; color: var(--iq-fg-1); letter-spacing: -0.02em; }
 .profile-stats .mono.up { color: var(--iq-success); }
-.profile-stat-label { font-size: 10px; color: var(--iq-fg-3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.profile-stat-label { font-size: 11px; color: var(--iq-fg-3); margin-top: 2px; letter-spacing: 0; }
 
 /* minmax(0, …) so the campaign table scrolls inside its card instead of widening the page */
 .profile-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; align-items: start; }
@@ -53,11 +53,10 @@
 .camp-table th {
   text-align: left;
   padding: 0 12px 7px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--iq-fg-3);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   border-bottom: 1px solid var(--iq-border);
 }
 .camp-table td { padding: 8px 12px; border-bottom: 1px solid var(--iq-border); color: var(--iq-fg-1); }
@@ -77,11 +76,10 @@
 .rate-hist-row span:not(:first-child) { text-align: right; }
 .rate-hist-head {
   background: var(--iq-gray-50);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--iq-fg-3);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 /* ---------- Phones ---------- */
@@ -92,8 +90,5 @@
   .profile-actions { width: 100%; flex-wrap: wrap; }
   .profile-actions > * { flex: 1; justify-content: center; }
   .profile-stats { grid-template-columns: repeat(2, 1fr); }
-  .profile-stats > div + div { border-left: none; }
-  .profile-stats > div:nth-child(even) { border-left: 1px solid var(--iq-border); }
-  .profile-stats > div:nth-child(n + 3) { border-top: 1px solid var(--iq-border); }
   .profile-stats .mono { font-size: 18px; }
 }

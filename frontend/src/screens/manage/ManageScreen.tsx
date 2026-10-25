@@ -9,11 +9,12 @@ import { useApiSearchPage, useTierCounts } from '../../hooks/useApiSearchPage'
 import { fmt, freshness, mon, type FreshTier } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
 import type { Influencer } from '../../types'
-import { CategoryBadges, FreshPill, PersonCell, Soon } from '../../components/ui'
+import { CategoryBadges, FreshPill, PersonCell, Segmented, Soon } from '../../components/ui'
 import { Pagination } from '../../components/Pagination'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
+import { AnimatePresence } from 'motion/react'
 
 const PAGE_SIZE = 50
 
@@ -26,9 +27,9 @@ type TierFilter = 'all' | FreshTier
 
 const TIER_CHIPS: { key: TierFilter; label: string; dot: string }[] = [
   { key: 'all', label: 'All', dot: 'var(--iq-gray-300)' },
-  { key: 'fresh', label: 'Fresh', dot: '#12A363' },
-  { key: 'ageing', label: 'Ageing', dot: '#D97706' },
-  { key: 'stale', label: 'Stale', dot: '#DC2626' },
+  { key: 'fresh', label: 'Fresh', dot: '#34C759' },
+  { key: 'ageing', label: 'Ageing', dot: '#FF9500' },
+  { key: 'stale', label: 'Stale', dot: '#FF3B30' },
 ]
 
 export function ManageScreen({ onAdd, onEdit }: Props) {
@@ -108,22 +109,15 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
 
       <div className="scroll" ref={scrollRef} style={{ padding: '14px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
-          <div className="search-box" style={{ background: 'white', flex: 1, maxWidth: 360, minWidth: 200 }}>
+          <div className="search-box" style={{ flex: 1, maxWidth: 360, minWidth: 200 }}>
             <Search size={13} />
             <input type="text" placeholder="Find by name or handle" aria-label="Find by name or handle" value={q} onChange={e => go({ q: e.target.value, page: 1 }, true)} />
           </div>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {TIER_CHIPS.map(c => {
-              const on = tier === c.key
-              return (
-                <button key={c.key} type="button" className="chip" aria-pressed={on}
-                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: on ? 'var(--iq-navy)' : 'white', color: on ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)' }}
-                  onClick={() => go({ tier: c.key, page: 1 })}>
-                  <span className="dot" style={{ background: c.dot }} />{c.label} {count(c.key)}
-                </button>
-              )
-            })}
-          </div>
+          <Segmented label="Metrics freshness" value={tier} onChange={t => go({ tier: t, page: 1 })}
+            options={TIER_CHIPS.map(c => ({
+              value: c.key,
+              label: <>{c.key !== 'all' && <span className="dot" style={{ background: c.dot }} />}{c.label} <span className="seg-count">{count(c.key)}</span></>,
+            }))} />
         </div>
 
         {api && remote.error && (
@@ -153,7 +147,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <FreshPill fr={freshness(i.updatedAt)} short />
                     {/* search results don't carry the rate date; it's on the profile */}
-                    {!api && <div className="muted" style={{ fontSize: 10, marginTop: 3 }}>Rates: {mon(i.rates[0].date)}</div>}
+                    {!api && <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>Rates: {mon(i.rates[0].date)}</div>}
                   </td>
                   <td className="r" style={{ whiteSpace: 'nowrap' }}>
                     {confirmId === i.id ? (
@@ -183,7 +177,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
         </div>
         <Pagination page={rows} onPage={p => go({ page: p })} />
       </div>
-      {optionsOpen && <OptionsDrawer onClose={() => setOptionsOpen(false)} />}
+      <AnimatePresence>{optionsOpen && <OptionsDrawer key="options" onClose={() => setOptionsOpen(false)} />}</AnimatePresence>
     </div>
   )
 }

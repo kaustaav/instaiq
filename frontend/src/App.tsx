@@ -18,6 +18,7 @@ import { CampaignDetailScreen } from './screens/campaigns/CampaignDetailScreen'
 import { ManageScreen } from './screens/manage/ManageScreen'
 import { AddToCampaignModal } from './overlays/AddToCampaignModal'
 import { InfluencerDrawer } from './overlays/InfluencerDrawer'
+import { AnimatePresence } from 'motion/react'
 
 /** Drawer state: closed, adding a new influencer, or editing an existing one. */
 type DrawerState = { mode: 'closed' } | { mode: 'add' } | { mode: 'edit'; inf: Influencer }
@@ -125,15 +126,20 @@ function Shell() {
         </Routes>
       </main>
 
-      {modalIds && <AddToCampaignModal influencerIds={modalIds} onClose={closeModal} />}
-      {drawer.mode !== 'closed' && (
-        <InfluencerDrawer
-          key={drawer.mode === 'edit' ? drawer.inf.id : 'new'}
-          editing={drawer.mode === 'edit' ? drawer.inf : null}
-          onClose={closeDrawer}
-          onSaved={onSaved}
-        />
-      )}
+      {/* AnimatePresence keeps a closing overlay on screen until its exit animation finishes */}
+      <AnimatePresence>
+        {modalIds && <AddToCampaignModal key="atc" influencerIds={modalIds} onClose={closeModal} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {drawer.mode !== 'closed' && (
+          <InfluencerDrawer
+            key={drawer.mode === 'edit' ? drawer.inf.id : 'new'}
+            editing={drawer.mode === 'edit' ? drawer.inf : null}
+            onClose={closeDrawer}
+            onSaved={onSaved}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
