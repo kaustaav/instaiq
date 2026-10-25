@@ -18,9 +18,9 @@ type Row = {
 const count = (n: number) => String(n)
 
 /**
- * Targets vs actual in one chart: one bar per measure, each scaled to its own target (100% = target met), so
- * influencers, content and money line up despite different units. The light track is the target, the fill is
- * what's done; past the target the bar stays full and says by how much.
+ * Targets vs actual as tiles (like Fitness summaries): one per measure, a big "done" number, "of target", and a bar
+ * scaled to its own target (100% = met), so influencers, content and money read the same despite different units.
+ * Past the target the bar stays full and the note says by how much; going over budget turns red.
  */
 export function TargetsChart({ c }: { c: Campaign }) {
   const p = campaignProgress(c)
@@ -37,35 +37,26 @@ export function TargetsChart({ c }: { c: Campaign }) {
   const shown = rows.filter(r => (r.content ? (r.target ?? 0) > 0 : r.target != null || r.actual > 0))
 
   return (
-    <div className="tchart" role="group" aria-label="Targets vs actual">
-      <div className="tchart-head">
-        <span className="label">Targets vs actual</span>
-        <span className="tchart-legend">
-          <span><i className="tchart-swatch" style={{ background: 'var(--iq-brand-500)' }} />Done</span>
-          <span><i className="tchart-swatch" style={{ background: 'var(--iq-gray-100)' }} />Target</span>
-        </span>
-      </div>
+    <div className="targets" role="group" aria-label="Targets vs actual">
       {shown.map(r => {
         const hasTarget = r.target != null && r.target > 0
         const pct = hasTarget ? (r.actual / r.target!) * 100 : 0
         const met = hasTarget && r.actual >= r.target!
         const over = hasTarget && r.actual > r.target!
-        const fill = over && r.overIsBad ? 'var(--iq-danger)' : met ? '#34C759' : 'var(--iq-brand-500)'
-        const value = hasTarget ? `${r.fmt(r.actual)} / ${r.fmt(r.target!)}` : `${r.fmt(r.actual)} · no target`
+        const bad = over && r.overIsBad
+        const fill = bad ? 'var(--iq-danger)' : met ? '#34C759' : 'var(--iq-brand-500)'
         const extra = hasTarget ? r.fmt(r.actual - r.target!) : ''
-        const note = !hasTarget ? ''
-          : r.due ? (met ? 'all paid' : `${r.fmt(r.target! - r.actual)} due`)
-          : !over ? `${Math.round(pct)}%` : r.overIsBad ? `over by ${extra}` : `+${extra} over`
+        const note = !hasTarget ? 'No target'
+          : r.due ? (met ? 'All paid' : `${r.fmt(r.target! - r.actual)} due`)
+          : !over ? `${Math.round(pct)}%` : r.overIsBad ? `Over by ${extra}` : `${extra} over target`
         return (
-          <div key={r.label} className="tchart-row">
-            <div className="tchart-label">{r.label}</div>
-            <div className="tchart-track" title={value}>
-              <div className="tchart-fill" style={{ width: `${Math.min(100, pct)}%`, background: fill }} />
+          <div key={r.label} className="target" title={hasTarget ? `${r.fmt(r.actual)} of ${r.fmt(r.target!)}` : undefined}>
+            <div className="target-label">{r.label}</div>
+            <div className="target-value">
+              <b>{r.fmt(r.actual)}</b><span>{hasTarget ? `of ${r.fmt(r.target!)}` : '\u00a0'}</span>
             </div>
-            <div className="tchart-value mono">
-              {value}
-              {note && <span className="tchart-note" style={{ color: over && r.overIsBad ? 'var(--iq-danger)' : met ? '#1D7A35' : r.due ? '#A04A00' : undefined }}>{note}</span>}
-            </div>
+            <div className="target-track"><div className="target-fill" style={{ width: `${Math.min(100, pct)}%`, background: fill }} /></div>
+            <div className="target-note" style={{ color: bad ? 'var(--iq-danger)' : met ? '#1D7A35' : r.due ? '#A04A00' : undefined }}>{note}</div>
           </div>
         )
       })}

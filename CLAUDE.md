@@ -93,3 +93,12 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 - Motion: springs, interruptible, enter and leave the same way; drawers and dialogs go through `components/Overlay.tsx`
   (parents wrap them in `<AnimatePresence>`); Motion's code is loaded deferred (`lib/motionFeatures.ts`), keep it that way.
   Every animation needs a Reduce-motion fallback. Loading states use skeletons (`components/Skeletons.tsx`), not "Loading…".
+- Patterns: ••• menus (`components/Menu.tsx`), notices instead of browser pop-ups (`lib/notify.ts`), grouped forms
+  (`.drawer-body.grouped` + `.form-group`), list pages (`.list-title` + pinned `.list-toolbar`), detail pages
+  (`.page-bar` + `.page-title`). Comments inside JSX must be `{/* … */}` (lint rule `react/jsx-no-comment-textnodes`).
+
+## Server load (user rule, 2026-10-25)
+- **List pages stay light.** List endpoints return only the row's own columns: no per-row counts, progress, totals or
+  joins to child tables (e.g. the campaign list has no member counts or progress). Detail belongs on the item's own page.
+- Don't add numbers that need a scan of a big table on every view (e.g. "used by N influencers"); check such facts only
+  when an action needs them, with an index-friendly query (`EXISTS`, GIN `@>`).

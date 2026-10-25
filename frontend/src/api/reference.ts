@@ -5,7 +5,8 @@ export type ApiReference = { categories: string[]; languages: string[] }
 /** `value` is the stored spelling ("jewellery" -> "Jewellery"); created = false when it already existed. */
 export type Added = { value: string; created: boolean }
 
-export type CustomOptions = { categories: { value: string; usedBy: number }[]; languages: { value: string; usedBy: number }[] }
+/** Names only: no usage counts (they'd cost a scan of every influencer per value). */
+export type CustomOptions = { categories: { value: string }[]; languages: { value: string }[] }
 export type RenamedApi = { value: string; merged: boolean; influencersUpdated: number }
 
 const path = (kind: 'cats' | 'langs') => (kind === 'cats' ? 'categories' : 'languages')

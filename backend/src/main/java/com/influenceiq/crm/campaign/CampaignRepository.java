@@ -19,10 +19,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 
     boolean existsByNameAndBrand(String name, String brand);
 
-    /** Newest first, members loaded in the same query (no query per campaign). */
-    @EntityGraph(attributePaths = "members")
-    List<Campaign> findAllByOrderByIdDesc();
-
     /** Every campaign the influencer is in, newest first (profile "Campaign history", the add-to-campaign popup). */
     @EntityGraph(attributePaths = "members")
     @Query("SELECT DISTINCT c FROM Campaign c JOIN c.members m WHERE m.influencerId = :influencerId ORDER BY c.id DESC")

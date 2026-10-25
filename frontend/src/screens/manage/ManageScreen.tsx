@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Archive, Pencil, Search, Tags, Trash2, Upload, UserPlus } from 'lucide-react'
+import { Archive, Pencil, Search, Tags, Trash2, Upload, User, UserPlus } from 'lucide-react'
 import { useStore } from '../../store'
 import { OptionsDrawer } from '../../overlays/OptionsDrawer'
 import { apiEnabled, ApiError } from '../../api/client'
@@ -9,7 +9,10 @@ import { useApiSearchPage, useTierCounts } from '../../hooks/useApiSearchPage'
 import { fmt, freshness, mon, type FreshTier } from '../../lib/format'
 import { statesOf } from '../../lib/locations'
 import type { Influencer } from '../../types'
-import { CategoryBadges, FreshPill, PersonCell, Segmented, Soon } from '../../components/ui'
+import { CategoryBadges, FreshPill, PersonCell, Segmented } from '../../components/ui'
+import { Menu } from '../../components/Menu'
+import { ReasonDialog } from '../../components/ReasonDialog'
+import { useScrolled } from '../../hooks/useScrolled'
 import { Pagination } from '../../components/Pagination'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
@@ -37,7 +40,7 @@ const TIER_CHIPS: { key: TierFilter; label: string; dot: string }[] = [
 export function ManageScreen({ onAdd, onEdit }: Props) {
   const { infs, loc, deleteInfluencer, dataChanged } = useStore()
   const api = apiEnabled()
-  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [deleteAsk, setDeleteAsk] = useState<{ id: number; name: string } | null>(null) // demo mode only: deleting can't be undone
   const [optionsOpen, setOptionsOpen] = useState(false)
   const onOpenProfile = useOpenProfile('Manage Data')
 
@@ -56,6 +59,8 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
     setParams(p, { replace })
   }
   const scrollRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLElement>(null)
+  const stuck = useScrolled(scrollRef, true, titleRef)
 
   // ---------- API mode: the server filters and pages (q here is the same text search as the Search screen) ----------
   const apiParams = new URLSearchParams()
@@ -82,12 +87,8 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
 
   // API mode never hard-deletes: the record is archived (hidden from search, history kept)
   const remove = async (id: number) => {
-    setConfirmId(null)
     const name = rows.items.find(i => i.id === id)?.name ?? 'Influencer'
-    if (!api) {
-      deleteInfluencer(id)
-      return notify({ kind: 'success', text: `Deleted ${name}` })
-    }
+    if (!api) return setDeleteAsk({ id, name })
     try {
       await changeStatus(id, 'ARCHIVED', 'Archived from Manage data')
       dataChanged()
@@ -105,28 +106,28 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
       notify({ kind: 'error', text: e instanceof ApiError ? e.message : 'Could not archive' })
     }
   }
-  const removeVerb = api ? 'Archive' : 'Delete'
 
   return (
-    <div className="screen-col" style={{ background: 'var(--iq-gray-50)' }}>
-      <div className="screen-head">
-        <div>
-          <div className="screen-title">Manage data</div>
-          <div className="screen-sub">{count('all')} influencers · {count('stale')} with stale metrics</div>
-        </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <div className="btn btn-soon" title="CSV import is coming soon" aria-disabled="true" style={{ gap: 5 }}>
-            <Upload size={12} />Import CSV<Soon />
+    <div className="screen-col">
+      <div className="scroll" ref={scrollRef}>
+        <header ref={titleRef} className="list-title">
+          <div>
+            <h1>Manage data</h1>
+            <div className="page-title-meta">{count('all')} influencers · {count('stale')} with stale metrics</div>
           </div>
-          <button type="button" className="btn btn-ghost" onClick={() => setOptionsOpen(true)}><Tags size={12} />Niches &amp; languages</button>
-          <button type="button" className="btn btn-blue" onClick={onAdd}><UserPlus size={12} />Add influencer</button>
-        </div>
-      </div>
+          <div className="list-title-actions">
+            <button type="button" className="btn btn-blue" onClick={onAdd}><UserPlus size={14} />Add influencer</button>
+            <Menu label="More" items={[
+              { label: 'Niches & languages', icon: Tags, onSelect: () => setOptionsOpen(true) },
+              { label: 'Import CSV', icon: Upload, disabled: true, tag: 'Soon', hint: 'CSV import is coming soon', onSelect: () => {} },
+            ]} />
+          </div>
+        </header>
 
-      <div className="scroll" ref={scrollRef} style={{ padding: '14px 18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+        {/* pins to the top once the title has scrolled away; hairline only then */}
+        <div className={stuck ? 'list-toolbar scrolled' : 'list-toolbar'}>
           <div className="search-box" style={{ flex: 1, maxWidth: 360, minWidth: 200 }}>
-            <Search size={13} />
+            <Search size={14} />
             <input type="text" placeholder="Find by name or handle" aria-label="Find by name or handle" value={q} onChange={e => go({ q: e.target.value, page: 1 }, true)} />
           </div>
           <Segmented label="Metrics freshness" value={tier} onChange={t => go({ tier: t, page: 1 })}
@@ -136,66 +137,66 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
             }))} />
         </div>
 
-        {api && remote.error && (
-          <div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', marginBottom: 8 }}>
-            {remote.error} <button type="button" className="btn btn-plain btn-sm" onClick={remote.retry}>Retry</button>
-          </div>
-        )}
-        {/* first load: placeholder rows; later loads keep the current rows, dimmed */}
-        {api && remote.loading && rows.items.length === 0 ? <TableSkeleton rows={10} cols={7} /> : (
-        <div className="table-wrap" style={api && remote.loading ? { opacity: 0.6 } : undefined}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th className="pin">Influencer</th><th>Cities</th><th>States</th><th>Niches</th><th>Languages</th>
-                <th className="r">Followers</th><th>Last updated</th><th />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.items.map(i => (
-                <tr key={i.id}>
-                  <td className="pin"><PersonCell inf={i} onView={() => onOpenProfile(i.id)} /></td>
-                  <td className="sub" style={i.cities.length ? undefined : { color: 'var(--iq-fg-3)' }}>
-                    {i.cities.join(', ') || 'Not known'}
-                  </td>
-                  <td className="sub">{statesOf(loc, i).join(', ')}</td>
-                  <td><CategoryBadges cats={i.cats} /></td>
-                  <td className="sub">{i.langs.join(', ')}</td>
-                  <td className="num">{fmt(i.followers)}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>
-                    <FreshPill fr={freshness(i.updatedAt)} short />
-                    {/* search results don't carry the rate date; it's on the profile */}
-                    {!api && <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>Rates: {mon(i.rates[0].date)}</div>}
-                  </td>
-                  <td className="r" style={{ whiteSpace: 'nowrap' }}>
-                    {confirmId === i.id ? (
-                      <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-                        <span className="muted" style={{ fontSize: 11 }}>{removeVerb}?</span>
-                        <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '3px 8px', fontWeight: 400 }} onClick={() => setConfirmId(null)}>No</button>
-                        <button type="button" className="btn btn-sm" style={{ padding: '3px 8px', fontWeight: 400, background: 'var(--iq-danger)', color: 'white' }}
-                          onClick={() => remove(i.id)}>
-                          Yes
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'inline-flex', gap: 2 }}>
-                        <button type="button" className="btn btn-plain" title="Edit" aria-label={`Edit ${i.name}`} style={{ padding: '5px 7px' }} onClick={() => onEdit(i)}>
-                          <Pencil size={12} />
-                        </button>
-                        <button type="button" className="btn btn-plain" title={removeVerb} aria-label={`${removeVerb} ${i.name}`} style={{ padding: '5px 7px', color: 'var(--iq-danger)' }} onClick={() => setConfirmId(i.id)}>
-                          {api ? <Archive size={12} /> : <Trash2 size={12} />}
-                        </button>
-                      </div>
-                    )}
-                  </td>
+        <div className="list-body">
+          {api && remote.error && (
+            <div role="alert" style={{ fontSize: 13, color: 'var(--iq-danger)', marginBottom: 10 }}>
+              {remote.error} <button type="button" className="btn btn-plain btn-sm" onClick={remote.retry}>Retry</button>
+            </div>
+          )}
+          {/* first load: placeholder rows; later loads keep the current rows, dimmed */}
+          {api && remote.loading && rows.items.length === 0 ? <TableSkeleton rows={10} cols={6} /> : (
+          <div className="table-wrap" style={api && remote.loading ? { opacity: 0.6 } : undefined}>
+            <table className="table manage-table">
+              <thead>
+                <tr>
+                  <th className="pin">Influencer</th><th>Location</th><th>Niches</th><th>Languages</th>
+                  <th className="r">Followers</th><th>Updated</th><th aria-label="Actions" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.items.map(i => (
+                  <tr key={i.id} className="clickable" onClick={() => onOpenProfile(i.id)}>
+                    <td className="pin"><PersonCell inf={i} /></td>
+                    <td>
+                      <div className="sub" style={{ color: i.cities.length ? 'var(--iq-fg-1)' : undefined }}>{i.cities.join(', ') || 'City not known'}</div>
+                      {/* states, minus any that are already shown as a city (Chandigarh, Delhi): never print a name twice */}
+                      <div className="muted" style={{ fontSize: 12, marginTop: 1 }}>{statesOf(loc, i).filter(st => !i.cities.includes(st)).join(', ')}</div>
+                    </td>
+                    <td><CategoryBadges cats={i.cats} /></td>
+                    <td className="sub">{i.langs.join(', ')}</td>
+                    <td className="num">{fmt(i.followers)}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <FreshPill fr={freshness(i.updatedAt)} short />
+                      {/* search results don't carry the rate date; it's on the profile */}
+                      {!api && <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>Rates {mon(i.rates[0].date)}</div>}
+                    </td>
+                    <td className="r">
+                      <Menu small label={`Actions for ${i.name}`} items={[
+                        { label: 'Edit', icon: Pencil, onSelect: () => onEdit(i) },
+                        { label: 'View profile', icon: User, onSelect: () => onOpenProfile(i.id) },
+                        'separator',
+                        api
+                          ? { label: 'Archive', icon: Archive, onSelect: () => void remove(i.id), hint: 'Hidden from search; history kept' }
+                          : { label: 'Delete', icon: Trash2, danger: true, onSelect: () => void remove(i.id) },
+                      ]} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          )}
+          <Pagination page={rows} onPage={p => go({ page: p })} />
         </div>
-        )}
-        <Pagination page={rows} onPage={p => go({ page: p })} />
       </div>
+      <AnimatePresence>
+        {deleteAsk && (
+          <ReasonDialog key="delete" title={`Delete ${deleteAsk.name}?`} message="This removes them from the demo data and from every campaign. It can’t be undone."
+            confirmLabel="Delete" danger
+            onConfirm={() => { deleteInfluencer(deleteAsk.id); notify({ kind: 'success', text: `Deleted ${deleteAsk.name}` }); return '' }}
+            onClose={() => setDeleteAsk(null)} />
+        )}
+      </AnimatePresence>
       <AnimatePresence>{optionsOpen && <OptionsDrawer key="options" onClose={() => setOptionsOpen(false)} />}</AnimatePresence>
     </div>
   )

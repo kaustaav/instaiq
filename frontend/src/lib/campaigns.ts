@@ -28,6 +28,7 @@ export const COMPENSATION_LABEL: Record<Compensation, string> = {
   CASH: 'Paid', BARTER: 'Barter (product)', CASH_AND_PRODUCT: 'Paid + product',
 }
 export const DELIVERABLE_LABEL: Record<DeliverableType, string> = { REEL: 'Reel', STORY: 'Story', POST: 'Post' }
+export const DELIVERABLE_PLURAL: Record<DeliverableType, string> = { REEL: 'Reels', STORY: 'Stories', POST: 'Posts' }
 
 // ---------- derived values ----------
 export const amountPaid = (m: Member) => m.payments.reduce((sum, p) => sum + p.amount, 0)
@@ -69,20 +70,6 @@ export const budgetUsed = (c: Campaign) =>
 
 const hasLiveUnpaid = (m: Member) =>
   m.deliverables.some(d => d.status === 'POSTED') && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID')
-
-export function campaignSummary(c: Campaign) {
-  const stages = new Map<DisplayStage, number>()
-  c.members.forEach(m => stages.set(displayStage(m), (stages.get(displayStage(m)) ?? 0) + 1))
-  const deliverables = c.members.flatMap(m => m.deliverables)
-  return {
-    stages,
-    members: c.members.length,
-    inReview: deliverables.filter(d => d.status === 'IN_REVIEW').length,
-    posted: deliverables.filter(d => d.status === 'POSTED').length,
-    deliverables: deliverables.length,
-    unpaid: c.members.filter(hasLiveUnpaid).length,
-  }
-}
 
 /** Suggested fee from the influencer's current rate card. */
 export function suggestedFee(inf: Influencer, n: Record<DeliverableType, number>): number | null {
@@ -392,3 +379,21 @@ export const writeOffPayment = (c: Campaign, infId: number, reason: string) =>
       compensation: paid ? 'CASH_AND_PRODUCT' : 'BARTER', agreedFee: paid || null,
     }
   })
+
+/** One line on where a member stands and what happens next, for the top of their drawer. */
+export function nextStep(m: Member): string {
+  const n = (s: Deliverable['status']) => m.deliverables.filter(d => d.status === s).length
+  const plural = (k: number, word: string) => `${k} ${word}${k === 1 ? '' : 's'}`
+  switch (m.stage) {
+    case 'SHORTLISTED': return 'Next: get in touch'
+    case 'CONTACTED': return 'Next: discuss terms'
+    case 'NEGOTIATING': return 'Next: agree terms'
+    case 'DECLINED': return 'Not taking part'
+  }
+  if (n('IN_REVIEW')) return `${plural(n('IN_REVIEW'), 'draft')} to review`
+  if (n('CHANGES_REQUESTED')) return `Waiting for ${plural(n('CHANGES_REQUESTED'), 'revised draft')}`
+  if (n('AWAITING_DRAFT')) return `Waiting for ${plural(n('AWAITING_DRAFT'), 'draft')}`
+  if (n('APPROVED')) return `Approved: waiting for ${n('APPROVED') === 1 ? 'it' : 'them'} to go live`
+  if (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') return 'All posted. Next: record payment'
+  return 'All done'
+}

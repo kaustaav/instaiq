@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ExternalLink, Lock, Pencil, X } from 'lucide-react'
+import { ArrowUpRight, Lock, Pencil, X } from 'lucide-react'
 import { useStore } from '../../store'
 import { inr } from '../../lib/format'
 import {
-  agreeTerms, amountPaid, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, displayStage, isReadOnly, markPosted, recordPayment,
+  agreeTerms, amountPaid, changeFee, COMPENSATION_LABEL, DELIVERABLE_LABEL, DELIVERABLE_PLURAL, displayStage, isReadOnly, markPosted, nextStep, recordPayment,
   removeBlocker, removeMember, reviewDraft, setMemberNotes, setStage, STAGE_LABEL, stageMoves, submitDraft, suggestedFee,
   today, writeOffPayment, type Terms,
 } from '../../lib/campaigns'
 import { DELIVERABLE_STATUS_LABEL, DELIVERABLE_TONE, fmtDate, PAYMENT_LABEL, PAYMENT_TONE, STAGE_TONE } from '../../lib/campaignUi'
 import type { Campaign, Compensation, Deliverable, Influencer, Member, MemberStage } from '../../types'
-import { Avatar, IgLink, Pill } from '../../components/ui'
+import { Avatar, IgLink, Pill, Segmented } from '../../components/ui'
 import { ReasonDialog } from '../../components/ReasonDialog'
 import '../../overlays/overlays.css'
 import { AnimatePresence } from 'motion/react'
@@ -84,28 +84,28 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
     <Overlay kind="drawer" z={220} onDismiss={onClose}>
       <Panel kind="drawer" labelledBy="md-title">
         <div className="drawer-head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-            {inf && <Avatar inf={inf} size={32} />}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            {inf && <Avatar inf={inf} size={44} />}
             <div style={{ minWidth: 0 }}>
-              <div id="md-title" style={{ fontSize: 14, fontWeight: 600 }}>
+              <div id="md-title">
                 {inf ? <Link to={`/influencers/${inf.id}`} state={{ backLabel: c.name }} style={{ color: 'inherit' }}>{name}</Link> : name}
               </div>
-              <div style={{ fontSize: 11 }}>{inf && <IgLink handle={inf.handle} />} <span className="muted">· {c.name}</span></div>
+              <div style={{ fontSize: 13, marginTop: 1 }}>{inf && <IgLink handle={inf.handle} />} <span className="muted">· {c.name}</span></div>
             </div>
           </div>
-          <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}><X size={16} /></button>
+          <button type="button" className="btn btn-plain" aria-label="Close" onClick={onClose}><X size={16} /></button>
         </div>
 
-        <div className="drawer-body">
-          {readOnly && <div className="camp-readonly"><Lock size={12} />Campaign is read-only. Reopen it to make changes.</div>}
+        <div className="drawer-body grouped">
+          {readOnly && <div className="camp-readonly"><Lock size={13} />Campaign is read-only. Reopen it to make changes.</div>}
 
-          {/* ---- Stage ---- */}
-          <section className="md-section">
-            <div className="label">Stage</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {/* ---- Where things stand ---- */}
+          <section className="md-section md-summary">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <Pill tone={STAGE_TONE[stage]}>{STAGE_LABEL[stage]}</Pill>
-              <span className="muted" style={{ fontSize: 11 }}>since {fmtDate(m.stageUpdatedAt)} · {m.stageUpdatedBy}</span>
+              <span className="md-next">{nextStep(m)}</span>
             </div>
+            <div className="muted" style={{ fontSize: 12 }}>Stage since {fmtDate(m.stageUpdatedAt)} · {m.stageUpdatedBy}</div>
             {m.stageReason && <div className="md-quote">“{m.stageReason}”</div>}
             {!readOnly && (
               <div className="md-actions">
@@ -127,7 +127,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
               <div className="label">Agreed terms</div>
               <div className="md-terms">
                 <span>{COMPENSATION_LABEL[m.compensation]}</span>
-                {m.agreedFee != null && <span className="mono">{inr(m.agreedFee)}</span>}
+                {m.agreedFee != null && <b className="mono">{inr(m.agreedFee)}</b>}
                 <span className="muted">{(['REEL', 'STORY', 'POST'] as const).map(t => {
                   const n = m.deliverables.filter(d => d.type === t).length
                   return n ? `${n} ${DELIVERABLE_LABEL[t].toLowerCase()}${n > 1 ? 's' : ''}` : ''
@@ -144,6 +144,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           {m.stage === 'AGREED' && (
             <section className="md-section">
               <div className="label">Deliverables</div>
+              <div className="md-list">
               {m.deliverables.map(d => (
                 <DeliverableCard key={d.id} d={d} readOnly={readOnly}
                   onSubmit={url => (api ? runApi(() => api.submitDraft(d, url)) : run(x => submitDraft(x, m.influencerId, d.id, url)))}
@@ -152,6 +153,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                     : run(x => reviewDraft(x, m.influencerId, d.id, decision, feedback)))}
                   onPosted={(url, date) => (api ? runApi(() => api.posted(d, url, date)) : run(x => markPosted(x, m.influencerId, d.id, url, date)))} />
               ))}
+              </div>
             </section>
           )}
 
@@ -159,26 +161,24 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           {m.stage === 'AGREED' && (
             <section className="md-section">
               <div className="label">Payment</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 13 }}>
                 <Pill tone={PAYMENT_TONE[m.paymentStatus]}>{PAYMENT_LABEL[m.paymentStatus]}</Pill>
                 {m.compensation === 'BARTER'
                   ? <span className="muted">Barter: no cash payment</span>
-                  : <span className="mono">{inr(amountPaid(m))} <span className="muted">of {m.agreedFee != null ? inr(m.agreedFee) : '—'}</span></span>}
+                  : <span className="mono"><b>{inr(amountPaid(m))}</b> <span className="muted">of {m.agreedFee != null ? inr(m.agreedFee) : '—'}</span></span>}
               </div>
               {m.payments.length > 0 && (
-                <table className="md-payments">
-                  <thead><tr><th>Paid on</th><th className="r">Amount</th><th>Proof</th><th>Recorded by</th></tr></thead>
-                  <tbody>
-                    {m.payments.map((p, k) => (
-                      <tr key={k}>
-                        <td>{fmtDate(p.paidAt)}</td>
-                        <td className="r mono">{inr(p.amount)}</td>
-                        <td><a href={p.receiptUrl} target="_blank" rel="noopener">receipt <ExternalLink size={10} /></a></td>
-                        <td className="muted">{p.recordedBy}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ul className="md-list md-pay-list">
+                  {m.payments.map((p, k) => (
+                    <li key={k} className="md-pay">
+                      <div>
+                        <div className="mono" style={{ fontWeight: 600 }}>{inr(p.amount)}</div>
+                        <div className="muted" style={{ fontSize: 12 }}>{fmtDate(p.paidAt)} · recorded by {p.recordedBy}</div>
+                      </div>
+                      <a href={p.receiptUrl} target="_blank" rel="noopener" className="md-link">Receipt<ArrowUpRight size={13} /></a>
+                    </li>
+                  ))}
+                </ul>
               )}
               {m.paymentReason && <div className="md-quote">Written off: “{m.paymentReason}”</div>}
               {!readOnly && (m.paymentStatus === 'DUE' || m.paymentStatus === 'PARTIALLY_PAID') && (
@@ -210,8 +210,8 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
           </section>
 
           {!readOnly && (
-            <section className="md-section">
-              <button type="button" className="btn btn-ghost md-danger" disabled={!!blocker} title={blocker || undefined}
+            <section className="md-section md-destructive">
+              <button type="button" className="md-destructive-btn" disabled={!!blocker} title={blocker || undefined}
                 onClick={() => setConfirm({
                   title: `Remove ${name} from ${c.name}?`, confirmLabel: 'Remove', danger: true,
                   run: async () => {
@@ -222,7 +222,7 @@ export function MemberDrawer({ campaign: c, member: m, influencer: inf, onClose,
                 })}>
                 Remove from campaign
               </button>
-              {blocker && <div className="muted" style={{ fontSize: 11 }}>Can’t remove: {blocker.toLowerCase()}.</div>}
+              {blocker && <div className="muted" style={{ fontSize: 12, textAlign: 'center' }}>Can’t remove: {blocker.toLowerCase()}.</div>}
             </section>
           )}
         </div>
@@ -258,23 +258,20 @@ function TermsForm({ inf, onAgree }: { inf: Influencer; onAgree: (t: Terms) => s
       <div className="label">Agree terms</div>
       <div className="form-grid-3">
         {(['REEL', 'STORY', 'POST'] as const).map(t => (
-          <label key={t} className="field"><span>{DELIVERABLE_LABEL[t]}s</span>
+          <label key={t} className="field"><span>{DELIVERABLE_PLURAL[t]}</span>
             <input type="number" min={0} step={1} className="input mono" placeholder="0" value={typed[t]} onChange={setCount(t)} />
           </label>
         ))}
       </div>
-      <div className="form-grid-2">
-        <label className="field"><span>Compensation</span>
-          <select className="input" value={compensation} onChange={e => setCompensation(e.target.value as Compensation)}>
-            {(Object.keys(COMPENSATION_LABEL) as Compensation[]).map(k => <option key={k} value={k}>{COMPENSATION_LABEL[k]}</option>)}
-          </select>
-        </label>
-        {compensation !== 'BARTER' && (
-          <label className="field"><span>Agreed fee (₹)</span>
-            <input type="number" min={0} className="input mono" placeholder="₹" value={fee} onChange={e => setFee(e.target.value)} />
-          </label>
-        )}
+      <div className="field"><span>Compensation</span>
+        <Segmented label="Compensation" className="seg-fill" value={compensation} onChange={setCompensation}
+          options={(Object.keys(COMPENSATION_LABEL) as Compensation[]).map(k => ({ value: k, label: COMPENSATION_LABEL[k] }))} />
       </div>
+      {compensation !== 'BARTER' && (
+        <label className="field"><span>Agreed fee (₹)</span>
+          <input type="number" min={0} className="input mono" placeholder="₹" value={fee} onChange={e => setFee(e.target.value)} />
+        </label>
+      )}
       {compensation !== 'BARTER' && suggestion != null && (
         <button type="button" className="btn btn-plain btn-sm" style={{ color: 'var(--iq-brand-500)', alignSelf: 'flex-start', fontWeight: 400 }} onClick={() => setFee(String(suggestion))}>
           Use rate card: {inr(suggestion)}
@@ -340,9 +337,9 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
   const n = d.id.split('-')[1]
 
   return (
-    <div className="md-box">
+    <div className="md-item">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <b style={{ fontSize: 13 }}>{DELIVERABLE_LABEL[d.type]} {n}</b>
+        <b style={{ fontSize: 14 }}>{DELIVERABLE_LABEL[d.type]} {n}</b>
         <Pill tone={DELIVERABLE_TONE[d.status]}>{DELIVERABLE_STATUS_LABEL[d.status]}</Pill>
       </div>
 
@@ -352,7 +349,7 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
             <li key={r.round}>
               <div>
                 <span className="muted">Round {r.round} · {fmtDate(r.submittedAt)} · </span>
-                <a href={r.draftUrl} target="_blank" rel="noopener">draft <ExternalLink size={10} /></a>
+                <a href={r.draftUrl} target="_blank" rel="noopener" className="md-link">Draft<ArrowUpRight size={12} /></a>
                 {r.decision && <span className="muted"> · {r.decision === 'APPROVED' ? 'approved' : 'changes requested'} by {r.reviewedBy}</span>}
               </div>
               {r.feedback && <div className="md-quote">“{r.feedback}”</div>}
@@ -362,7 +359,7 @@ function DeliverableCard({ d, readOnly, onSubmit, onReview, onPosted }: {
       )}
 
       {d.status === 'POSTED' && d.liveUrl && (
-        <div style={{ fontSize: 12 }}>Live {fmtDate(d.postedAt)} · <a href={d.liveUrl} target="_blank" rel="noopener">view post <ExternalLink size={10} /></a></div>
+        <div style={{ fontSize: 13 }}>Live since {fmtDate(d.postedAt)} · <a href={d.liveUrl} target="_blank" rel="noopener" className="md-link">View post<ArrowUpRight size={13} /></a></div>
       )}
 
       {!readOnly && (d.status === 'AWAITING_DRAFT' || d.status === 'CHANGES_REQUESTED') && (

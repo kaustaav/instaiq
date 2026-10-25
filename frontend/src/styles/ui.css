@@ -324,7 +324,7 @@ textarea.input { resize: vertical; line-height: 1.5; }
 /* System setting "Reduce motion": nothing slides, grows or shrinks; colour and opacity changes stay. */
 @media (prefers-reduced-motion: reduce) {
   .btn:active, .chip:active, .inf-card:hover, .inf-card:active, .camp-card:hover, .camp-card:active { transform: none !important; }
-  .sb, .sb *, .filters, .budget-bar > div, .tchart-fill, .seg-thumb { transition: none !important; }
+  .sb, .sb *, .filters, .target-fill, .seg-thumb { transition: none !important; }
 }
 /* System setting "Reduce transparency": frosted surfaces become solid */
 @media (prefers-reduced-transparency: reduce) {
@@ -433,3 +433,151 @@ textarea.input { resize: vertical; line-height: 1.5; }
 @media (prefers-reduced-transparency: reduce) {
   .toast { background: white; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* ---------- "•••" menu (components/Menu.tsx): a macOS menu ---------- */
+.menu-wrap { position: relative; display: inline-flex; }
+.menu-btn { width: 30px; padding: 0; }
+.menu-btn-sm { width: 28px; min-height: 28px; color: var(--iq-fg-3); }
+.menu-btn-sm:hover { color: var(--iq-fg-1); }
+.menu-btn[aria-expanded='true'] { background: var(--iq-fill-hover); }
+.menu-tag { margin-left: auto; }
+.menu-item:focus .menu-tag { background: rgba(255, 255, 255, 0.25); color: white; }
+.menu {
+  position: fixed; /* placed next to its button by Menu.tsx */
+  z-index: 600;
+  min-width: 210px;
+  padding: 5px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: var(--iq-blur);
+  backdrop-filter: var(--iq-blur);
+  box-shadow: var(--iq-shadow-3);
+  display: flex;
+  flex-direction: column;
+}
+.menu-item {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--iq-fg-1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menu-item svg { color: var(--iq-fg-3); flex-shrink: 0; }
+/* one highlight, white on blue like macOS: the focused item (hovering moves focus, see Menu.tsx) */
+.menu { outline: none; }
+.menu-item:focus { background: var(--iq-brand-500); color: white; }
+.menu-item:focus svg { color: white; }
+.menu-item.danger { color: var(--iq-danger); }
+.menu-item.danger svg { color: var(--iq-danger); }
+.menu-item.danger:focus { background: var(--iq-danger); color: white; }
+.menu-item.danger:focus svg { color: white; }
+.menu-item:disabled { opacity: 0.4; cursor: default; }
+.menu-sep { height: 1px; margin: 5px 8px; background: var(--iq-border); }
+@media (prefers-reduced-transparency: reduce) { .menu { background: white; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+
+/* ---------- Detail pages: frosted page bar + large title (campaign, later profile) ---------- */
+.page-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 20px 8px 12px;
+  background: var(--iq-material-bar);
+  -webkit-backdrop-filter: var(--iq-blur);
+  backdrop-filter: var(--iq-blur);
+  box-shadow: 0 1px 0 transparent;
+  transition: box-shadow 200ms;
+}
+.page-bar.scrolled { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08); }
+.page-back { color: var(--iq-link); font-weight: 500; padding-left: 6px; gap: 2px; }
+.page-back:hover { text-decoration: none; }
+/* the compact title fades in once the large title has scrolled under the bar (iOS large titles) */
+.page-bar-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity 180ms;
+}
+.page-bar.scrolled .page-bar-title { opacity: 1; }
+.page-bar-actions { display: flex; align-items: center; gap: 8px; }
+.page-title { display: flex; flex-direction: column; gap: 4px; padding: 6px 4px 4px; }
+.page-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.page-title h1 { font-size: 30px; line-height: 1.12; }
+.page-title-meta { font-size: 14px; color: var(--iq-fg-3); }
+
+.chip-count { color: var(--iq-fg-3); font-weight: 500; margin-left: 2px; }
+.chip.on .chip-count { color: rgba(255, 255, 255, 0.7); }
+@media (max-width: 768px) {
+  .page-bar { padding: 6px 12px 6px 4px; }
+  .page-title h1 { font-size: 24px; }
+}
+
+/* ---------- List pages (Manage, later Campaigns): large title, then a toolbar that pins under it ---------- */
+.list-title { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 22px 28px 10px; }
+.list-title h1 { font-size: 30px; line-height: 1.12; }
+.list-title-actions { display: flex; align-items: center; gap: 8px; }
+.list-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 28px;
+  background: var(--iq-material-bar);
+  -webkit-backdrop-filter: var(--iq-blur);
+  backdrop-filter: var(--iq-blur);
+  box-shadow: 0 1px 0 transparent;
+  transition: box-shadow 200ms;
+}
+.list-toolbar.scrolled { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08); }
+.list-body { padding: 8px 28px 32px; }
+.manage-table td { vertical-align: middle; }
+@media (max-width: 768px) {
+  .list-title { padding: 14px 16px 6px; }
+  .list-title h1 { font-size: 24px; }
+  .list-toolbar { padding: 8px 16px; }
+  /* the filter spans the width, options share it */
+  .list-toolbar .seg { display: flex; width: 100%; }
+  .list-toolbar .seg-btn { flex: 1; padding: 4px 4px; gap: 4px; }
+  /* too many options for the width (campaign status): full size, scroll sideways instead of squeezing */
+  .list-toolbar .seg.seg-scroll { overflow-x: auto; scrollbar-width: none; }
+  .list-toolbar .seg.seg-scroll::-webkit-scrollbar { display: none; }
+  .list-toolbar .seg.seg-scroll .seg-btn { flex: none; padding: 4px 12px; }
+  .list-body { padding: 6px 16px 24px; }
+}
+
+/* Pop-up button (a native <select> styled like a macOS pop-up): pill, grey fill, chevrons */
+.select-pill {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 999px;
+  background: var(--iq-fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 5l3-3 3 3M2 9l3 3 3-3'/%3E%3C/svg%3E") no-repeat right 12px center;
+  padding: 6px 32px 6px 14px;
+  min-height: 30px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--iq-fg-1);
+  cursor: pointer;
+  transition: background-color 120ms, box-shadow 120ms;
+}
+.select-pill:hover { background-color: var(--iq-fill-hover); }
+.select-pill:focus-visible { outline: none; box-shadow: var(--iq-focus); }

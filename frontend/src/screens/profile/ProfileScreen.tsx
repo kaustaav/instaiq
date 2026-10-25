@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowLeft, BookmarkPlus, ChevronRight, ExternalLink, Languages, Mail, MapPin, Pencil, Phone } from 'lucide-react'
+import { Archive, ArrowUpRight, Ban, BookmarkPlus, ChevronLeft, CircleCheck, CirclePause, Languages, Mail, MapPin, Pencil, Phone } from 'lucide-react'
 import { useStore } from '../../store'
 import { ApiError } from '../../api/client'
 import { changeStatus, updateNotes } from '../../api/influencers'
@@ -10,12 +10,14 @@ import type { Influencer, InfluencerStatus } from '../../types'
 import { Avatar, CategoryBadges, FreshPill, Pill } from '../../components/ui'
 import { CAMPAIGN_STATUS_LABEL, STAGE_LABEL } from '../../lib/campaigns'
 import { useInfluencerCampaigns } from '../../hooks/useCampaigns'
-import { CAMPAIGN_TONE, fmtDate, STAGE_TONE } from '../../lib/campaignUi'
+import { fmtDate, STAGE_TONE } from '../../lib/campaignUi'
 import './profile.css'
 import { RowsSkeleton } from '../../components/Skeletons'
 import { notify } from '../../lib/notify'
 import { ReasonDialog } from '../../components/ReasonDialog'
 import { AnimatePresence } from 'motion/react'
+import { Menu, type MenuItem } from '../../components/Menu'
+import { useScrolled } from '../../hooks/useScrolled'
 
 type Props = {
   inf: Influencer
@@ -49,6 +51,9 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
   const [noteDraft, setNoteDraft] = useState<string | null>(null) // null = not editing
   const [noteError, setNoteError] = useState('')
   const [busy, setBusy] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const scrolled = useScrolled(scrollRef, true, heroRef) // the name moves into the bar once the big one has scrolled away
 
   // inf.api is set only when the profile came from the server: then writes go to the API
   const saveNote = async (note: string) => {
@@ -106,60 +111,65 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
     { label: 'Avg Comments', value: String(inf.comments) },
   ]
 
+  // ••• (API mode only): every status this influencer isn't in; the risky ones last, in red
+  const STATUS_ITEM: Record<InfluencerStatus, MenuItem> = {
+    ACTIVE: { label: 'Mark active', icon: CircleCheck, onSelect: () => void setStatus('ACTIVE') },
+    ON_HOLD: { label: 'Put on hold…', icon: CirclePause, onSelect: () => void setStatus('ON_HOLD') },
+    ARCHIVED: { label: 'Archive…', icon: Archive, onSelect: () => void setStatus('ARCHIVED') },
+    BANNED: { label: 'Ban…', icon: Ban, danger: true, onSelect: () => void setStatus('BANNED') },
+  }
+  const menuItems: MenuItem[] = inf.api
+    ? (['ACTIVE', 'ON_HOLD', 'ARCHIVED', 'BANNED'] as const).filter(st => st !== inf.api!.status && !busy).map(st => STATUS_ITEM[st])
+    : []
+
   return (
     <div className="screen-col">
-      <div className="crumbs">
-        <button type="button" className="btn btn-plain" style={{ fontSize: 13, fontWeight: 400, padding: '4px 8px' }} onClick={onBack}>
-          <ArrowLeft size={13} />{backLabel}
-        </button>
-        <ChevronRight size={13} className="muted" />
-        <span style={{ fontSize: 13, fontWeight: 500 }}>{inf.name}</span>
-      </div>
+      <div className="scroll" ref={scrollRef}>
+        <div className={scrolled ? 'page-bar scrolled' : 'page-bar'}>
+          <button type="button" className="btn btn-plain page-back" onClick={onBack}><ChevronLeft size={17} />{backLabel}</button>
+          <div className="page-bar-title" aria-hidden={!scrolled}>{inf.name}</div>
+          <div className="page-bar-actions">
+            <button type="button" className="btn btn-ghost" aria-label="Edit" onClick={onEdit}><Pencil size={14} /><span className="hide-mobile">Edit</span></button>
+            <button type="button" className="btn btn-blue" onClick={onAddToCampaign}><BookmarkPlus size={14} />Add to Campaign</button>
+            {menuItems.length > 0 && <Menu items={menuItems} label="Status" />}
+          </div>
+        </div>
 
-      <div className="scroll" style={{ background: 'var(--iq-gray-50)' }}>
         <div className="profile">
-          <div className="card profile-head">
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
-              <Avatar inf={inf} size={58} />
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span className="profile-name">{inf.name}</span>
-                  <a href={igUrl(inf.handle)} target="_blank" rel="noopener" style={{ fontSize: 13 }}>{inf.handle}</a>
-                </div>
-                <div className="profile-loc">
-                  <MapPin size={11} />
-                  <span>{locStr}</span>
-                  <span style={{ margin: '0 3px' }}>·</span>
-                  <Languages size={11} />
-                  <span>{inf.langs.join(', ')}</span>
-                </div>
-                <div style={{ marginTop: 8 }}><CategoryBadges cats={inf.cats} large /></div>
-                {inf.api && inf.api.status !== 'ACTIVE' && (
-                  <div style={{ marginTop: 8, fontSize: 12 }}>
-                    <span className="badge" style={{ padding: '2px 8px', background: STATUS_TONE[inf.api.status].bg, color: STATUS_TONE[inf.api.status].fg }}>
-                      {STATUS_LABEL[inf.api.status]}
-                    </span>
-                    {inf.api.statusReason && <span className="muted" style={{ marginLeft: 6 }}>{inf.api.statusReason}</span>}
-                  </div>
-                )}
+          <header ref={heroRef} className="profile-hero">
+            <Avatar inf={inf} size={76} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h1 className="profile-name">{inf.name}</h1>
+              <a className="profile-handle" href={igUrl(inf.handle)} target="_blank" rel="noopener">{inf.handle}</a>
+              <div className="profile-loc">
+                <span><MapPin size={13} />{locStr}</span>
+                {inf.langs.length > 0 && <span><Languages size={13} />{inf.langs.join(', ')}</span>}
               </div>
-              <div className="profile-actions">
-                {inf.api && (
-                  <select className="input input-sm" aria-label="Status" value={inf.api.status} disabled={busy}
-                    style={{ width: 'auto' }} onChange={e => setStatus(e.target.value as InfluencerStatus)}>
-                    {(Object.keys(STATUS_LABEL) as InfluencerStatus[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
-                  </select>
-                )}
-                <button type="button" className="btn btn-ghost" onClick={onEdit}><Pencil size={12} />Edit</button>
-                <a className="btn btn-ghost" href={igUrl(inf.handle)} target="_blank" rel="noopener">
-                  <ExternalLink size={12} />View on Instagram
-                </a>
-                <button type="button" className="btn btn-blue" onClick={onAddToCampaign}>
-                  <BookmarkPlus size={12} />Add to Campaign
-                </button>
+              <div style={{ marginTop: 10 }}><CategoryBadges cats={inf.cats} large /></div>
+              {/* the ways to reach them, right under the name (as in Contacts) */}
+              <div className="profile-reach">
+                <a className="btn btn-tint" href={igUrl(inf.handle)} target="_blank" rel="noopener">Instagram<ArrowUpRight size={15} /></a>
+                {inf.email
+                  ? <a className="btn btn-ghost" href={`mailto:${inf.email}`}><Mail size={14} />Email</a>
+                  : <span className="btn btn-ghost" aria-disabled="true" title="No email on file" style={{ opacity: 0.4, cursor: 'default' }}><Mail size={14} />Email</span>}
+                {inf.phone
+                  ? <a className="btn btn-ghost" href={`tel:${inf.phone.replace(/\s+/g, '')}`}><Phone size={14} />Call</a>
+                  : <span className="btn btn-ghost" aria-disabled="true" title="No phone on file" style={{ opacity: 0.4, cursor: 'default' }}><Phone size={14} />Call</span>}
               </div>
+              {inf.api && inf.api.status !== 'ACTIVE' && (
+                <div className="profile-status">
+                  <Pill tone={STATUS_TONE[inf.api.status]}>{STATUS_LABEL[inf.api.status]}</Pill>
+                  {inf.api.statusReason && <span>“{inf.api.statusReason}”</span>}
+                </div>
+              )}
             </div>
+          </header>
 
+          <section className="card profile-card">
+            <div className="profile-card-head">
+              <h3>Metrics</h3>
+              <span className="profile-card-aside"><FreshPill fr={fr} /> {dstr(inf.updatedAt)}</span>
+            </div>
             <div className="profile-stats">
               {stats.map(s => (
                 <div key={s.label}>
@@ -168,106 +178,88 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-              <span className="muted" style={{ fontSize: 11 }}>Metrics</span>
-              <FreshPill fr={fr} />
-              <span className="muted mono" style={{ fontSize: 11 }}>{dstr(inf.updatedAt)}</span>
-            </div>
-          </div>
+          </section>
 
           <div className="profile-cols">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <section className="card" style={{ padding: 16 }}>
-                <div className="label" style={{ marginBottom: 8 }}>About</div>
-                <p className="profile-bio">{inf.bio}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <section className="card profile-card">
+                <h3>About</h3>
+                <p className="profile-bio">{inf.bio || <span className="muted">No bio yet</span>}</p>
               </section>
-              <section className="card" style={{ padding: 16 }}>
-                <div className="label" style={{ marginBottom: 12 }}>Campaign History</div>
+
+              <section className="card profile-card">
+                <h3>Campaigns</h3>
                 {history.length ? (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="camp-table">
-                      <thead>
-                        <tr><th>Campaign</th><th>Brand</th><th>Start</th><th>Stage</th><th>Posts</th><th>Campaign</th></tr>
-                      </thead>
-                      <tbody>
-                        {history.map(h => (
-                          <tr key={h.campaignId}>
-                            <td style={{ fontWeight: 500 }}><Link to={`/campaigns/${h.campaignId}?member=${inf.id}`}>{h.name}</Link></td>
-                            <td className="sub">{h.brand}</td>
-                            <td className="muted mono" style={{ fontSize: 11 }}>{fmtDate(h.startDate)}</td>
-                            <td><Pill tone={STAGE_TONE[h.stage]}>{STAGE_LABEL[h.stage]}</Pill></td>
-                            <td className="sub">{h.deliverables ? `${h.posted}/${h.deliverables}` : '—'}</td>
-                            <td><Pill tone={CAMPAIGN_TONE[h.campaignStatus]}>{CAMPAIGN_STATUS_LABEL[h.campaignStatus]}</Pill></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <ul className="hist-list">
+                    {history.map(h => (
+                      <li key={h.campaignId}>
+                        <div className="hist-main">
+                          <Link to={`/campaigns/${h.campaignId}?member=${inf.id}`} className="hist-name">{h.name}</Link>
+                          <div className="hist-meta">{h.brand} · {fmtDate(h.startDate)}{h.campaignStatus !== 'ACTIVE' && ` · ${CAMPAIGN_STATUS_LABEL[h.campaignStatus]}`}</div>
+                        </div>
+                        <div className="hist-side">
+                          <Pill tone={STAGE_TONE[h.stage]}>{STAGE_LABEL[h.stage]}</Pill>
+                          {h.deliverables > 0 && <span className="hist-meta">{h.posted}/{h.deliverables} posted</span>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 ) : memberships.kind === 'loading' ? (
                   <RowsSkeleton rows={2} label="Loading campaign history" />
                 ) : (
-                  <div className="muted" style={{ padding: '12px 0', textAlign: 'center', fontSize: 13 }}>
+                  <div className="muted" style={{ fontSize: 13 }}>
                     {memberships.kind === 'error' ? 'Couldn’t load campaign history' : 'Not in any campaign yet'}
                   </div>
                 )}
                 {inf.camps.length > 0 && (
                   <>
-                    <div className="label" style={{ margin: '16px 0 8px' }}>Earlier collaborations <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 400 }}>(before InfluenceIQ)</span></div>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table className="camp-table">
-                        <thead>
-                          <tr><th>Campaign</th><th>Brand</th><th>Date</th><th>Deliverable</th><th>Status</th></tr>
-                        </thead>
-                        <tbody>
-                          {inf.camps.map(c => (
-                            <tr key={c.name + c.date}>
-                              <td style={{ fontWeight: 500 }}>{c.name}</td>
-                              <td className="sub">{c.brand}</td>
-                              <td className="muted mono" style={{ fontSize: 11 }}>{c.date}</td>
-                              <td className="sub">{c.del}</td>
-                              <td>
-                                <span className="badge" style={{ padding: '2px 8px', background: STATUS_COLORS[c.status].bg, color: STATUS_COLORS[c.status].fg }}>
-                                  {c.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <div className="label" style={{ marginTop: 6 }}>Before InfluenceIQ</div>
+                    <ul className="hist-list">
+                      {inf.camps.map(c => (
+                        <li key={c.name + c.date}>
+                          <div className="hist-main">
+                            <div className="hist-name plain">{c.name}</div>
+                            <div className="hist-meta">{c.brand} · {c.date} · {c.del}</div>
+                          </div>
+                          <div className="hist-side"><Pill tone={STATUS_COLORS[c.status]}>{c.status}</Pill></div>
+                        </li>
+                      ))}
+                    </ul>
                   </>
                 )}
               </section>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <section className="card side-card">
-                <div className="label" style={{ marginBottom: 10 }}>Contact</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  <div className="contact-row"><Mail size={12} className="muted" /><span>{inf.email}</span></div>
-                  <div className="contact-row"><Phone size={12} className="muted" /><span>{inf.phone}</span></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <section className="card profile-card">
+                <h3>Contact</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {inf.email ? <a className="contact-row" href={`mailto:${inf.email}`}><Mail size={14} />{inf.email}</a>
+                    : <div className="contact-row muted"><Mail size={14} />No email</div>}
+                  {inf.phone ? <a className="contact-row" href={`tel:${inf.phone.replace(/\s+/g, '')}`}><Phone size={14} />{inf.phone}</a>
+                    : <div className="contact-row muted"><Phone size={14} />No phone</div>}
                 </div>
               </section>
 
-              <section className="card side-card">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 10 }}>
-                  <div className="label">Pricing (INR)</div>
-                  <span title={rateFr.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, color: rateFr.fg }}>
+              <section className="card profile-card">
+                <div className="profile-card-head">
+                  <h3>Pricing</h3>
+                  <span className="profile-card-aside" title={rateFr.label} style={{ color: rateFr.fg }}>
                     <span className="dot" style={{ background: rateFr.dot }} />as of {mon(inf.rates[0].date)}
                   </span>
                 </div>
-                {(['story', 'reel', 'post'] as const).map((k, idx) => (
-                  <div key={k} className="price-row" style={idx < 2 ? { borderBottom: '1px solid var(--iq-border)' } : undefined}>
-                    <span>{k[0].toUpperCase() + k.slice(1)}</span>
-                    <span className="mono">{inf.pricing[k]}</span>
-                  </div>
-                ))}
+                <div>
+                  {(['story', 'reel', 'post'] as const).map(k => (
+                    <div key={k} className="price-row">
+                      <span>{k[0].toUpperCase() + k.slice(1)}</span>
+                      <span className="mono">{inf.pricing[k] || '—'}</span>
+                    </div>
+                  ))}
+                </div>
                 {inf.rates.length > 1 && (
                   <>
-                    <button type="button" className="btn btn-plain btn-sm" aria-expanded={histOpen}
-                      style={{ marginTop: 8, marginLeft: -6, padding: '3px 6px', color: 'var(--iq-brand-500)', fontWeight: 400 }}
-                      onClick={() => setHistOpen(!histOpen)}>
-                      {histOpen ? 'Hide rate history' : `Show rate history (${inf.rates.length - 1} earlier)`}
+                    <button type="button" className="btn btn-plain btn-sm link-btn" aria-expanded={histOpen} onClick={() => setHistOpen(!histOpen)}>
+                      {histOpen ? 'Hide rate history' : `Rate history (${inf.rates.length - 1} earlier)`}
                     </button>
                     {histOpen && (
                       <div className="rate-hist">
@@ -276,7 +268,7 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                         </div>
                         {inf.rates.map((r, k) => (
                           <div key={r.date} className="rate-hist-row mono" style={{ color: k === 0 ? 'var(--iq-fg-1)' : 'var(--iq-fg-3)' }}>
-                            <span style={{ fontFamily: 'var(--iq-font-sans)' }}>{mon(r.date)}{k === 0 && ' · now'}</span>
+                            <span>{mon(r.date)}{k === 0 && ' · now'}</span>
                             <span>{r.story}</span><span>{r.reel}</span><span>{r.post}</span>
                           </div>
                         ))}
@@ -286,39 +278,34 @@ export function ProfileScreen({ inf, backLabel, onBack, onEdit, onAddToCampaign 
                 )}
               </section>
 
-              <section className="card side-card">
-                <div className="label" style={{ marginBottom: 8 }}>Top Hashtags</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {inf.tags.map(t => <span key={t} className="hashtag" style={{ fontSize: 12, padding: '3px 8px' }}>{t}</span>)}
-                </div>
-              </section>
+              {inf.tags.length > 0 && (
+                <section className="card profile-card">
+                  <h3>Top hashtags</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
+                    {inf.tags.map(t => <span key={t} className="hashtag" style={{ fontSize: 13 }}>{t}</span>)}
+                  </div>
+                </section>
+              )}
 
-              <section className="card side-card">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div className="label">Notes</div>
+              <section className="card profile-card">
+                <div className="profile-card-head">
+                  <h3>Notes</h3>
                   {noteDraft != null ? (
-                    <div style={{ display: 'flex', gap: 5 }}>
-                      <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }} onClick={() => { setNoteDraft(null); setNoteError('') }}>Cancel</button>
-                      <button type="button" className="btn btn-blue btn-sm" style={{ padding: '2px 7px', fontWeight: 400 }} disabled={busy}
-                        onClick={() => saveNote(noteDraft)}>
-                        {busy ? 'Saving…' : 'Save'}
-                      </button>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setNoteDraft(null); setNoteError('') }}>Cancel</button>
+                      <button type="button" className="btn btn-blue btn-sm" disabled={busy} onClick={() => saveNote(noteDraft)}>{busy ? 'Saving…' : 'Save'}</button>
                     </div>
                   ) : (
-                    <button type="button" className="btn btn-plain btn-sm" style={{ padding: '2px 6px', gap: 3, color: 'var(--iq-fg-3)', fontWeight: 400 }}
-                      onClick={() => setNoteDraft(inf.note)}>
-                      <Pencil size={10} />Edit
-                    </button>
+                    <button type="button" className="btn btn-plain btn-sm link-btn" style={{ margin: 0 }} onClick={() => setNoteDraft(inf.note)}>Edit</button>
                   )}
                 </div>
                 {noteDraft != null ? (
                   <textarea className="input" rows={4} autoFocus aria-label="Notes" value={noteDraft}
-                    style={{ fontSize: 12, minHeight: 72, lineHeight: 1.55 }}
-                    onChange={e => setNoteDraft(e.target.value)} />
+                    style={{ minHeight: 80, lineHeight: 1.55 }} onChange={e => setNoteDraft(e.target.value)} />
                 ) : (
                   <p className="profile-note">{inf.note || <span className="muted">No notes yet</span>}</p>
                 )}
-                {noteError && <div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)', marginTop: 6 }}>{noteError}</div>}
+                {noteError && <div role="alert" style={{ fontSize: 12, color: 'var(--iq-danger)' }}>{noteError}</div>}
               </section>
             </div>
           </div>

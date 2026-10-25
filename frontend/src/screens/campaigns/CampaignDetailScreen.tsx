@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { AlertTriangle, ArrowLeft, Copy, Download, Lock, Pencil, UserPlus, Users, WifiOff } from 'lucide-react'
+import { AlertTriangle, Archive, ChevronLeft, CircleX, Copy, Download, Lock, Pencil, RotateCcw, UserPlus, Users, WifiOff } from 'lucide-react'
 import { useStore } from '../../store'
 import { apiEnabled, errorText } from '../../api/client'
 import {
@@ -16,6 +16,8 @@ import {
 import { CAMPAIGN_TONE, fmtDate, fmtRange, PAYMENT_LABEL, PAYMENT_TONE, STAGE_TONE } from '../../lib/campaignUi'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
+import { useScrolled } from '../../hooks/useScrolled'
+import { Menu, type MenuItem } from '../../components/Menu'
 import type { Campaign, DisplayStage, Influencer, Member } from '../../types'
 import { EmptyState, PersonCell, Pill } from '../../components/ui'
 import { Pagination } from '../../components/Pagination'
@@ -87,6 +89,7 @@ export function CampaignDetailScreen() {
   const filtered = c ? c.members.filter(m => !stage || displayStage(m) === stage) : []
   const rows = paginate(filtered, page, PAGE_SIZE)
   useScrollTopOnChange(scrollRef, rows.page)
+  const scrolled = useScrolled(scrollRef, detail.kind === 'ready')
 
   if (detail.kind === 'loading') {
     return <CampaignDetailSkeleton />
@@ -142,70 +145,85 @@ export function CampaignDetailScreen() {
     }
   }
 
+  // one main action (the natural next step); everything else in the ••• menu, destructive last
+  const [primary, ...otherActions] = STATUS_ACTIONS[c.status]
+  const ACTION_ICON = { cancel: CircleX, archive: Archive, reopen: RotateCcw, unarchive: RotateCcw, activate: RotateCcw, complete: RotateCcw }
+  const menuItems: MenuItem[] = [
+    { label: 'Edit campaign', icon: Pencil, onSelect: () => setEditing(true), disabled: readOnly, hint: readOnly ? 'Read-only: reopen it first' : undefined },
+    { label: 'Duplicate', icon: Copy, onSelect: duplicate, hint: 'Same setup, no influencers' },
+    { label: 'Export CSV', icon: Download, onSelect: () => exportCsv(c, infOf), disabled: !c.members.length },
+    ...(otherActions.length ? ['separator' as const] : []),
+    ...otherActions.map(a => ({ label: ACTION_LABEL[a], icon: ACTION_ICON[a], danger: a === 'cancel', onSelect: () => openAction(a) })),
+  ]
+  const primaryIsBlue = primary === 'complete' || primary === 'activate'
+
   return (
-    <div className="screen-col" style={{ background: 'var(--iq-gray-50)' }}>
-      <div className="crumbs">
-        <Link to="/campaigns" className="btn btn-plain" style={{ fontSize: 13, fontWeight: 400, padding: '4px 8px' }}><ArrowLeft size={13} />Campaigns</Link>
-      </div>
-
+    <div className="screen-col">
       <div className="scroll" ref={scrollRef}>
-        <div className="camp-detail">
-          <section className="card camp-head">
-            <div className="camp-head-top">
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div className="camp-card-title">
-                  <h1 className="camp-head-name">{c.name}</h1>
-                  <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
-                </div>
-                <div className="camp-card-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
-                {c.statusReason && (
-                  <div className="camp-card-meta" title={`by ${c.statusChangedBy}, ${fmtDate(c.statusChangedAt)}`}>
-                    {CAMPAIGN_STATUS_LABEL[c.status]} · “{c.statusReason}”
-                  </div>
-                )}
-              </div>
-              <div className="camp-actions">
-                {STATUS_ACTIONS[c.status].map(a => (
-                  <button key={a} type="button" className={a === 'complete' || a === 'activate' ? 'btn btn-blue' : 'btn btn-ghost'} onClick={() => openAction(a)}>
-                    {ACTION_LABEL[a]}
-                  </button>
-                ))}
-                <button type="button" className="btn btn-ghost" disabled={readOnly} title={readOnly ? 'Read-only' : undefined} onClick={() => setEditing(true)}><Pencil size={12} />Edit</button>
-                <button type="button" className="btn btn-ghost" title="Same setup, no influencers" onClick={duplicate}><Copy size={12} />Duplicate</button>
-                <button type="button" className="btn btn-ghost" disabled={!c.members.length} onClick={() => exportCsv(c, infOf)}><Download size={12} />CSV</button>
-              </div>
-            </div>
-
-            <div>
-              <TargetsChart c={c} />
-              {over && <div className="camp-warn"><AlertTriangle size={12} />Over budget by {inr(used - (c.budget ?? 0))}</div>}
-            </div>
-
-            {c.brief && <p className="camp-brief">{c.brief}</p>}
-            {readOnly && (
-              <div className="camp-readonly"><Lock size={12} />This campaign is {CAMPAIGN_STATUS_LABEL[c.status].toLowerCase()} and read-only. Reopen it to make changes.</div>
+        {/* frosted bar: back, a compact title once the big one scrolls away, the main action and ••• */}
+        <div className={scrolled ? 'page-bar scrolled' : 'page-bar'}>
+          <Link to="/campaigns" className="btn btn-plain page-back"><ChevronLeft size={17} />Campaigns</Link>
+          <div className="page-bar-title" aria-hidden={!scrolled}>{c.name}</div>
+          <div className="page-bar-actions">
+            {primary && (
+              <button type="button" className={primaryIsBlue ? 'btn btn-blue' : 'btn btn-ghost'} onClick={() => openAction(primary)}>
+                {ACTION_LABEL[primary]}
+              </button>
             )}
+            <Menu items={menuItems} label="Campaign actions" />
+          </div>
+        </div>
+
+        <div className="camp-detail">
+          <header className="page-title">
+            <div className="page-title-row">
+              <h1>{c.name}</h1>
+              <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
+            </div>
+            <div className="page-title-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
+            {c.statusReason && (
+              <div className="page-title-meta" title={`by ${c.statusChangedBy}, ${fmtDate(c.statusChangedAt)}`}>
+                {CAMPAIGN_STATUS_LABEL[c.status]} · “{c.statusReason}”
+              </div>
+            )}
+          </header>
+
+          {readOnly && (
+            <div className="camp-readonly"><Lock size={13} />This campaign is {CAMPAIGN_STATUS_LABEL[c.status].toLowerCase()} and read-only. Reopen it to make changes.</div>
+          )}
+
+          <section className="card camp-section">
+            <h3>Targets</h3>
+            <TargetsChart c={c} />
+            {over && <div className="camp-warn"><AlertTriangle size={13} />Over budget by {inr(used - (c.budget ?? 0))}</div>}
           </section>
 
+          {c.brief && (
+            <section className="card camp-section">
+              <h3>Brief</h3>
+              <p className="camp-brief">{c.brief}</p>
+            </section>
+          )}
+
           <div className="camp-members-head">
-            <div className="chips">
-              <button type="button" className="chip" aria-pressed={!stage}
-                style={{ background: !stage ? 'var(--iq-navy)' : 'white', color: !stage ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
-                onClick={() => setParam({ stage: null, page: null })}>
-                All {c.members.length}
-              </button>
-              {DISPLAY_STAGES.filter(s => counts.get(s)).map(s => (
-                <button key={s} type="button" className="chip" aria-pressed={stage === s}
-                  style={{ background: stage === s ? 'var(--iq-navy)' : 'white', color: stage === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
-                  onClick={() => setParam({ stage: s, page: null })}>
-                  {STAGE_LABEL[s]} {counts.get(s)}
-                </button>
-              ))}
-            </div>
+            <h2>Influencers <span className="count">{c.members.length}</span></h2>
             {!readOnly && (
-              <Link to="/search" className="btn btn-ghost" title="Use “+ Shortlist” or “Add all to campaign” on the search page"><UserPlus size={12} />Add influencers</Link>
+              <Link to="/search" className="btn btn-tint" title="Use “+ Shortlist” or “Add all to campaign” on the search page"><UserPlus size={14} />Add influencers</Link>
             )}
           </div>
+          {c.members.length > 0 && (
+            <div className="chips stage-filter" role="group" aria-label="Filter by stage">
+              {[null, ...DISPLAY_STAGES.filter(s => counts.get(s))].map(s => {
+                const on = stage === s
+                return (
+                  <button key={s ?? 'all'} type="button" className={on ? 'chip on' : 'chip'} aria-pressed={on}
+                    onClick={() => setParam({ stage: s, page: null })}>
+                    {s ? STAGE_LABEL[s] : 'All'} <span className="chip-count">{s ? counts.get(s) : c.members.length}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
           {c.members.length === 0 ? (
             <EmptyState icon={Users} title="No influencers yet" sub="Add them from Search with “+ Shortlist” or “Add all to campaign”" />

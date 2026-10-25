@@ -115,8 +115,10 @@ class CampaignApiTest {
 
         // the list shows the counts
         MvcTestResult list = mvc.get().uri("/api/campaigns").exchange();
-        assertThat((List<Integer>) read(list, "$[?(@.id == " + id + ")].memberCount")).containsExactly(3);
-        assertThat((List<Integer>) read(list, "$[?(@.id == " + id + ")].stageCounts.SHORTLISTED")).containsExactly(3);
+        assertThat((List<Integer>) read(list, "$[?(@.id == " + id + ")].id")).containsExactly(id); // listed
+        assertThat((List<Object>) read(list, "$[?(@.id == " + id + ")].memberCount")).isEmpty(); // nothing counted per campaign
+        // the list is light: no per-campaign progress (that's on the campaign's own page)
+        assertThat((List<Object>) read(list, "$[?(@.id == " + id + ")].stageCounts")).isEmpty();
     }
 
     @Test

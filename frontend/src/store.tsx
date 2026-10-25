@@ -174,7 +174,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addLanguage: raw => addTo(langs, setLangs, raw),
       customOptions: kind => {
         const builtIn = kind === 'cats' ? SEED_CATEGORIES : SEED_LANGUAGES
-        return (kind === 'cats' ? cats : langs).filter(v => !builtIn.includes(v)).map(value => ({ value, usedBy: usage(infs, kind, value) }))
+        return (kind === 'cats' ? cats : langs).filter(v => !builtIn.includes(v)).map(value => ({ value }))
       },
       renameOption: (kind, from, to) => {
         const n = normalizeOption(kind, to)
@@ -189,8 +189,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { value: target, merged, influencersUpdated: updated }
       },
       removeOption: (kind, value) => {
-        const used = usage(infs, kind, value)
-        if (used) return `"${value}" is used by ${used} influencer${used === 1 ? '' : 's'}. Rename or merge it instead.`
+        // same answer as the server: whether it's in use, not how often
+        if (infs.some(i => i[kind].includes(value))) return `"${value}" is still used by influencers. Rename or merge it instead.`
         ;(kind === 'cats' ? setCats : setLangs)(xs => xs.filter(v => v !== value))
         return ''
       },

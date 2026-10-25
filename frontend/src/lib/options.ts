@@ -5,7 +5,7 @@
 import type { Influencer } from '../types'
 
 export type OptionKind = 'cats' | 'langs'
-export type CustomOption = { value: string; usedBy: number }
+export type CustomOption = { value: string }
 export type Renamed = { value: string; merged: boolean; influencersUpdated: number }
 
 export const KIND_LABEL: Record<OptionKind, string> = { cats: 'Niche', langs: 'Language' }

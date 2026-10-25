@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { Megaphone, Plus, Search, WifiOff } from 'lucide-react'
+import { ChevronRight, Megaphone, Plus, Search, WifiOff } from 'lucide-react'
 import { useStore } from '../../store'
-import { inr } from '../../lib/format'
 import { CAMPAIGN_STATUS_LABEL } from '../../lib/campaigns'
 import { CAMPAIGN_TONE, fmtRange, type CampaignCard } from '../../lib/campaignUi'
 import { apiEnabled, errorText } from '../../api/client'
@@ -10,11 +9,11 @@ import { createCampaignApi } from '../../api/campaigns'
 import { useCampaignCards } from '../../hooks/useCampaigns'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
+import { useScrolled } from '../../hooks/useScrolled'
 import type { CampaignStatus } from '../../types'
 import { EmptyState, Pill, Segmented } from '../../components/ui'
 import { Pagination } from '../../components/Pagination'
 import { CampaignFormDrawer } from './CampaignFormDrawer'
-import { BudgetBar } from './BudgetBar'
 import './campaigns.css'
 import { AnimatePresence } from 'motion/react'
 import { CampaignCardsSkeleton } from '../../components/Skeletons'
@@ -33,6 +32,8 @@ export function CampaignListScreen() {
   const [params, setParams] = useSearchParams()
   const [creating, setCreating] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLElement>(null)
+  const stuck = useScrolled(scrollRef, true, titleRef)
 
   const q = params.get('q') ?? ''
   const statusParam = params.get('status')
@@ -66,73 +67,52 @@ export function CampaignListScreen() {
   useScrollTopOnChange(scrollRef, rows.page)
 
   return (
-    <div className="screen-col" style={{ background: 'var(--iq-gray-50)' }}>
-      <div className="screen-head">
-        <div>
-          <div className="screen-title">Campaigns</div>
-          <div className="screen-sub">{count('ACTIVE')} active · {count('DRAFT')} draft</div>
-        </div>
-        <button type="button" className="btn btn-blue" onClick={() => setCreating(true)}><Plus size={12} />New campaign</button>
-      </div>
+    <div className="screen-col">
+      <div className="scroll" ref={scrollRef}>
+        <header ref={titleRef} className="list-title">
+          <div>
+            <h1>Campaigns</h1>
+            <div className="page-title-meta">{count('ACTIVE')} active · {count('DRAFT')} draft</div>
+          </div>
+          <div className="list-title-actions">
+            <button type="button" className="btn btn-blue" onClick={() => setCreating(true)}><Plus size={14} />New campaign</button>
+          </div>
+        </header>
 
-      <div className="scroll" ref={scrollRef} style={{ padding: '14px 18px' }}>
-        <div className="camp-toolbar">
+        <div className={stuck ? 'list-toolbar scrolled' : 'list-toolbar'}>
           <div className="search-box" style={{ flex: 1, maxWidth: 320, minWidth: 200 }}>
-            <Search size={13} />
+            <Search size={14} />
             <input type="text" autoComplete="off" placeholder="Find campaign or brand" aria-label="Find campaign or brand" value={q}
               onChange={e => go({ q: e.target.value, page: 1 }, true)} />
           </div>
-          <Segmented label="Campaign status" value={status} onChange={s => go({ status: s, page: 1 })}
+          <Segmented label="Campaign status" className="seg-scroll" value={status} onChange={s => go({ status: s, page: 1 })}
             options={STATUS_FILTERS.map(s => ({
               value: s,
               label: <>{s === 'ALL' ? 'All' : CAMPAIGN_STATUS_LABEL[s]} <span className="seg-count">{count(s)}</span></>,
             }))} />
-          <select className="input input-sm" style={{ width: 'auto' }} aria-label="Brand" value={brand} onChange={e => go({ brand: e.target.value, page: 1 })}>
+          <select className="select-pill" aria-label="Brand" value={brand} onChange={e => go({ brand: e.target.value, page: 1 })}>
             <option value="">All brands</option>
             {brands.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
 
-        {cards.kind === 'error' ? (
-          <div style={{ textAlign: 'center' }}>
-            <EmptyState icon={WifiOff} title="Couldn’t load campaigns" sub={cards.message} />
-            <button type="button" className="btn btn-ghost" onClick={cards.retry}>Try again</button>
-          </div>
-        ) : cards.kind === 'loading' ? (
-          <CampaignCardsSkeleton />
-        ) : rows.total === 0 ? (
-          <EmptyState icon={Megaphone} title="No campaigns match" sub={campaigns.length ? 'Try another filter' : 'Create your first campaign'} />
-        ) : (
-          <div className="camp-cards">
-            {rows.items.map(c => {
-              const live = (c.stages.get('LIVE') ?? 0) + (c.stages.get('COMPLETED') ?? 0)
-              return (
-                <Link key={c.id} to={`/campaigns/${c.id}`} className="camp-card">
-                  <div className="camp-card-main">
-                    <div className="camp-card-title">
-                      <span className="camp-card-name">{c.name}</span>
-                      <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
-                    </div>
-                    <div className="camp-card-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
-                    <div className="camp-card-meta">
-                      {c.members} of {c.targetInfluencers} influencer{c.targetInfluencers !== 1 ? 's' : ''}
-                      {c.deliverables > 0 && <> · {c.posted}/{c.deliverables} posts live</>}
-                      {c.inReview > 0 && <> · <b style={{ color: '#8944AB' }}>{c.inReview} draft{c.inReview > 1 ? 's' : ''} to review</b></>}
-                      {live > 0 && c.unpaid > 0 && <> · <b style={{ color: '#A04A00' }}>{c.unpaid} unpaid</b></>}
-                    </div>
-                  </div>
-                  <div className="camp-card-budget">
-                    <BudgetBar used={c.budgetUsed} total={c.budget} />
-                    <div className="muted mono" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
-                      {inr(c.budgetUsed)} / {c.budget != null ? inr(c.budget) : 'no budget'}
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-        <Pagination page={rows} onPage={p => go({ page: p })} noun="campaigns" />
+        <div className="list-body">
+          {cards.kind === 'error' ? (
+            <div style={{ textAlign: 'center' }}>
+              <EmptyState icon={WifiOff} title="Couldn’t load campaigns" sub={cards.message} />
+              <button type="button" className="btn btn-ghost" onClick={cards.retry}>Try again</button>
+            </div>
+          ) : cards.kind === 'loading' ? (
+            <CampaignCardsSkeleton />
+          ) : rows.total === 0 ? (
+            <EmptyState icon={Megaphone} title="No campaigns match" sub={campaigns.length ? 'Try another filter' : 'Create your first campaign'} />
+          ) : (
+            <div className="camp-list">
+              {rows.items.map(c => <CampaignRow key={c.id} c={c} />)}
+            </div>
+          )}
+          <Pagination page={rows} onPage={p => go({ page: p })} noun="campaigns" />
+        </div>
       </div>
 
       <AnimatePresence>
@@ -163,5 +143,21 @@ export function CampaignListScreen() {
       )}
       </AnimatePresence>
     </div>
+  )
+}
+
+/** One campaign as a list row (Mail-style): name and status, brand and dates. The rest is on its own page. */
+function CampaignRow({ c }: { c: CampaignCard }) {
+  return (
+    <Link to={`/campaigns/${c.id}`} className="camp-row">
+      <div className="camp-row-main">
+        <div className="camp-row-title">
+          <span className="camp-row-name">{c.name}</span>
+          <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
+        </div>
+        <div className="camp-row-meta">{c.brand} · {fmtRange(c.startDate, c.endDate)}</div>
+      </div>
+      <ChevronRight size={16} className="camp-row-chevron" />
+    </Link>
   )
 }

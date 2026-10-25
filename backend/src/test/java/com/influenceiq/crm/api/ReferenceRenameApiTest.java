@@ -60,9 +60,9 @@ class ReferenceRenameApiTest {
         List<String> all = read(mvc.get().uri("/api/reference").exchange(), "$.categories");
         assertThat(all).contains("Pet Care").doesNotContain("Pet Carre");
 
-        // the custom list shows it with its usage
+        // the custom list shows the new name (names only: no usage counts)
         MvcTestResult custom = mvc.get().uri("/api/reference/custom").exchange();
-        assertThat((List<Integer>) read(custom, "$.categories[?(@.value == 'Pet Care')].usedBy")).containsExactly(1);
+        assertThat((List<String>) read(custom, "$.categories[*].value")).contains("Pet Care").doesNotContain("Pet Carre");
     }
 
     @Test
@@ -111,7 +111,7 @@ class ReferenceRenameApiTest {
         MvcTestResult used = mvc.delete().uri("/api/reference/categories?value=Used Niche").exchange();
         assertThat(used).hasStatus(HttpStatus.CONFLICT);
         assertThat((List<String>) read(used, "$.errors"))
-                .containsExactly("\"Used Niche\" is used by 1 influencer. Rename or merge it instead.");
+                .containsExactly("\"Used Niche\" is still used by influencers. Rename or merge it instead.");
 
         assertThat(mvc.delete().uri("/api/reference/categories?value=unused niche").exchange()).hasStatus(HttpStatus.NO_CONTENT);
         assertThat((List<String>) read(mvc.get().uri("/api/reference").exchange(), "$.categories")).doesNotContain("Unused Niche");

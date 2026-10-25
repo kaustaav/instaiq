@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.influenceiq.crm.TestcontainersConfiguration;
 import com.influenceiq.crm.campaign.api.CampaignQueryService;
+import com.influenceiq.crm.campaign.DeliverableStatus;
 import com.influenceiq.crm.campaign.api.CampaignSummary;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,8 +30,11 @@ class DemoCampaignLoaderTest {
                 .collect(Collectors.toMap(CampaignSummary::name, c -> c));
         assertThat(byName).hasSize(6);
         assertThat(byName.get("Diwali Bridal Push").status().name()).isEqualTo("ACTIVE");
-        assertThat(byName.get("Diwali Bridal Push").memberCount()).isEqualTo(8);
-        assertThat(byName.get("Diwali Bridal Push").posted()).isEqualTo(3);
+        var diwali = campaigns.get(byName.get("Diwali Bridal Push").id());
+        assertThat(diwali.members()).hasSize(8);
+        long posted = diwali.members().stream()
+                .flatMap(m -> m.deliverables().stream()).filter(d -> d.status() == DeliverableStatus.POSTED).count();
+        assertThat(posted).isEqualTo(3);
         assertThat(byName.get("Bridal Jewellery Q2 2025").status().name()).isEqualTo("COMPLETED");
         assertThat(byName.get("Summer Travel Diaries 2025").status().name()).isEqualTo("ARCHIVED");
         assertThat(byName.get("Monsoon Beauty Edit").status().name()).isEqualTo("CANCELLED");
