@@ -24,6 +24,7 @@ import { CampaignFormDrawer } from './CampaignFormDrawer'
 import { MemberDrawer } from './MemberDrawer'
 import { TargetsChart } from './TargetsChart'
 import './campaigns.css'
+import { AnimatePresence } from 'motion/react'
 
 const PAGE_SIZE = 50
 const csvCell = (v: string) => `"${v.replace(/"/g, '""')}"`
@@ -233,6 +234,7 @@ export function CampaignDetailScreen() {
         </div>
       </div>
 
+      <AnimatePresence>
       {member && (
         <MemberDrawer key={member.influencerId} campaign={c} member={member} influencer={infOf(member.influencerId)}
           onClose={() => setParam({ member: null })}
@@ -249,9 +251,11 @@ export function CampaignDetailScreen() {
             remove: () => save(() => removeMemberApi(c.id, member.influencerId)),
           } : undefined} />
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {editing && (
-        <CampaignFormDrawer editing={c} onClose={() => setEditing(false)}
+        <CampaignFormDrawer key="edit" editing={c} onClose={() => setEditing(false)}
           onSubmit={async input => {
             let err = ''
             if (api) {
@@ -266,12 +270,15 @@ export function CampaignDetailScreen() {
             return err
           }} />
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {dialog && (dialog.blockers.length ? (
-        <ReasonDialog title={`Can’t ${ACTION_LABEL[dialog.action].toLowerCase()} yet`} message={dialog.blockers.map(b => `• ${b}`).join('\n')}
+        <ReasonDialog key="blocked" title={`Can’t ${ACTION_LABEL[dialog.action].toLowerCase()} yet`} message={dialog.blockers.map(b => `• ${b}`).join('\n')}
           confirmLabel="OK" onConfirm={() => ''} onClose={() => setDialog(null)} />
       ) : (
         <ReasonDialog
+          key="confirm"
           title={`${ACTION_LABEL[dialog.action]}: ${c.name}?`}
           message={dialog.action === 'complete' ? 'Every influencer is done and paid. The campaign becomes read-only.' : undefined}
           reasonLabel={ACTION_NEEDS_REASON[dialog.action] ? 'Reason *' : undefined}
@@ -282,6 +289,7 @@ export function CampaignDetailScreen() {
             : runCampaign(c.id, x => changeStatus(x, dialog.action, reason, nameOf)))}
           onClose={() => setDialog(null)} />
       ))}
+      </AnimatePresence>
     </div>
   )
 }

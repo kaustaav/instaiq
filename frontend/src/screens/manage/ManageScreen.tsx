@@ -14,6 +14,7 @@ import { Pagination } from '../../components/Pagination'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
+import { AnimatePresence } from 'motion/react'
 
 const PAGE_SIZE = 50
 
@@ -176,7 +177,7 @@ export function ManageScreen({ onAdd, onEdit }: Props) {
         </div>
         <Pagination page={rows} onPage={p => go({ page: p })} />
       </div>
-      {optionsOpen && <OptionsDrawer onClose={() => setOptionsOpen(false)} />}
+      <AnimatePresence>{optionsOpen && <OptionsDrawer key="options" onClose={() => setOptionsOpen(false)} />}</AnimatePresence>
     </div>
   )
 }

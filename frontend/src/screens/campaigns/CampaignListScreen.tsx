@@ -16,6 +16,7 @@ import { Pagination } from '../../components/Pagination'
 import { CampaignFormDrawer } from './CampaignFormDrawer'
 import { BudgetBar } from './BudgetBar'
 import './campaigns.css'
+import { AnimatePresence } from 'motion/react'
 
 const PAGE_SIZE = 50
 const STATUS_FILTERS: ('ALL' | CampaignStatus)[] = ['ALL', 'DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']
@@ -133,8 +134,10 @@ export function CampaignListScreen() {
         <Pagination page={rows} onPage={p => go({ page: p })} noun="campaigns" />
       </div>
 
+      <AnimatePresence>
       {creating && (
         <CampaignFormDrawer
+          key="new"
           editing={null}
           onClose={() => setCreating(false)}
           onSubmit={async input => {
@@ -157,6 +160,7 @@ export function CampaignListScreen() {
           }}
         />
       )}
+      </AnimatePresence>
     </div>
   )
 }

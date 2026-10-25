@@ -125,8 +125,8 @@ function SignInScreen() {
   useEffect(() => { loadGoogle().then(id => id.prompt()).catch(() => {}) }, []) // One Tap: returning users can skip the button
   return (
     <Centered>
-      <div className="auth-brand">InfluenceIQ</div>
-      <h1>Sign in</h1>
+      <img className="auth-icon" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
+      <h1>Sign in to InfluenceIQ</h1>
       <p>Use your company Google account.</p>
       <GoogleButton />
     </Centered>

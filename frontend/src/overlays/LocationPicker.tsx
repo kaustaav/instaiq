@@ -159,7 +159,7 @@ export function LocationPicker({ cities, states, onChange, onError }: Props) {
         </div>
       )}
       <div ref={rootRef} style={{ position: 'relative' }} onBlur={onBlur}>
-        <div className="search-box" style={{ background: 'white', padding: '0 10px' }}>
+        <div className="search-box field-box" style={{ padding: '0 10px' }}>
           <MapPin size={13} />
           <input
             type="text"

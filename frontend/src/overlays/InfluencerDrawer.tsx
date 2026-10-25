@@ -12,6 +12,7 @@ import { blankDraft, draftFrom, validate, type Draft } from '../lib/influencerFo
 import type { Influencer } from '../types'
 import { LocationPicker } from './LocationPicker'
 import './overlays.css'
+import { Overlay, Panel } from '../components/Overlay'
 
 type Props = {
   editing: Influencer | null // null = add
@@ -142,8 +143,8 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
   const ratesAside = editing ? `Current since ${mon(editing.rates[0].date)} · edits save as a new rate` : 'Will be dated today'
 
   return (
-    <div className="overlay" style={{ justifyContent: 'flex-end', zIndex: 210 }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <Overlay kind="drawer" z={210} onDismiss={onClose}>
+      <Panel kind="drawer" labelledBy="drawer-title">
         <div className="drawer-head">
           <div id="drawer-title" style={{ fontSize: 14, fontWeight: 600 }}>{editing ? 'Edit influencer' : 'Add influencer'}</div>
           <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}>
@@ -246,7 +247,7 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
             {saving ? 'Saving…' : editing ? 'Save changes' : 'Add influencer'}
           </button>
         </div>
-      </div>
-    </div>
+      </Panel>
+    </Overlay>
   )
 }
