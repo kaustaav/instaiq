@@ -49,8 +49,11 @@ public class ReferenceDataService {
         }
     }
 
-    /** A custom (user-added) value and how many influencers use it. */
-    public record CustomValue(String value, long usedBy) {}
+    /**
+     * A custom (user-added) value. Deliberately no usage count: counting every value across all influencers on each
+     * request grows with the data; "is it in use?" is checked only when someone deletes one.
+     */
+    public record CustomValue(String value) {}
 
     public record CustomValues(List<CustomValue> categories, List<CustomValue> languages) {}
 
@@ -119,17 +122,15 @@ public class ReferenceDataService {
         return new Added(stored.orElseThrow(), inserted > 0);
     }
 
-    /** Custom niches and languages (built-in ones aren't listed: they can't be changed), with usage counts. */
+    /** Custom niches and languages (built-in ones aren't listed: they can't be changed). */
     public CustomValues customValues() {
         return new CustomValues(custom(TaxonomyType.CATEGORY), custom(TaxonomyType.LANGUAGE));
     }
 
     private List<CustomValue> custom(TaxonomyType type) {
-        return jdbc.sql("""
-                        SELECT t.value, (SELECT count(*) FROM influencer i WHERE t.value = ANY(i.%s)) AS used_by
-                        FROM taxonomy t WHERE t.type = :type AND t.is_custom ORDER BY t.id""".formatted(type.column))
+        return jdbc.sql("SELECT value FROM taxonomy WHERE type = :type AND is_custom ORDER BY id")
                 .param("type", type.name())
-                .query((rs, n) -> new CustomValue(rs.getString("value"), rs.getLong("used_by")))
+                .query((rs, n) -> new CustomValue(rs.getString("value")))
                 .list();
     }
 
@@ -155,7 +156,7 @@ public class ReferenceDataService {
                             SET %1$s = CASE WHEN :target = ANY(%1$s) THEN array_remove(%1$s, :from)
                                             ELSE array_replace(%1$s, :from, :target) END,
                                 version = version + 1, updated_at = now(), updated_by = :actor
-                            WHERE :from = ANY(%1$s)""".formatted(type.column))
+                            WHERE %1$s @> ARRAY[:from]::text[]""".formatted(type.column)) // @> uses the GIN index; = ANY() can't
                     .param("from", from).param("target", target).param("actor", actor)
                     .update();
             String sql = merge ? "DELETE FROM taxonomy WHERE type = :type AND value = :from"
@@ -174,11 +175,11 @@ public class ReferenceDataService {
         String value = lookup(get(), type, raw == null ? "" : raw.trim())
                 .orElseThrow(() -> new NotFoundException(type.label, raw));
         requireCustom(type, value);
-        long used = jdbc.sql("SELECT count(*) FROM influencer WHERE :value = ANY(%s)".formatted(type.column))
-                .param("value", value).query(Long.class).single();
-        if (used > 0) {
-            throw new RuleViolationException("\"%s\" is used by %d influencer%s. Rename or merge it instead."
-                    .formatted(value, used, used == 1 ? "" : "s"));
+        // stops at the first influencer that has it, through the GIN index: cheap however many influencers there are
+        boolean used = jdbc.sql("SELECT EXISTS (SELECT 1 FROM influencer WHERE %s @> ARRAY[:value]::text[])".formatted(type.column))
+                .param("value", value).query(Boolean.class).single();
+        if (used) {
+            throw new RuleViolationException("\"%s\" is still used by influencers. Rename or merge it instead.".formatted(value));
         }
         jdbc.sql("DELETE FROM taxonomy WHERE type = :type AND value = :value")
                 .param("type", type.name()).param("value", value).update();

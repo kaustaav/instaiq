@@ -127,10 +127,9 @@ class CampaignContentApiTest {
                 .containsExactly("Name cc_loop: content is live but unpaid (pay or write off first)");
 
         // counts on the list card and the profile history
-        MvcTestResult list = mvc.get().uri("/api/campaigns").exchange();
-        String card = "$[?(@.id == " + ci[0] + ")]";
-        assertThat((List<Integer>) read(list, card + ".posted")).containsExactly(2);
-        assertThat((List<Integer>) read(list, card + ".unpaid")).containsExactly(1);
+        // posted / unpaid now live on the campaign itself, not the list
+        MvcTestResult campaign = mvc.get().uri("/api/campaigns/" + ci[0]).exchange();
+        assertThat((List<String>) read(campaign, "$.members[*].deliverables[?(@.status == 'POSTED')].status")).hasSize(2);
         MvcTestResult history = mvc.get().uri("/api/influencers/" + ci[1] + "/campaigns").exchange();
         assertThat((Integer) read(history, "$[0].posted")).isEqualTo(2);
         assertThat((Boolean) read(history, "$[0].removable")).isFalse();

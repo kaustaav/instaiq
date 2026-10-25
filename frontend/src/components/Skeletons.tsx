@@ -86,38 +86,37 @@ export function TableSkeleton({ rows = 8, cols, label = 'Loading influencers' }:
   )
 }
 
-/** Profile: header card with stats, then the two columns. */
+/** Profile: page bar, hero, metrics, then the two columns. */
 export function ProfileSkeleton() {
   return (
     <div className="screen-col">
-      <div className="crumbs"><Bone w={160} h={12} /></div>
-      <div className="scroll" style={{ background: 'var(--iq-gray-50)' }}>
+      <div className="scroll">
+        <div className="page-bar">
+          <Bone w={130} h={14} style={{ marginLeft: 8 }} />
+          <div style={{ flex: 1 }} />
+          <Bone w={150} h={30} r={999} /><Bone w={30} h={30} r={999} />
+        </div>
         <Loading label="Loading profile" className="profile">
-          <div className="card profile-head">
-            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-              <Circle size={64} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 6 }}>
-                <Bone w={220} h={22} />
-                <Bone w={280} h={11} />
-                <div style={{ display: 'flex', gap: 6 }}><Bone w={70} h={20} r={999} /><Bone w={60} h={20} r={999} /></div>
-              </div>
-              <Bone w={150} h={30} r={999} />
+          <div className="profile-hero">
+            <Circle size={76} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 4 }}>
+              <Bone w={240} h={26} r={8} /><Bone w={120} h={13} /><Bone w={300} h={12} />
+              <div style={{ display: 'flex', gap: 6 }}><Bone w={74} h={22} r={999} /><Bone w={64} h={22} r={999} /></div>
             </div>
+          </div>
+          <div className="card profile-card">
+            <Bone w={80} h={14} />
             <div className="profile-stats">
               {[0, 1, 2, 3].map(i => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                  <Bone w={56} h={22} /><Bone w={70} h={10} />
+                  <Bone w={60} h={24} /><Bone w={70} h={10} />
                 </div>
               ))}
             </div>
           </div>
           <div className="profile-cols">
-            <div className="card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <Bone w={80} h={11} /><Bone h={11} /><Bone w="92%" h={11} /><Bone w="60%" h={11} />
-            </div>
-            <div className="card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <Bone w={70} h={11} /><Bone w="80%" h={11} /><Bone w="55%" h={11} />
-            </div>
+            <div className="card profile-card"><Bone w={70} h={14} /><Bone h={12} /><Bone w="92%" h={12} /><Bone w="60%" h={12} /></div>
+            <div className="card profile-card"><Bone w={70} h={14} /><Bone w="80%" h={12} /><Bone w="55%" h={12} /></div>
           </div>
         </Loading>
       </div>
@@ -125,19 +124,15 @@ export function ProfileSkeleton() {
   )
 }
 
-/** Campaign list: stacked campaign cards. */
-export function CampaignCardsSkeleton({ count = 4 }: { count?: number }) {
+/** Campaign list: rows. */
+export function CampaignCardsSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <Loading label="Loading campaigns" className="camp-cards">
+    <Loading label="Loading campaigns" className="camp-list">
       {Array.from({ length: count }, (_, k) => (
-        <div key={k} className="camp-card skel-card">
-          <div className="camp-card-main" style={{ gap: 8 }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Bone w={W[k % W.length]} h={15} style={{ maxWidth: 260 }} /><Bone w={52} h={18} r={999} /></div>
-            <Bone w={220} h={11} />
-            <Bone w={170} h={11} />
-          </div>
-          <div className="camp-card-budget" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Bone w="50%" h={10} /><Bone h={6} r={999} />
+        <div key={k} className="camp-row">
+          <div className="camp-row-main" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            <div style={{ display: 'flex', gap: 8 }}><Bone w={W[k % W.length]} h={15} style={{ maxWidth: 260 }} /><Bone w={52} h={18} r={999} /></div>
+            <Bone w={200} h={11} />
           </div>
         </div>
       ))}
@@ -145,23 +140,29 @@ export function CampaignCardsSkeleton({ count = 4 }: { count?: number }) {
   )
 }
 
-/** Campaign detail: header card with target bars, then the member table. */
+/** Campaign detail: page bar, large title, target tiles, then the member table. */
 export function CampaignDetailSkeleton() {
   return (
     <div className="screen-col">
-      <div className="crumbs"><Bone w={110} h={12} /></div>
-      <div className="scroll" style={{ background: 'var(--iq-gray-50)' }}>
+      <div className="scroll">
+        <div className="page-bar">
+          <Bone w={110} h={14} style={{ marginLeft: 8 }} />
+          <div style={{ flex: 1 }} />
+          <Bone w={130} h={30} r={999} /><Bone w={30} h={30} r={999} />
+        </div>
         <Loading label="Loading campaign" className="camp-detail">
-          <div className="card camp-head">
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><Bone w={240} h={20} /><Bone w={200} h={11} /></div>
-              <div style={{ display: 'flex', gap: 6 }}><Bone w={130} h={30} r={999} /><Bone w={90} h={30} r={999} /></div>
+          <div className="page-title" style={{ gap: 10 }}>
+            <Bone w={300} h={28} r={8} /><Bone w={220} h={13} />
+          </div>
+          <div className="card camp-section">
+            <Bone w={70} h={14} />
+            <div className="targets">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="target" style={{ gap: 9 }}>
+                  <Bone w="60%" h={10} /><Bone w="45%" h={20} /><Bone h={6} r={999} /><Bone w="30%" h={10} />
+                </div>
+              ))}
             </div>
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                <Bone w={140} h={11} /><Bone w={256} h={8} r={999} /><Bone w={60} h={11} />
-              </div>
-            ))}
           </div>
           <TableSkeleton rows={6} cols={4} label="Loading influencers in this campaign" />
         </Loading>

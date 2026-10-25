@@ -3,10 +3,12 @@ package com.influenceiq.crm.campaign.api;
 import com.influenceiq.crm.campaign.Campaign;
 import com.influenceiq.crm.campaign.CampaignMember;
 import com.influenceiq.crm.campaign.CampaignRepository;
+import com.influenceiq.crm.campaign.CampaignStatus;
 import com.influenceiq.crm.campaign.api.CampaignResponse.Rates;
 import com.influenceiq.crm.common.NotFoundException;
 import com.influenceiq.crm.influencer.Influencer;
 import com.influenceiq.crm.influencer.InfluencerRepository;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -31,7 +33,12 @@ public class CampaignQueryService {
 
     /** All campaigns, newest first. Fine at agency scale (hundreds); add paging/filters here if it grows. */
     public List<CampaignSummary> list() {
-        return campaigns.findAllByOrderByIdDesc().stream().map(CampaignSummary::from).toList();
+        // the campaign table only: no members, deliverables or payments, and nothing counted per campaign
+        return jdbc.sql("SELECT id, name, brand, status, start_date, end_date, created_at FROM campaign ORDER BY id DESC")
+                .query((rs, n) -> new CampaignSummary(rs.getLong("id"), rs.getString("name"), rs.getString("brand"),
+                        CampaignStatus.valueOf(rs.getString("status")), rs.getObject("start_date", LocalDate.class),
+                        rs.getObject("end_date", LocalDate.class), rs.getTimestamp("created_at").toInstant()))
+                .list();
     }
 
     public CampaignResponse get(long id) {

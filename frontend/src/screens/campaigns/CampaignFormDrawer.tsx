@@ -53,24 +53,31 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
     <Overlay kind="drawer" z={210} onDismiss={onClose}>
       <Panel kind="drawer" labelledBy="cf-title" style={{ width: 480 }}>
         <div className="drawer-head">
-          <div id="cf-title" style={{ fontSize: 14, fontWeight: 600 }}>{editing ? 'Edit campaign' : 'New campaign'}</div>
-          <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}><X size={16} /></button>
+          <div id="cf-title">{editing ? 'Edit campaign' : 'New campaign'}</div>
+          <button type="button" className="btn btn-plain" aria-label="Close" onClick={onClose}><X size={16} /></button>
         </div>
-        <div className="drawer-body">
-          <label className="field"><span>Campaign name *</span>
-            <input className="input" autoComplete="off" placeholder="e.g. Diwali Bridal Push" value={f.name} onChange={set('name')} autoFocus />
-          </label>
-          <label className="field"><span>Brand *</span>
-            <input className="input" autoComplete="off" placeholder="Brand name" value={f.brand} onChange={set('brand')} />
-          </label>
-          <label className="field"><span>Brief</span>
-            <textarea className="input" rows={4} placeholder="What the brand wants, must-haves, do’s and don’ts" value={f.brief} onChange={set('brief')} />
-          </label>
-          <div className="form-grid-2">
-            <label className="field"><span>Start date</span><input type="date" className="input" value={f.startDate} onChange={set('startDate')} /></label>
-            <label className="field"><span>End date</span><input type="date" className="input" value={f.endDate} onChange={set('endDate')} /></label>
-          </div>
-          <div>
+        <div className="drawer-body grouped">
+          <section className="form-group">
+            <div className="form-group-head"><h3>Campaign</h3></div>
+            <label className="field"><span>Campaign name *</span>
+              <input className="input" autoComplete="off" placeholder="e.g. Diwali Bridal Push" value={f.name} onChange={set('name')} autoFocus />
+            </label>
+            <label className="field"><span>Brand *</span>
+              <input className="input" autoComplete="off" placeholder="Brand name" value={f.brand} onChange={set('brand')} />
+            </label>
+            <label className="field"><span>Brief</span>
+              <textarea className="input" rows={4} placeholder="What the brand wants, must-haves, do’s and don’ts" value={f.brief} onChange={set('brief')} />
+            </label>
+          </section>
+          <section className="form-group">
+            <div className="form-group-head"><h3>Dates</h3></div>
+            <div className="form-grid-2">
+              <label className="field"><span>Start date</span><input type="date" className="input" value={f.startDate} onChange={set('startDate')} /></label>
+              <label className="field"><span>End date</span><input type="date" className="input" value={f.endDate} onChange={set('endDate')} /></label>
+            </div>
+          </section>
+          <section className="form-group">
+            <div className="form-group-head"><h3>Targets</h3></div>
             <div className="form-grid-4">
               <label className="field"><span>Influencers *</span>
                 <input type="number" min={1} step={1} className="input mono" placeholder="0" value={f.influencers} onChange={set('influencers')} />
@@ -79,18 +86,21 @@ export function CampaignFormDrawer({ editing, onSubmit, onClose }: Props) {
               <label className="field"><span>Stories</span><input type="number" min={0} step={1} className="input mono" placeholder="0" value={f.stories} onChange={set('stories')} /></label>
               <label className="field"><span>Posts</span><input type="number" min={0} step={1} className="input mono" placeholder="0" value={f.posts} onChange={set('posts')} /></label>
             </div>
-            <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>How many the brand wants. Reels, stories and posts are optional totals for the whole campaign.</div>
-          </div>
-          <label className="field"><span>Budget (₹)</span>
-            <input type="number" min={0} className="input mono" placeholder="0" value={f.budget} onChange={set('budget')} />
-            <span className="muted" style={{ fontSize: 11, fontWeight: 400 }}>Going over budget shows a warning; it doesn’t block.</span>
-          </label>
-          {!editing && <div className="muted" style={{ fontSize: 12 }}>New campaigns start as <b>Draft</b>. Activate once dates are set and at least one influencer is added.</div>}
+            <div className="form-hint">How many the brand wants. Reels, stories and posts are optional totals for the whole campaign.</div>
+          </section>
+          <section className="form-group">
+            <div className="form-group-head"><h3>Budget</h3></div>
+            <label className="field"><span>Budget (₹)</span>
+              <input type="number" min={0} className="input mono" placeholder="0" value={f.budget} onChange={set('budget')} />
+              <span className="form-hint">Going over budget shows a warning; it doesn’t block.</span>
+            </label>
+          </section>
+          {!editing && <div className="form-hint" style={{ padding: '0 4px' }}>New campaigns start as <b>Draft</b>. Activate once dates are set and at least one influencer is added.</div>}
         </div>
         <div className="drawer-foot">
           <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-danger)', whiteSpace: 'pre-line' }}>{error}</div>
-          <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create campaign'}</button>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button type="button" className="btn btn-blue" disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create campaign'}</button>
         </div>
       </Panel>
     </Overlay>

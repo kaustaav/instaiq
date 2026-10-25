@@ -107,11 +107,11 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
     <Overlay kind="drawer" z={210} onDismiss={onClose}>
       <Panel kind="drawer" labelledBy="opt-title" style={{ width: 480 }}>
         <div className="drawer-head">
-          <div id="opt-title" style={{ fontSize: 14, fontWeight: 600 }}>Niches &amp; languages</div>
-          <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}><X size={16} /></button>
+          <div id="opt-title">Niches &amp; languages</div>
+          <button type="button" className="btn btn-plain" aria-label="Close" onClick={onClose}><X size={16} /></button>
         </div>
-        <div className="drawer-body">
-          <div className="muted" style={{ fontSize: 12 }}>
+        <div className="drawer-body grouped">
+          <div className="form-hint" style={{ padding: '0 4px' }}>
             Add new ones here or from the influencer form. Below are the ones your team added: renaming fixes the name on
             every influencer; renaming onto an existing name merges them. Built-in niches and languages can’t be changed.
           </div>
@@ -120,15 +120,15 @@ export function OptionsDrawer({ onClose }: { onClose: () => void }) {
           {(['cats', 'langs'] as const).map(kind => {
             const list = options(kind)
             return (
-              <section key={kind} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div className="label">{KIND_LABEL[kind]}s</div>
+              <section key={kind} className="form-group">
+                <div className="form-group-head"><h3>{KIND_LABEL[kind]}s</h3></div>
                 {list == null ? <RowsSkeleton rows={2} label={`Loading ${KIND_LABEL[kind].toLowerCase()}s`} />
                   : list.length === 0 ? <div className="muted" style={{ fontSize: 12 }}>None added yet.</div>
                   : list.map(o => (
                     <OptionRow key={o.value} option={o}
                       onRename={to => askRename(kind, o.value, to)}
                       onDelete={() => setConfirm({
-                        title: `Delete “${o.value}”?`, message: 'It disappears from the list. No influencer uses it.',
+                        title: `Delete “${o.value}”?`, message: 'It disappears from the list. If an influencer still has it, you’ll be asked to rename or merge it instead.',
                         confirmLabel: 'Delete', danger: true, run: () => remove(kind, o.value),
                       })} />
                   ))}
@@ -157,7 +157,6 @@ function OptionRow({ option, onRename, onDelete }: {
   const [value, setValue] = useState(option.value)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const used = option.usedBy
 
   const save = async () => {
     setBusy(true)
@@ -182,11 +181,9 @@ function OptionRow({ option, onRename, onDelete }: {
         <>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 500 }}>{option.value}</div>
-            <div className="muted" style={{ fontSize: 11 }}>{used ? `Used by ${used} influencer${used === 1 ? '' : 's'}` : 'Not used'}</div>
           </div>
           <button type="button" className="btn btn-ghost btn-sm" style={{ gap: 4 }} onClick={() => setEditing(true)}><Pencil size={11} />Rename</button>
-          <button type="button" className="btn btn-ghost btn-sm md-danger" style={{ gap: 4 }} disabled={used > 0}
-            title={used ? 'In use: rename or merge it instead' : undefined} onClick={onDelete}>
+          <button type="button" className="btn btn-ghost btn-sm md-danger" style={{ gap: 4 }} onClick={onDelete}>
             <Trash2 size={11} />Delete
           </button>
         </>

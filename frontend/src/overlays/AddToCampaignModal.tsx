@@ -92,7 +92,7 @@ export function AddToCampaignModal({ influencerIds, onClose }: { influencerIds: 
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{c.name}</div>
                   <div className="muted" style={{ fontSize: 11, marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
-                    {c.brand} · {c.members} influencers <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
+                    {c.brand} <Pill tone={CAMPAIGN_TONE[c.status]}>{CAMPAIGN_STATUS_LABEL[c.status]}</Pill>
                   </div>
                   {message[c.id] && <div style={{ fontSize: 11, marginTop: 3, color: 'var(--iq-fg-2)', whiteSpace: 'pre-line' }}>{message[c.id]}</div>}
                 </div>

@@ -1,102 +1,109 @@
-/* ---------- List ---------- */
-.camp-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-.camp-cards { display: flex; flex-direction: column; gap: 10px; }
-.camp-card {
+/* ---------- List: light Mail-style rows (progress and money are on each campaign's page) ---------- */
+.camp-list { background: white; border-radius: var(--iq-radius-card); box-shadow: var(--iq-shadow-1); overflow: hidden; }
+.camp-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  background: white;
-  border-radius: var(--iq-radius-card);
-  box-shadow: var(--iq-shadow-1);
+  gap: 14px;
+  padding: 14px 16px 14px 20px;
   color: var(--iq-fg-1);
-  transition: box-shadow 220ms var(--iq-ease-out), transform 220ms var(--iq-ease-out);
+  border-top: 1px solid var(--iq-border);
+  transition: background 120ms;
 }
-.camp-card:hover { text-decoration: none; box-shadow: var(--iq-shadow-3); transform: translateY(-2px); }
-.camp-card:active { transform: scale(0.99); transition-duration: 100ms; }
-.camp-card:focus-visible { outline: none; box-shadow: var(--iq-focus); }
-.camp-card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.camp-card-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.camp-card-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-.camp-card-meta { font-size: 12px; color: var(--iq-fg-3); }
-.camp-card-budget { width: 220px; flex-shrink: 0; }
-
-.budget-bar { height: 6px; border-radius: 999px; background: var(--iq-gray-100); overflow: hidden; }
-.budget-bar > div { height: 100%; border-radius: 999px; transition: width 240ms var(--iq-ease-out); }
+.camp-row:first-child { border-top: none; }
+.camp-row:hover { background: var(--iq-gray-25); text-decoration: none; }
+.camp-row:active { background: var(--iq-gray-50); }
+.camp-row:focus-visible { outline: none; box-shadow: inset var(--iq-focus); }
+.camp-row-main { flex: 1; min-width: 0; }
+.camp-row-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.camp-row-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.camp-row-meta { font-size: 13px; color: var(--iq-fg-3); margin-top: 2px; }
+.camp-row-chevron { color: var(--iq-gray-300); flex-shrink: 0; }
 
 /* ---------- Detail ---------- */
-.camp-detail { max-width: 1080px; margin: 0 auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 12px; }
-.camp-head { border-radius: var(--iq-radius-card); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
-.camp-head-top { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
-.camp-head-name { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
-.camp-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.camp-detail { max-width: 1080px; margin: 0 auto; padding: 8px 28px 32px; display: flex; flex-direction: column; gap: 14px; }
+.camp-section { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.camp-section h3 { font-size: 15px; }
 .camp-actions .btn:disabled, .md-section .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .camp-budget { max-width: 420px; }
-.camp-warn { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12px; color: #C4161C; }
-.camp-brief { margin: 0; font-size: 13px; line-height: 1.6; color: var(--iq-fg-2); white-space: pre-wrap; }
+.camp-warn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--iq-danger); }
+.camp-brief { margin: 0; font-size: 14px; line-height: 1.6; color: var(--iq-fg-2); white-space: pre-wrap; }
 .camp-readonly {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  background: var(--iq-gray-50);
-  border: 1px dashed var(--iq-border);
-  font-size: 12px;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--iq-fill);
+  font-size: 13px;
   color: var(--iq-fg-2);
 }
-.camp-members-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-a.btn-plain:hover, a.btn-ghost:hover { text-decoration: none; }
+.camp-members-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.camp-members-head .count { color: var(--iq-fg-3); font-weight: 600; margin-left: 4px; }
+/* stage filter: white pills, the chosen one dark */
+.stage-filter .chip { background: white; color: var(--iq-fg-1); box-shadow: var(--iq-shadow-1); }
+.stage-filter .chip.on { background: var(--iq-navy); color: white; box-shadow: none; }
+a.btn-plain:hover, a.btn-ghost:hover, a.btn-tint:hover { text-decoration: none; }
 
-/* ---------- Member drawer ---------- */
-.md-section { display: flex; flex-direction: column; gap: 8px; }
-.md-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+/* ---------- Member drawer: grouped cards (the grey body comes from .drawer-body.grouped) ---------- */
+.md-section { display: flex; flex-direction: column; gap: 10px; }
+.md-summary .md-next { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.md-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .md-section > .md-actions { justify-content: flex-start; }
 .md-danger { color: var(--iq-danger) !important; }
-.md-quote { font-size: 12px; color: var(--iq-fg-2); font-style: italic; }
-.md-terms { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; font-size: 13px; }
-.md-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--iq-border);
-  border-radius: 8px;
-  background: var(--iq-gray-25);
-}
-.md-inline { display: flex; gap: 6px; flex-wrap: wrap; }
+.md-quote { font-size: 13px; color: var(--iq-fg-2); font-style: italic; }
+.md-terms { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; font-size: 14px; }
+.md-box { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 10px; background: var(--iq-gray-50); }
+/* rows inside a card, hairline between them */
+.md-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.md-item { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; border-top: 1px solid var(--iq-border); }
+.md-list > .md-item:first-child { border-top: none; padding-top: 2px; }
+.md-list > .md-item:last-child { padding-bottom: 0; }
+.md-pay { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--iq-border); font-size: 14px; }
+.md-pay:first-child { border-top: none; }
+.md-link { display: inline-flex; align-items: center; gap: 1px; font-weight: 500; }
+.md-inline { display: flex; gap: 8px; flex-wrap: wrap; }
 .md-inline .input { flex: 1; min-width: 160px; }
-.md-revisions { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-.md-revisions a { display: inline-flex; align-items: center; gap: 2px; }
+.md-revisions { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+/* "Remove from campaign": a red row of its own at the bottom, as in iPhone Settings */
+.md-destructive { padding: 0 !important; overflow: hidden; }
+.md-destructive-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 13px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--iq-danger);
+  cursor: pointer;
+}
+.md-destructive-btn:hover:not(:disabled) { background: #FFF5F5; }
+.md-destructive-btn:active:not(:disabled) { background: #FDE8E7; }
+.md-destructive-btn:focus-visible { box-shadow: inset var(--iq-focus); }
+.md-destructive-btn:disabled { opacity: 0.4; cursor: default; }
+.md-destructive > div { padding: 0 16px 12px; }
 
 /* ---------- Phones ---------- */
 @media (max-width: 768px) {
-  .camp-card { flex-direction: column; align-items: stretch; gap: 10px; }
-  .camp-card-budget { width: auto; }
-  .camp-detail { padding: 12px; }
-  .camp-head { padding: 14px; }
-  .camp-actions { width: 100%; }
+  .camp-row { padding: 12px 12px 12px 16px; gap: 10px; }
+  .camp-detail { padding: 6px 14px 24px; }
+  .camp-section { padding: 16px; }
 }
 
-.md-payments { width: 100%; border-collapse: collapse; font-size: 12px; }
-.md-payments th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0; color: var(--iq-fg-3); padding: 0 8px 6px 0; border-bottom: 1px solid var(--iq-border); }
-.md-payments td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--iq-border); }
-.md-payments .r { text-align: right; }
-.md-payments a { display: inline-flex; align-items: center; gap: 2px; }
-
-/* Targets vs actual (TargetsChart) */
-.tchart { display: flex; flex-direction: column; gap: 9px; max-width: 720px; }
-.tchart-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 2px; }
-.tchart-legend { display: flex; gap: 12px; font-size: 11px; color: var(--iq-fg-3); }
-.tchart-legend > span { display: inline-flex; align-items: center; gap: 4px; }
-.tchart-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
-.tchart-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 290px; align-items: center; gap: 12px; }
-.tchart-label { font-size: 12px; color: var(--iq-fg-2); }
-.tchart-track { position: relative; height: 10px; border-radius: 5px; background: var(--iq-gray-100); overflow: hidden; }
-.tchart-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; transition: width 280ms ease; }
-.tchart-value { font-size: 12px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-.tchart-note { font-family: var(--iq-font-sans); font-size: 11px; color: var(--iq-fg-3); }
+/* Targets vs actual (TargetsChart): Fitness-style tiles */
+.targets { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.target { background: var(--iq-gray-50); border-radius: 12px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.target-label { font-size: 12px; font-weight: 500; color: var(--iq-fg-3); }
+/* the big number, then "of target" on its own line so long amounts never get cut and bars line up */
+.target-value { display: flex; flex-direction: column; font-size: 12px; color: var(--iq-fg-3); line-height: 1.3; }
+.target-value span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.target-value b { font-family: var(--iq-font-display); font-size: 22px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; color: var(--iq-fg-1); }
+.target-track { height: 6px; border-radius: 999px; background: var(--iq-gray-200); overflow: hidden; margin-top: 2px; }
+.target-fill { height: 100%; border-radius: 999px; transition: width 450ms var(--iq-spring); }
+.target-note { font-size: 12px; font-weight: 500; color: var(--iq-fg-3); }
+/* after the base rule, so it wins on phones */
 @media (max-width: 768px) {
-  .tchart-row { grid-template-columns: 1fr auto; gap: 4px 10px; }
-  .tchart-track { grid-column: 1 / -1; grid-row: 2; }
+  .targets { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .target { padding: 12px; }
+  .target-value b { font-size: 19px; }
 }

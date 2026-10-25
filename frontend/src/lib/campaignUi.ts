@@ -1,5 +1,4 @@
 import type { Campaign, CampaignStatus, DeliverableStatus, DisplayStage, PaymentStatus } from '../types'
-import { budgetUsed, campaignSummary } from './campaigns'
 import { TONE, type Tone } from './palette'
 
 export type { Tone } from './palette'
@@ -34,7 +33,7 @@ export const fmtDate = (iso?: string) =>
 
 export const fmtRange = (a?: string, b?: string) => (a || b ? `${fmtDate(a)} → ${fmtDate(b)}` : 'Dates not set')
 
-/** What a campaign card (list, add-to-campaign popup) shows. Built from a full campaign (demo) or an API summary. */
+/** One row of the campaign list (and the add-to-campaign dialog): light on purpose; the rest is on the campaign page. */
 export type CampaignCard = {
   id: number
   name: string
@@ -42,23 +41,12 @@ export type CampaignCard = {
   status: CampaignStatus
   startDate?: string
   endDate?: string
-  budget: number | null
-  budgetUsed: number
-  targetInfluencers: number
-  members: number
-  stages: Map<DisplayStage, number>
-  deliverables: number
-  posted: number
-  inReview: number
-  unpaid: number
   createdAt: string
 }
 
 export function cardFromCampaign(c: Campaign): CampaignCard {
-  const s = campaignSummary(c)
   return {
-    id: c.id, name: c.name, brand: c.brand, status: c.status, startDate: c.startDate, endDate: c.endDate, budget: c.budget,
-    budgetUsed: budgetUsed(c), targetInfluencers: c.targetInfluencers, members: s.members, stages: s.stages, deliverables: s.deliverables, posted: s.posted,
-    inReview: s.inReview, unpaid: s.unpaid, createdAt: c.createdAt,
+    id: c.id, name: c.name, brand: c.brand, status: c.status, startDate: c.startDate, endDate: c.endDate,
+    createdAt: c.createdAt,
   }
 }

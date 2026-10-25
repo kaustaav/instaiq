@@ -59,11 +59,10 @@ export type ApiCampaign = {
   members: ApiMember[]
 }
 
+/** One row of the campaign list: light on purpose (members, progress and money are on GET /campaigns/{id}). */
 type ApiCampaignSummary = {
   id: number; name: string; brand: string; status: CampaignStatus
-  startDate: string | null; endDate: string | null; budgetInr: number | null; budgetUsedInr: number; targets: ApiTargets
-  memberCount: number; stageCounts: Partial<Record<DisplayStage, number>>
-  deliverables: number; posted: number; inReview: number; unpaid: number; createdAt: string
+  startDate: string | null; endDate: string | null; createdAt: string
 }
 
 export type AddResult = {
@@ -132,9 +131,7 @@ const opt = <T,>(v: T | null): T | undefined => v ?? undefined
 function cardFromSummary(s: ApiCampaignSummary): CampaignCard {
   return {
     id: s.id, name: s.name, brand: s.brand, status: s.status, startDate: opt(s.startDate), endDate: opt(s.endDate),
-    budget: s.budgetInr, budgetUsed: s.budgetUsedInr, targetInfluencers: s.targets.influencers, members: s.memberCount,
-    stages: new Map(Object.entries(s.stageCounts) as [DisplayStage, number][]),
-    deliverables: s.deliverables, posted: s.posted, inReview: s.inReview, unpaid: s.unpaid, createdAt: s.createdAt,
+    createdAt: s.createdAt,
   }
 }
 

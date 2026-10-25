@@ -60,7 +60,8 @@ Without it, deep links return 301 + 404 (the page still renders, but monitors an
 
 ## GitHub Pages (manual)
 ```bash
-cd frontend && npm run build:pages && touch dist/.nojekyll
+# demo mode: blank the API and sign-in settings so .env.local can never leak into the public demo
+cd frontend && VITE_API_URL= VITE_GOOGLE_CLIENT_ID= npm run build:pages && touch dist/.nojekyll
 cd dist && git init -q -b gh-pages && git add -A && git commit -qm "Publish UI demo"
 git push -f https://github.com/kaustaav/instaiq.git gh-pages && rm -rf .git
 cd ../.. && scripts/smoke-test.sh https://kaustaav.github.io/instaiq --pages

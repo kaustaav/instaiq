@@ -32,12 +32,13 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function Section({ title, aside, children, gap = 10 }: { title: string; aside?: string; children: ReactNode; gap?: number }) {
+/** One group of the form: a white rounded card (iPhone Settings style) with its title and an optional note. */
+function Section({ title, aside, children }: { title: string; aside?: string; children: ReactNode }) {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap }}>
-      <div className="label drawer-section-title" style={{ letterSpacing: '0.07em' }}>
-        <span>{title}</span>
-        {aside && <span className="drawer-section-aside">{aside}</span>}
+    <section className="form-group">
+      <div className="form-group-head">
+        <h3>{title}</h3>
+        {aside && <span>{aside}</span>}
       </div>
       {children}
     </section>
@@ -56,11 +57,11 @@ function AddInput({ placeholder, onAdd }: { placeholder: string; onAdd: (v: stri
     if (ok) setV('')
   }
   return (
-    <div style={{ display: 'flex', gap: 5, maxWidth: 300 }}>
-      <input type="text" className="input input-sm" autoComplete="off" placeholder={placeholder} aria-label={placeholder} value={v}
+    <div className="add-row">
+      <input type="text" className="input" autoComplete="off" placeholder={placeholder} aria-label={placeholder} value={v}
         onChange={e => setV(e.target.value)}
         onKeyDown={(e: KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); submit() } }} />
-      <button type="button" className="btn btn-ghost" style={{ fontWeight: 400, padding: '5px 10px' }} disabled={busy} onClick={submit}>Add</button>
+      <button type="button" className="btn btn-ghost" disabled={busy || !v.trim()} onClick={submit}>Add</button>
     </div>
   )
 }
@@ -146,13 +147,13 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
     <Overlay kind="drawer" z={210} onDismiss={onClose}>
       <Panel kind="drawer" labelledBy="drawer-title">
         <div className="drawer-head">
-          <div id="drawer-title" style={{ fontSize: 14, fontWeight: 600 }}>{editing ? 'Edit influencer' : 'Add influencer'}</div>
-          <button type="button" className="btn btn-plain" aria-label="Close" style={{ padding: 4, color: 'var(--iq-fg-3)' }} onClick={onClose}>
+          <div id="drawer-title">{editing ? 'Edit influencer' : 'Add influencer'}</div>
+          <button type="button" className="btn btn-plain" aria-label="Close" onClick={onClose}>
             <X size={16} />
           </button>
         </div>
 
-        <div className="drawer-body">
+        <div className="drawer-body grouped">
           <Section title="Basics">
             <div className="form-grid-2">
               <Field label="Full name *"><input type="text" className="input" placeholder="Full name" {...text('name')} /></Field>
@@ -167,19 +168,19 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
             </div>
           </Section>
 
-          <Section title="Location *" gap={8}>
-            <div className="muted" style={{ fontSize: 12 }}>Search a city or a state. If you only know the state, pick the state on its own.</div>
+          <Section title="Location *">
+            <div className="form-hint">Search a city or a state. If you only know the state, pick the state on its own.</div>
             <LocationPicker cities={f.cities} states={f.states} onChange={(cities, states) => set({ cities, states })} onError={m => setError(m ? { message: m } : null)} />
           </Section>
 
-          <Section title="Niches *" gap={8}>
+          <Section title="Niches *">
             <div className="chips">
               {cats.map(c => {
                 const on = f.cats.includes(c)
                 const cc = categoryColor(c)
                 return (
                   <button key={c} type="button" className="chip" aria-pressed={on}
-                    style={{ padding: '4px 10px', background: on ? cc.bg : 'var(--iq-gray-100)', color: on ? cc.fg : 'var(--iq-fg-2)', borderColor: on ? cc.fg : 'transparent' }}
+                    style={{ padding: '5px 12px', background: on ? cc.bg : 'var(--iq-gray-100)', color: on ? cc.fg : 'var(--iq-fg-1)', boxShadow: on ? `inset 0 0 0 1.5px ${cc.fg}` : 'none' }}
                     onClick={() => set({ cats: toggle(f.cats, c) })}>
                     {c}
                   </button>
@@ -189,13 +190,13 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
             <AddInput placeholder="Add a new niche" onAdd={v => addOption(v, 'cats')} />
           </Section>
 
-          <Section title="Languages" gap={8}>
+          <Section title="Languages">
             <div className="chips">
               {langList.shown.map(l => {
                 const on = f.langs.includes(l)
                 return (
                   <button key={l} type="button" className="chip" aria-pressed={on}
-                    style={{ padding: '4px 10px', background: on ? 'var(--iq-navy)' : 'var(--iq-gray-100)', color: on ? 'white' : 'var(--iq-fg-2)' }}
+                    style={{ padding: '5px 12px', background: on ? 'var(--iq-navy)' : 'var(--iq-gray-100)', color: on ? 'white' : 'var(--iq-fg-1)' }}
                     onClick={() => set({ langs: toggle(f.langs, l) })}>
                     {l}
                   </button>
@@ -224,16 +225,16 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
           </Section>
 
           <Section title="Profile">
-            <Field label="Bio"><textarea rows={3} className="input" style={{ padding: '8px 10px' }} {...text('bio')} /></Field>
+            <Field label="Bio"><textarea rows={3} className="input" {...text('bio')} /></Field>
             <Field label="Top hashtags">
               <input type="text" className="input" placeholder="#hashtag, #hashtag" {...text('tags')} />
-              <span className="muted" style={{ fontSize: 11, fontWeight: 400 }}>Separate with commas</span>
+              <span className="form-hint">Separate with commas</span>
             </Field>
           </Section>
         </div>
 
         <div className="drawer-foot">
-          <div role="alert" style={{ flex: 1, fontSize: 12, color: 'var(--iq-danger)' }}>
+          <div role="alert" style={{ flex: 1, fontSize: 13, color: 'var(--iq-danger)' }}>
             {error?.message}
             {error?.errors && error.errors.length > 0 && (
               <ul style={{ margin: '2px 0 0', paddingLeft: 16 }}>{error.errors.map(m => <li key={m}>{m}</li>)}</ul>
@@ -242,8 +243,8 @@ export function InfluencerDrawer({ editing, onClose, onSaved }: Props) {
               <> <Link to={`/influencers/${error.existingId}`} onClick={onClose}>Open their profile</Link></>
             )}
           </div>
-          <button type="button" className="btn btn-ghost" style={{ padding: '7px 14px', fontSize: 13 }} onClick={onClose}>Cancel</button>
-          <button type="button" className="btn btn-blue" style={{ padding: '7px 14px', fontSize: 13 }} disabled={saving} onClick={save}>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button type="button" className="btn btn-blue" disabled={saving} onClick={save}>
             {saving ? 'Saving…' : editing ? 'Save changes' : 'Add influencer'}
           </button>
         </div>

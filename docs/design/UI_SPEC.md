@@ -31,6 +31,13 @@ respond on press, move on springs, enter and leave along the same path, follow t
   fields with a round clear button; macOS focus halo (`--iq-focus`).
 - **Motion:** critically damped springs (no bounce) for anything opened by a click; a little bounce only after a flick.
   Pressed states show on pointer-down (buttons scale to 97%).
+- **Page structure:** list pages (Campaigns, Manage) have a large title, then a frosted toolbar (search, filters) that
+  pins once the title scrolls away. Detail pages (a campaign, a profile) have a frosted page bar: "‹ Back" on the left,
+  the main action and a ••• menu on the right, and the page's name fading into the bar once its large title scrolls away.
+- **One main action, the rest in •••:** a single blue button for the natural next step; secondary and destructive
+  actions in a ••• menu (destructive last, in red).
+- **Forgiveness over confirmation:** reversible actions happen at once with an Undo notice (archive); only
+  irreversible ones ask first (demo delete, cancelling a campaign).
 - **Accessibility settings:** Reduce motion (no slides or scaling; cross-fades; still skeletons), Reduce transparency
   (frosted surfaces become solid), Increase contrast (cards get defined edges).
 
@@ -95,28 +102,61 @@ Two columns: **Filters** (236px, on the page colour) + **Results**.
 Empty state: "No influencers match" / "Try adjusting the filters".
 
 ### 2. Influencer Profile
-Frosted breadcrumb bar "← Search Results › Name". Content max-width 1080.
-- **Header card**: 58px avatar, name (24/700), @handle link; location line ("City, State · State (city not known)") and languages; category tags. Buttons: Edit · View on Instagram · **Add to Campaign** (primary). Status (API mode): Active / On hold / Banned / Archived; anything but Active asks for a reason.
-- **Stats**: four soft grey tiles — Followers · Eng. Rate · Avg Likes · Avg Comments (24/700). Under them: "Metrics" + freshness pill + exact date.
-- **Two columns** `1fr 300px`:
-  - Left: About (bio); Campaign history (campaigns in InfluenceIQ, with stage and campaign status; then "Earlier collaborations (before InfluenceIQ)").
-  - Right: Contact · **Pricing (INR)** with "as of Mon YYYY" coloured by rate freshness; Story / Reel / Post; "Show rate history (N earlier)" · Top hashtags · Notes (inline edit).
+Page bar: "‹ Search Results" (or wherever you came from), the name once it scrolls away, **Edit** (pencil only on
+phones), **Add to Campaign**, and with the backend a ••• menu of status changes (Mark active / Put on hold… /
+Archive… / Ban…, each but Active asks for a reason). Content max-width 1080.
+- **Hero** (no card): 76px avatar, name (30/700), @handle link, location ("City, State · State (city not known)") and
+  languages, niche tags, then contact buttons as in Contacts: **Instagram ↗** (tinted, opens a new tab), Email, Call
+  (greyed out with a tooltip when missing). A status note shows when they aren't active.
+- **Metrics** card: Followers · Eng. Rate · Avg Likes · Avg Comments in soft tiles; freshness pill and date in the header.
+- **Two columns** `1fr 320px`:
+  - Left: About; **Campaigns** as one list (campaign link, brand and date; stage and "n/m posted" on the right), then
+    "Before InfluenceIQ" collaborations.
+  - Right: Contact (mailto / tel links) · Pricing with "as of Mon YYYY" coloured by rate freshness and a rate-history
+    panel · Top hashtags · Notes (Edit → Cancel / Save).
 
 ### 3. Campaigns
-- **List**: large title "Campaigns" + "N active · N draft", **New campaign**. Toolbar: search (campaign or brand), status segmented control (All · Draft · Active · Completed · Cancelled · Archived, with counts), brand menu. Cards (white, radius 14): name + status pill, brand and dates, influencers and posts progress, drafts to review and unpaid counts, budget bar.
-- **Detail**: breadcrumb; header card with name, status, brand and dates, actions (status changes, Edit, Duplicate, CSV); **Targets vs actual** bars (influencers confirmed, reels/stories/posts posted, budget committed, paid for posted content); brief. Stage filter (All · Shortlisted · Contacted · Negotiating · In production · Completed · Declined) and "Add influencers"; members table (Influencer · Stage · Deliverables · Fee · Payment). A row opens the **member drawer** (terms, deliverables and drafts, payments, notes).
+- **List** (kept light on purpose, see CLAUDE.md): large title "Campaigns" + "N active · N draft", **New campaign**.
+  Pinned toolbar: search (campaign or brand), status segmented control (All · Draft · Active · Completed · Cancelled ·
+  Archived; scrolls sideways on phones), brand pop-up button. Rows, Mail-style: name + status pill, brand · dates, ›.
+  No counts or progress here: those are on each campaign's page.
+- **Detail**: page bar with "‹ Campaigns", the main action (Activate / Mark completed / Reopen / Unarchive) and •••
+  (Edit campaign, Duplicate, Export CSV, then Archive or **Cancel campaign** in red). Large title with status, brand and
+  dates. **Targets** card: tiles per measure (big number, "of target", bar, note: %, "All paid", "Over by ₹…" in red).
+  **Brief** card. **Influencers** heading with count and "Add influencers"; stage filter pills; members table
+  (Influencer · Stage · Deliverables · Fee · Payment). A row opens the member drawer.
+- **Member drawer** (grouped): header with avatar, name (links to the profile), handle and campaign. A summary card:
+  stage + **the next step in words** ("1 draft to review", "Next: agree terms", "All posted. Next: record payment",
+  "All done"…), when and by whom the stage changed, and the stage buttons. Then Agreed terms (or Agree terms with a
+  Paid / Barter / Paid + product segmented control), Deliverables (one list, actions per deliverable), Payment (status,
+  paid of fee, payments list with Receipt ↗, record or write off), Notes, and **Remove from campaign** as a red row.
 - Status changes that aren't allowed yet open a dialog listing every reason.
 
 ### 4. Manage Data
-Large title "Manage data" + "N influencers · N with stale metrics". Buttons: **Import CSV** (disabled, "Soon"), **Niches & languages** (drawer), **Add influencer** (primary).
-- Toolbar: search (name/handle) + freshness segmented control "All · Fresh · Ageing · Stale" with dots and counts.
-- Table: Influencer · Cities ("Not known" if none) · States · Niches · Languages · Followers · **Last updated** (pill) · actions (edit; archive in API mode / delete in demo mode, with inline confirm).
+Large title "Manage data" + "N influencers · N with stale metrics"; **Add influencer** and ••• (Niches & languages,
+Import CSV with a "Soon" tag, disabled).
+- Pinned toolbar: search (name/handle) + freshness segmented control "All · Fresh · Ageing · Stale" with dots and counts.
+- Table: Influencer · Location (cities, then states not already shown as a city) · Niches · Languages · Followers ·
+  Updated (pill) · ••• (Edit, View profile, then Archive with the backend or Delete in demo). Clicking a row opens the
+  profile. Archive is immediate with an Undo notice; demo Delete asks first (it can't be undone).
 
 ### Drawers and dialogs
 - One shared overlay (`components/Overlay.tsx`): a dim layer that fades (`rgba(0,0,0,0.24)`, click to close) and the panel above it.
 - **Drawers**: floating sheets inset 8px from the window edges, radius 16, full screen on phones. Title 17/700, round grey close button, footer on a faint grey. They spring in from the right and leave the same way; Esc, ✕ or clicking outside closes. **On touch screens, swipe right to close**: the drawer follows the finger; a flick closes even if short, a slow short drag springs back.
 - **Dialogs**: centered, radius 16, scale up from 95% on a spring and fade out quickly.
 - Focus moves into the panel when it opens and back to whatever opened it when it closes. Closing mid-animation reverses smoothly.
+- **Forms are grouped** (iPhone Settings style): grey body, each part a white rounded card with a title and an
+  optional note. Influencer form: Basics, Location, Niches, Languages, Metrics, Pricing, Profile. Campaign form:
+  Campaign, Dates, Targets, Budget. Niches & languages: one card each (names only, with Rename and Delete; deleting
+  one that's in use is refused with "rename or merge it instead").
+
+**••• menus** (`components/Menu.tsx`): float above the page (never clipped by a table), grow out of their button,
+open upwards near the bottom of the screen, close on scroll. One highlight, white on blue, that follows mouse or keyboard
+(↑↓ Home End, Enter, Esc / Tab closes and returns focus to the button).
+
+**Notices** (`lib/notify.ts`, shown by `components/Toasts.tsx`): small frosted cards that spring up at the bottom;
+successes clear after ~4s (6s with Undo), errors after 7s or ✕; at most three; announced to screen readers. No
+browser alert / prompt / confirm anywhere.
 
 **Add / Edit influencer drawer** (560px). Placeholders are **generic**, never real data: "Full name", "handle", "Email address", "Phone number", "0", "0.0", "₹", "#hashtag, #hashtag".
 - **Basics** (2 columns): Full name *, Instagram handle * ("@" prefix), Email, Phone.
