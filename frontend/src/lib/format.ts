@@ -1,3 +1,5 @@
+import { AVATAR, DOT, TONE } from './palette'
+
 export const DAY = 864e5
 
 /** <1000 raw; K / M with one decimal below 100 (8.4K, 120K, 1.2M). */
@@ -18,19 +20,18 @@ export const igUrl = (handle: string) => 'https://www.instagram.com/' + handle.r
 export const initials = (name: string) =>
   name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
-const AVATAR_COLORS = ['#0B7FA3', '#573EBB', '#141627', '#007B4D', '#D97706', '#7C2D12', '#4D6B1F']
-export const avatarColor = (id: number) => AVATAR_COLORS[(id - 1) % AVATAR_COLORS.length]
+export const avatarColor = (id: number) => AVATAR[(id - 1) % AVATAR.length]
 
 const CATEGORY_COLORS: Record<string, { bg: string; fg: string }> = {
-  Jewellery: { bg: '#E9EAF2', fg: '#141627' },
-  Fashion: { bg: '#EEE9FF', fg: '#3D2F99' },
-  Beauty: { bg: '#FEF4E4', fg: '#8B5E00' },
-  Food: { bg: '#E7F7EF', fg: '#005E3B' },
-  Fitness: { bg: '#E4F3F8', fg: '#1A6480' },
-  Travel: { bg: '#E4F5F4', fg: '#1A7070' },
-  Lifestyle: { bg: '#F4F4F5', fg: '#3F3F46' },
+  Jewellery: TONE.indigo,
+  Fashion: TONE.purple,
+  Beauty: TONE.pink,
+  Food: TONE.orange,
+  Fitness: TONE.green,
+  Travel: TONE.teal,
+  Lifestyle: TONE.gray,
 }
-export const categoryColor = (c: string) => CATEGORY_COLORS[c] ?? { bg: '#F4F4F5', fg: '#3F3F46' }
+export const categoryColor = (c: string) => CATEGORY_COLORS[c] ?? TONE.gray
 
 export type FreshTier = 'fresh' | 'ageing' | 'stale'
 export type Freshness = { tier: FreshTier; label: string; short: string; bg: string; fg: string; dot: string }
@@ -44,10 +45,10 @@ export function freshness(ts: number): Freshness {
       tier: 'fresh',
       label: d === 0 ? 'Updated today' : d === 1 ? 'Updated yesterday' : `Updated ${d} days ago`,
       short: d === 0 ? 'Today' : `${d}d ago`,
-      bg: '#E7F7EF', fg: '#005E3B', dot: '#12A363',
+      ...TONE.green, dot: DOT.green,
     }
-  if (d <= 90) return { tier: 'ageing', label: `Updated in ${mo}`, short: mo, bg: '#FEF4E4', fg: '#8B5E00', dot: '#D97706' }
-  return { tier: 'stale', label: `Stale · last updated ${mo}`, short: `Stale · ${mo}`, bg: '#FDECEC', fg: '#9F1D1D', dot: '#DC2626' }
+  if (d <= 90) return { tier: 'ageing', label: `Updated in ${mo}`, short: mo, ...TONE.orange, dot: DOT.orange }
+  return { tier: 'stale', label: `Stale · last updated ${mo}`, short: `Stale · ${mo}`, ...TONE.red, dot: DOT.red }
 }
 
 export const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v])

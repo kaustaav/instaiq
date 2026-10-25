@@ -11,7 +11,7 @@ import { useCampaignCards } from '../../hooks/useCampaigns'
 import { paginate } from '../../lib/paginate'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
 import type { CampaignStatus } from '../../types'
-import { EmptyState, Pill } from '../../components/ui'
+import { EmptyState, Pill, Segmented } from '../../components/ui'
 import { Pagination } from '../../components/Pagination'
 import { CampaignFormDrawer } from './CampaignFormDrawer'
 import { BudgetBar } from './BudgetBar'
@@ -75,20 +75,16 @@ export function CampaignListScreen() {
 
       <div className="scroll" ref={scrollRef} style={{ padding: '14px 18px' }}>
         <div className="camp-toolbar">
-          <div className="search-box" style={{ background: 'white', flex: 1, maxWidth: 320, minWidth: 200 }}>
+          <div className="search-box" style={{ flex: 1, maxWidth: 320, minWidth: 200 }}>
             <Search size={13} />
             <input type="text" autoComplete="off" placeholder="Find campaign or brand" aria-label="Find campaign or brand" value={q}
               onChange={e => go({ q: e.target.value, page: 1 }, true)} />
           </div>
-          <div className="chips">
-            {STATUS_FILTERS.map(s => (
-              <button key={s} type="button" className="chip" aria-pressed={status === s}
-                style={{ background: status === s ? 'var(--iq-navy)' : 'white', color: status === s ? 'white' : 'var(--iq-fg-2)', borderColor: 'var(--iq-border)', padding: '4px 10px' }}
-                onClick={() => go({ status: s, page: 1 })}>
-                {s === 'ALL' ? 'All' : CAMPAIGN_STATUS_LABEL[s]} {count(s)}
-              </button>
-            ))}
-          </div>
+          <Segmented label="Campaign status" value={status} onChange={s => go({ status: s, page: 1 })}
+            options={STATUS_FILTERS.map(s => ({
+              value: s,
+              label: <>{s === 'ALL' ? 'All' : CAMPAIGN_STATUS_LABEL[s]} <span className="seg-count">{count(s)}</span></>,
+            }))} />
           <select className="input input-sm" style={{ width: 'auto' }} aria-label="Brand" value={brand} onChange={e => go({ brand: e.target.value, page: 1 })}>
             <option value="">All brands</option>
             {brands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -119,8 +115,8 @@ export function CampaignListScreen() {
                     <div className="camp-card-meta">
                       {c.members} of {c.targetInfluencers} influencer{c.targetInfluencers !== 1 ? 's' : ''}
                       {c.deliverables > 0 && <> · {c.posted}/{c.deliverables} posts live</>}
-                      {c.inReview > 0 && <> · <b style={{ color: '#3D2F99' }}>{c.inReview} draft{c.inReview > 1 ? 's' : ''} to review</b></>}
-                      {live > 0 && c.unpaid > 0 && <> · <b style={{ color: '#8B5E00' }}>{c.unpaid} unpaid</b></>}
+                      {c.inReview > 0 && <> · <b style={{ color: '#8944AB' }}>{c.inReview} draft{c.inReview > 1 ? 's' : ''} to review</b></>}
+                      {live > 0 && c.unpaid > 0 && <> · <b style={{ color: '#A04A00' }}>{c.unpaid} unpaid</b></>}
                     </div>
                   </div>
                   <div className="camp-card-budget">

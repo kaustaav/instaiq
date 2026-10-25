@@ -7,10 +7,11 @@ import { statesOf } from '../../lib/locations'
 import { activeFilterCount, searchFromParams, searchToParams, type Filters, type SearchState } from '../../lib/search'
 import { useSearchResults } from '../../hooks/useSearchResults'
 import { useScrollTopOnChange } from '../../hooks/useScrollTopOnChange'
+import { useScrolled } from '../../hooks/useScrolled'
 import { useOpenProfile } from '../../hooks/useOpenProfile'
 import { Pagination } from '../../components/Pagination'
 import type { Influencer } from '../../types'
-import { Avatar, CategoryBadges, EmptyState, IgLink, PersonCell } from '../../components/ui'
+import { Avatar, CategoryBadges, EmptyState, IgLink, PersonCell, Segmented } from '../../components/ui'
 import { FilterPanel } from './FilterPanel'
 import './search.css'
 
@@ -50,11 +51,12 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
   const { results, loading, error, retry, allIds } = useSearchResults(filters, page)
   const scrollRef = useRef<HTMLDivElement>(null)
   useScrollTopOnChange(scrollRef, results.page)
+  const scrolled = useScrolled(scrollRef)
 
   const shortlistBtn = (i: Influencer) => (
-    <button type="button" className="btn btn-ghost btn-sm" style={{ gap: 3 }}
+    <button type="button" className="btn btn-tint btn-sm" aria-label={`Shortlist ${i.name}`}
       onClick={e => { e.stopPropagation(); onShortlist(i.id) }}>
-      <Plus size={11} />Shortlist
+      <Plus size={12} strokeWidth={2.5} />Shortlist
     </button>
   )
 
@@ -64,9 +66,11 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
         mobileOpen={filtersOpen} onMobileClose={() => setFiltersOpen(false)} />
 
       <div className="screen-col">
-        <div className="results-head">
-          <div className="search-box" style={{ flex: 1 }}>
-            <Search size={13} />
+        <div className="scroll" ref={scrollRef}>
+        {/* frosted toolbar: results scroll underneath it */}
+        <div className={scrolled ? 'results-head scrolled' : 'results-head'}>
+          <div className="search-box search-box-lg" style={{ flex: 1 }}>
+            <Search size={15} />
             <input
               type="text"
               placeholder="Search name, bio, hashtag, handle..."
@@ -75,35 +79,35 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
               onChange={e => onFiltersChange({ ...filters, q: e.target.value }, true)}
             />
             {filters.q && (
-              <button type="button" className="icon-btn" aria-label="Clear search" onClick={() => onFiltersChange({ ...filters, q: '' })}>
-                <X size={13} />
+              <button type="button" className="icon-btn search-clear" aria-label="Clear search" onClick={() => onFiltersChange({ ...filters, q: '' })}>
+                <X size={11} strokeWidth={3} />
               </button>
             )}
           </div>
           <button type="button" className="btn btn-ghost filters-btn" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}>
-            <SlidersHorizontal size={13} />Filters
+            <SlidersHorizontal size={14} />Filters
             {nFilters > 0 && <span className="filters-badge">{nFilters}</span>}
           </button>
           {results.total > 0 && (
             <button type="button" className="btn btn-ghost" title="Add every influencer matching these filters to a campaign"
               onClick={() => { allIds().then(onAddMany).catch(() => {}) }}>
-              <BookmarkPlus size={13} />Add all to campaign
+              <BookmarkPlus size={14} />Add all to campaign
             </button>
           )}
-          <div className="results-count" aria-live="polite">
-            {loading ? 'Searching…' : `${results.total} influencer${results.total !== 1 ? 's' : ''}`}
-          </div>
-          <div className="view-toggle" role="group" aria-label="View">
-            <button type="button" aria-label="Grid view" aria-pressed={view === 'grid'} className={view === 'grid' ? 'on' : ''} onClick={() => onViewChange('grid')}>
-              <LayoutGrid size={14} />
-            </button>
-            <button type="button" aria-label="List view" aria-pressed={view === 'list'} className={view === 'list' ? 'on' : ''} onClick={() => onViewChange('list')}>
-              <List size={14} />
-            </button>
-          </div>
+          <Segmented label="View" value={view} onChange={onViewChange}
+            options={[
+              { value: 'grid', title: 'Grid view', label: <LayoutGrid size={14} aria-label="Grid view" /> },
+              { value: 'list', title: 'List view', label: <List size={14} aria-label="List view" /> },
+            ]} />
         </div>
 
-        <div className="scroll" ref={scrollRef} style={{ padding: '14px 16px', opacity: loading && results.total ? 0.6 : 1, transition: 'opacity 150ms' }}>
+        <div className="results-body" style={{ opacity: loading && results.total ? 0.6 : 1 }}>
+          <div className="results-title">
+            <h2>Influencers</h2>
+            <span className="results-count" aria-live="polite">
+              {loading ? 'Searching…' : `${results.total.toLocaleString('en-IN')} result${results.total !== 1 ? 's' : ''}`}
+            </span>
+          </div>
           {error ? (
             <div className="empty">
               <WifiOff size={32} />
@@ -122,7 +126,7 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
                 return (
                   <div key={i.id} className="inf-card" onClick={() => onOpenProfile(i.id)}>
                     <div className="inf-card-top">
-                      <Avatar inf={i} size={38} />
+                      <Avatar inf={i} size={44} />
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <div className="inf-card-name">{i.name}</div>
@@ -131,7 +135,7 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
                         <div className="inf-card-meta">
                           <IgLink handle={i.handle} /> · {locationLine(i)}
                         </div>
-                        <div style={{ marginTop: 5 }}><CategoryBadges cats={i.cats} /></div>
+                        <div style={{ marginTop: 7 }}><CategoryBadges cats={i.cats} /></div>
                       </div>
                     </div>
                     <div className="inf-card-stats">
@@ -140,7 +144,7 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
                       <div><div className="mono">{fmt(i.likes)}</div><div className="stat-label">Avg Likes</div></div>
                     </div>
                     <div className="inf-card-foot">
-                      <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', minWidth: 0, overflow: 'hidden' }}>
+                      <div className="inf-card-tags">
                         {i.tags.slice(0, 2).map(t => <span key={t} className="hashtag">{t}</span>)}
                       </div>
                       {shortlistBtn(i)}
@@ -178,6 +182,7 @@ export function SearchScreen({ onShortlist, onAddMany }: Props) {
             </div>
           )}
           <Pagination page={results} onPage={onPageChange} />
+        </div>
         </div>
       </div>
     </div>

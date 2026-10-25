@@ -74,12 +74,13 @@ export function Sidebar({ campaignCount, mobileOpen, onMobileClose }: Props) {
   return (
     <aside className={['sb', !open && 'closed', mobileOpen && 'mobile-open'].filter(Boolean).join(' ')}>
       <div className="sb-head">
+        <img className="sb-logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
         <div className="sb-brand sb-fade" aria-hidden={!open}>
           <div className="sb-brand-name">InfluenceIQ</div>
           <div className="sb-brand-sub">Influencer CRM</div>
         </div>
         <button type="button" className="sb-toggle" onClick={onToggle} title={toggleTitle} aria-label={toggleTitle}>
-          <PanelLeft size={17} />
+          <PanelLeft size={16} />
         </button>
       </div>
 
@@ -95,7 +96,7 @@ export function Sidebar({ campaignCount, mobileOpen, onMobileClose }: Props) {
               aria-current={active ? 'page' : undefined}
               onClick={onMobileClose}
             >
-              <Icon size={14} />
+              <Icon size={16} strokeWidth={1.9} />
               <span className="sb-label sb-fade">
                 <span>{label}</span>
                 {badge != null && <span className="sb-badge">{badge}</span>}
@@ -105,13 +106,13 @@ export function Sidebar({ campaignCount, mobileOpen, onMobileClose }: Props) {
         })}
 
         <div className="sb-divider" />
-        <div className="sb-section sb-fade">Coming soon</div>
+        <div className="sb-section sb-fade">Coming Soon</div>
         <div className="sb-item disabled" title="Analytics (coming soon)">
-          <BarChart3 size={14} />
+          <BarChart3 size={16} strokeWidth={1.9} />
           <span className="sb-fade">Analytics</span>
         </div>
         <div className="sb-item disabled" title="Outreach (coming soon)">
-          <Send size={14} />
+          <Send size={16} strokeWidth={1.9} />
           <span className="sb-fade">Outreach</span>
         </div>
       </nav>

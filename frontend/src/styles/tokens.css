@@ -1,126 +1,96 @@
 /* =====================================================================
-   InfluenceIQ design tokens: colours, type, elevation, motion.
-   All UI styles use these variables (--iq-*). Fonts are open-licensed
-   (Manrope and JetBrains Mono, SIL Open Font License).
+   InfluenceIQ design tokens: colours, type, shape, elevation, materials, motion.
+   Look: a Mac app. System font, #F5F5F7 page, borderless white cards, Apple blue,
+   Apple's system colours for status. All UI styles use these variables (--iq-*).
    ===================================================================== */
 
-/* ---------- Fonts ---------- */
+/* Inter is only the fallback for devices without Apple's system font (Windows, Android).
+   Browsers download a font only when it's used, so Apple devices never fetch it. Open licence (OFL). */
 @font-face {
-  font-family: "Manrope";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-400-normal.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Manrope";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-500-normal.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Manrope";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-600-normal.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Manrope";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-700-normal.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Manrope";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/manrope@5.2.8/files/manrope-latin-800-normal.woff2") format("woff2");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-400-normal.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-500-normal.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/files/jetbrains-mono-latin-600-normal.woff2") format("woff2");
-  font-weight: 600;
+  font-family: "Inter";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.8/files/inter-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  /* ---------- Brand: cyan ----------
-     400 is the brand cyan itself: accents, chart fills, focus rings.
-     500 is darker so white text on buttons passes WCAG AA (4.6:1). */
-  --iq-brand-50:  #E8F7FC;
-  --iq-brand-100: #CDEEF8;
-  --iq-brand-200: #9EDDF0;
-  --iq-brand-300: #62C6E4;
-  --iq-brand-400: #11A6D2;
-  --iq-brand-500: #0B7FA3; /* primary: buttons, links */
-  --iq-brand-600: #096A88; /* primary hover */
-  --iq-brand-700: #075670;
-  --iq-brand-800: #064257;
-  --iq-brand-900: #04303F;
-
-  /* ---------- Brand: navy and lime ---------- */
-  --iq-navy:   #141627; /* dark surfaces: sidebar, mobile bar, selected chips */
-  --iq-accent: #8CC641; /* lime: small highlights only, never text on white */
+  /* ---------- Accent: Apple blue ---------- */
+  --iq-brand-50:  #EEF5FE; /* selection tint */
+  --iq-brand-100: #DCEBFD;
+  --iq-brand-200: #B5D4FA;
+  --iq-brand-300: #7DB4F5;
+  --iq-brand-400: #3D8FEC;
+  --iq-brand-500: #0071E3; /* buttons, selection, focus */
+  --iq-brand-600: #0077ED; /* button hover (Apple lightens on hover) */
+  --iq-brand-700: #006EDB; /* button pressed */
+  --iq-brand-800: #00519F;
+  --iq-brand-900: #003A73;
+  --iq-link: #0066CC;      /* text links: darker than the button blue so small text stays readable */
 
   /* ---------- Neutrals ---------- */
   --iq-gray-0:   #FFFFFF;
-  --iq-gray-25:  #FAFAFA;
-  --iq-gray-50:  #F4F4F5; /* page background */
-  --iq-gray-100: #E8E8EA;
-  --iq-gray-200: #D4D4D8;
-  --iq-gray-300: #A6A6AE;
-  --iq-gray-400: #71717A;
-  --iq-gray-500: #52525B;
-  --iq-gray-600: #3F3F46;
-  --iq-gray-700: #27272A;
-  --iq-gray-800: #18181B;
-  --iq-gray-900: #0E0E10;
+  --iq-gray-25:  #FBFBFD;
+  --iq-gray-50:  #F5F5F7; /* page background */
+  --iq-gray-100: #E8E8ED; /* fills: secondary buttons */
+  --iq-gray-200: #D2D2D7;
+  --iq-gray-300: #AEAEB2;
+  --iq-gray-400: #86868B;
+  --iq-gray-500: #6E6E73;
+  --iq-gray-600: #424245;
+  --iq-gray-700: #333336;
+  --iq-gray-800: #1D1D1F;
+  --iq-gray-900: #1D1D1F;
 
-  /* ---------- Status ---------- */
-  --iq-success: #00A96B;
-  --iq-danger:  #E5484D;
+  /* ---------- Status (text-safe versions of Apple's system colours) ---------- */
+  --iq-success: #1C7F38;
+  --iq-warning: #C25400;
+  --iq-danger:  #D70015;
 
   /* ---------- Text and lines ---------- */
-  --iq-fg-1: var(--iq-gray-900); /* primary text */
-  --iq-fg-2: var(--iq-gray-600); /* secondary text */
-  --iq-fg-3: var(--iq-gray-400); /* tertiary, metadata */
-  --iq-border: var(--iq-gray-100);
+  --iq-fg-1: #1D1D1F; /* primary text */
+  --iq-fg-2: #424245; /* secondary text */
+  --iq-fg-3: #6E6E73; /* tertiary, metadata */
+  --iq-border: #E5E5EA;                       /* hairlines between rows and sections */
+  --iq-fill: rgba(118, 118, 128, 0.12);       /* search fields, segmented track */
+  --iq-fill-hover: rgba(118, 118, 128, 0.18);
+  --iq-navy: #1D1D1F;   /* selected filter pills: dark pill, white text */
+  --iq-accent: var(--iq-brand-500);
 
-  /* ---------- Dark surfaces (sidebar, mobile bar) ---------- */
-  --iq-dark-border: #262A42;
-  --iq-dark-fg-1:   #F4F5FA;
-  --iq-dark-fg-2:   #A9AEC7;
-  --iq-dark-fg-3:   #737896;
+  /* ---------- Sidebar and phone bar text ---------- */
+  --iq-dark-border: rgba(0, 0, 0, 0.08);
+  --iq-dark-fg-1:   #1D1D1F;
+  --iq-dark-fg-2:   #424245;
+  --iq-dark-fg-3:   #6E6E73;
 
   /* ---------- Type ---------- */
-  --iq-font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --iq-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --iq-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --iq-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* numbers use the same font with evenly spaced digits (tabular-nums, set on body), not a code font */
+  --iq-font-mono: var(--iq-font-sans);
+
+  /* ---------- Shape ---------- */
+  --iq-radius-sm: 6px;     /* tags inside dense rows */
+  --iq-radius: 8px;        /* inputs, menus */
+  --iq-radius-card: 14px;  /* cards, tables */
+  --iq-radius-sheet: 16px; /* drawers, dialogs */
 
   /* ---------- Elevation ---------- */
-  --iq-shadow-3: 0 8px 24px rgba(14, 14, 16, 0.08), 0 2px 6px rgba(14, 14, 16, 0.04);
-  --iq-shadow-4: 0 24px 64px rgba(14, 14, 16, 0.14), 0 4px 12px rgba(14, 14, 16, 0.06);
+  --iq-shadow-1: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --iq-shadow-3: 0 0 0 0.5px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
+  --iq-shadow-4: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.06), 0 24px 64px rgba(0, 0, 0, 0.18);
+  --iq-focus: 0 0 0 3.5px rgba(0, 113, 227, 0.35); /* macOS-style focus halo */
+
+  /* ---------- Materials (frosted glass) ---------- */
+  --iq-material-bar: rgba(245, 245, 247, 0.78);
+  --iq-material-side: rgba(238, 238, 242, 0.86);
+  --iq-blur: saturate(180%) blur(20px);
 
   /* ---------- Motion ---------- */
   --iq-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* critically damped spring (response 0.35 s, no bounce), sampled for CSS; pair with a 450ms duration */
+  --iq-spring: linear(0, 0.045, 0.147, 0.268, 0.39, 0.501, 0.599, 0.682, 0.75, 0.805, 0.849, 0.884, 0.911, 0.932, 0.949,
+    0.961, 0.971, 0.978, 0.984, 0.988, 0.991, 0.993, 0.995, 0.996, 1);
 }
 
 /* ---------- Element defaults ---------- */
@@ -128,21 +98,24 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--iq-font-sans);
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.45;
   font-weight: 400;
+  letter-spacing: -0.003em;
+  font-variant-numeric: tabular-nums;
   color: var(--iq-fg-1);
-  background: var(--iq-gray-0);
+  background: var(--iq-gray-50);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-h1 { font-size: 40px; line-height: 1.1; font-weight: 500; letter-spacing: -0.02em; color: var(--iq-fg-1); margin: 0; }
-h2 { font-size: 32px; line-height: 1.15; font-weight: 500; letter-spacing: -0.02em; margin: 0; }
-h3 { font-size: 24px; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; margin: 0; }
-p  { font-size: 15px; line-height: 1.55; color: var(--iq-fg-2); margin: 0; }
-code, pre { font-family: var(--iq-font-mono); font-size: 0.92em; }
+/* Tracking follows size, as Apple's type does: tight when large, neutral when small. */
+h1 { font-family: var(--iq-font-display); font-size: 28px; line-height: 1.1; font-weight: 700; letter-spacing: -0.022em; color: var(--iq-fg-1); margin: 0; }
+h2 { font-family: var(--iq-font-display); font-size: 22px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+h3 { font-size: 17px; line-height: 1.25; font-weight: 600; letter-spacing: -0.012em; margin: 0; }
+p  { font-size: 13px; line-height: 1.5; color: var(--iq-fg-2); margin: 0; }
+code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; }
 
-a { color: var(--iq-brand-500); text-decoration: none; }
+a { color: var(--iq-link); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 2px; }

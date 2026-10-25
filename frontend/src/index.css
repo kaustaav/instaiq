@@ -12,11 +12,12 @@ body {
   color: var(--iq-fg-1);
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--iq-gray-200); border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(0, 0, 0, 0.3); }
 
-a { color: var(--iq-brand-500); text-decoration: none; }
+a { color: var(--iq-link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .app {
@@ -37,14 +38,17 @@ a:hover { text-decoration: underline; }
 /* ---------- Phones ---------- */
 .mobile-bar { display: none; }
 @media (max-width: 768px) {
+  /* frosted bar, like a navigation bar on iPhone */
   .mobile-bar {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
     padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px 6px;
-    background: var(--iq-navy);
-    border-bottom: 1px solid var(--iq-dark-border);
+    background: var(--iq-material-bar);
+    -webkit-backdrop-filter: var(--iq-blur);
+    backdrop-filter: var(--iq-blur);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   }
   .mobile-bar-btn {
     all: unset;
@@ -53,16 +57,17 @@ a:hover { text-decoration: underline; }
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 8px;
-    color: var(--iq-dark-fg-1);
+    border-radius: 999px;
+    color: var(--iq-brand-500);
     cursor: pointer;
   }
-  .mobile-bar-btn:focus-visible { outline: 2px solid var(--iq-brand-400); }
+  .mobile-bar-btn:active { background: var(--iq-fill); }
+  .mobile-bar-btn:focus-visible { box-shadow: var(--iq-focus); }
   .mobile-bar-brand {
-    font-family: var(--iq-font-sans);
-    font-weight: 800;
+    font-family: var(--iq-font-display);
+    font-weight: 600;
     font-size: 17px;
-    color: white;
+    color: var(--iq-fg-1);
     letter-spacing: -0.02em;
   }
   /* iOS Safari zooms into any input under 16px when it's focused */

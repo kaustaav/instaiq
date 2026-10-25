@@ -1,11 +1,14 @@
+/* Sidebar: a light, frosted source list (Finder, Notes, Mail). Collapses 216 ↔ 52px. */
 .sb {
   --sb-ease: cubic-bezier(0.32, 0.72, 0, 1);
   width: 216px;
   min-width: 216px;
-  background: var(--iq-navy);
+  background: var(--iq-material-side);
+  -webkit-backdrop-filter: var(--iq-blur);
+  backdrop-filter: var(--iq-blur);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--iq-dark-border);
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
   transition: width 280ms var(--sb-ease), min-width 280ms var(--sb-ease);
   overflow: hidden;
   white-space: nowrap;
@@ -18,50 +21,50 @@
 .sb.closed .sb-fade { opacity: 0; transition: opacity 120ms; }
 
 .sb-head {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--iq-dark-border);
+  padding: 14px 10px 10px 13px;
   display: flex;
   align-items: center;
-  min-height: 58px;
+  gap: 9px;
+  min-height: 56px;
 }
-.sb-brand { flex: 1; min-width: 0; overflow: hidden; padding-left: 6px; }
+.sb-logo { width: 26px; height: 26px; flex-shrink: 0; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+.sb-brand { flex: 1; min-width: 0; overflow: hidden; }
 .sb-brand-name {
-  font-family: var(--iq-font-sans);
-  font-weight: 800;
-  font-size: 16px;
-  color: white;
-  letter-spacing: -0.02em;
+  font-family: var(--iq-font-display);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.15;
+  color: var(--iq-fg-1);
+  letter-spacing: -0.015em;
 }
-.sb-brand-sub {
-  font-size: 10px;
-  color: var(--iq-dark-fg-3);
-  margin-top: 2px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
+.sb-brand-sub { font-size: 11px; color: var(--iq-fg-3); margin-top: 1px; }
 .sb-toggle {
   all: unset;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  color: var(--iq-dark-fg-2);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: var(--iq-fg-3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-left: auto;
+  transition: background 120ms, color 120ms;
 }
-.sb-toggle:hover { background: rgba(255, 255, 255, 0.07); }
-.sb-toggle:focus-visible { outline: 2px solid var(--iq-brand-400); }
+.sb-toggle:hover { background: rgba(0, 0, 0, 0.05); color: var(--iq-fg-1); }
+.sb-toggle:active { background: rgba(0, 0, 0, 0.1); }
+.sb-toggle:focus-visible { box-shadow: var(--iq-focus); }
+/* collapsed: the logo makes way for the toggle */
+.sb.closed .sb-logo { display: none; }
+.sb.closed .sb-head { padding-left: 12px; }
 
 .sb-nav {
   flex: 1;
-  padding: 8px 6px;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .sb-item {
@@ -69,84 +72,76 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  min-height: 30px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  min-height: 32px;
   box-sizing: border-box;
   font-size: 13px;
-  color: var(--iq-dark-fg-2);
-  border-left: 2px solid transparent;
+  font-weight: 500;
+  color: var(--iq-fg-1);
   overflow: hidden;
   user-select: none;
-  transition: background 100ms;
+  transition: background 120ms;
 }
+/* icons in the accent colour, as in macOS sidebars */
+.sb-item svg { flex-shrink: 0; color: var(--iq-brand-500); }
 a.sb-item { cursor: pointer; }
-a.sb-item:hover { background: rgba(255, 255, 255, 0.07); text-decoration: none; }
-a.sb-item:focus-visible { outline: 2px solid var(--iq-brand-400); }
-.sb-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-weight: 600;
-  border-left-color: var(--iq-accent);
-}
-.sb-item.disabled { color: var(--iq-dark-fg-3); opacity: 0.5; }
-.sb-item svg { flex-shrink: 0; }
+a.sb-item:hover { background: rgba(0, 0, 0, 0.045); text-decoration: none; }
+a.sb-item:active { background: rgba(0, 0, 0, 0.09); }
+a.sb-item:focus-visible { box-shadow: var(--iq-focus); }
+.sb-item.active { background: rgba(0, 0, 0, 0.075); font-weight: 600; }
+.sb-item.disabled { color: var(--iq-fg-3); opacity: 0.55; }
+.sb-item.disabled svg { color: var(--iq-fg-3); }
 
 .sb-label { flex: 1; display: flex; align-items: center; gap: 9px; }
 .sb-label > span:first-child { flex: 1; }
-.sb-badge {
-  font-size: 11px;
-  background: rgba(255, 255, 255, 0.13);
-  color: var(--iq-dark-fg-2);
-  padding: 1px 7px;
-  border-radius: 999px;
-  font-weight: 500;
-}
+/* counts: plain grey numbers, as in Mail */
+.sb-badge { font-size: 12px; color: var(--iq-fg-3); font-weight: 500; }
 
-.sb-divider { margin: 8px 10px 4px; height: 1px; background: var(--iq-dark-border); }
+.sb-divider { margin: 10px 9px 2px; height: 0; }
 .sb-section {
   max-height: 30px;
   overflow: hidden;
-  padding: 6px 10px;
-  font-size: 10px;
-  color: var(--iq-dark-fg-3);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  font-weight: 500;
+  padding: 6px 9px 4px;
+  font-size: 11px;
+  color: var(--iq-fg-3);
+  font-weight: 600;
   transition: max-height 280ms var(--sb-ease), padding 280ms var(--sb-ease), opacity 200ms 90ms;
 }
 .sb.closed .sb-section { max-height: 0; padding-block: 0; }
 
 .sb-foot {
-  padding: 10px 12px;
-  border-top: 1px solid var(--iq-dark-border);
+  margin: 8px;
+  padding: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   overflow: hidden;
 }
 .sb-avatar {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: var(--iq-brand-500);
+  background: linear-gradient(180deg, #A5ABB8, #858994); /* Contacts' grey monogram */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: white;
   flex-shrink: 0;
 }
 .sb-user { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
-.sb-user-name { font-size: 12px; font-weight: 500; color: var(--iq-dark-fg-1); overflow: hidden; text-overflow: ellipsis; }
-.sb-user-role { font-size: 11px; color: var(--iq-dark-fg-3); }
-.sb-user svg { margin-left: auto; color: var(--iq-dark-fg-3); cursor: pointer; flex-shrink: 0; }
+.sb-user-name { font-size: 12px; font-weight: 600; color: var(--iq-fg-1); overflow: hidden; text-overflow: ellipsis; }
+.sb-user-role { font-size: 11px; color: var(--iq-fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-user svg { margin-left: auto; color: var(--iq-fg-3); cursor: pointer; flex-shrink: 0; }
 img.sb-avatar { object-fit: cover; }
-.sb-user-role { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sb-signout { margin-left: auto; background: none; border: 0; padding: 4px; border-radius: 4px; cursor: pointer; display: flex; flex-shrink: 0; }
-.sb-signout:hover { background: rgba(255, 255, 255, 0.08); }
+.sb-signout { margin-left: auto; background: none; border: 0; padding: 5px; border-radius: 999px; cursor: pointer; display: flex; flex-shrink: 0; }
+.sb-signout:hover { background: rgba(0, 0, 0, 0.06); }
+.sb-signout:hover svg { color: var(--iq-fg-1); }
 .sb-signout svg { margin-left: 0; }
+.sb.closed .sb-foot { padding: 8px 4px; }
 
 /* ---------- Phones: off-canvas menu ---------- */
 .sb-backdrop { display: none; }
@@ -157,24 +152,30 @@ img.sb-avatar { object-fit: cover; }
     bottom: 0;
     left: 0;
     z-index: 150;
-    width: 260px;
-    min-width: 260px;
+    width: 280px;
+    min-width: 280px;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     transform: translateX(-100%);
-    transition: transform 280ms var(--sb-ease);
+    transition: transform 450ms var(--iq-spring);
     box-shadow: var(--iq-shadow-4);
+    background: rgba(246, 246, 248, 0.9);
   }
   .sb.mobile-open { transform: none; }
   /* the desktop "collapsed" state doesn't apply to the phone menu */
   .sb.closed .sb-fade { opacity: 1; }
-  .sb.closed .sb-section { max-height: 30px; padding-block: 6px; }
-  .sb-item { min-height: 40px; font-size: 14px; }
+  .sb.closed .sb-logo { display: block; }
+  .sb.closed .sb-section { max-height: 30px; padding-block: 6px 4px; }
+  .sb-item { min-height: 44px; font-size: 15px; }
   .sb-backdrop {
     display: block;
     position: fixed;
     inset: 0;
     z-index: 140;
-    background: rgba(0, 0, 0, 0.38);
+    background: rgba(0, 0, 0, 0.22);
   }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .sb { background: #EEEEF2; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }

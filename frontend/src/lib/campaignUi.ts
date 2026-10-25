@@ -1,16 +1,17 @@
 import type { Campaign, CampaignStatus, DeliverableStatus, DisplayStage, PaymentStatus } from '../types'
 import { budgetUsed, campaignSummary } from './campaigns'
+import { TONE, type Tone } from './palette'
 
-export type Tone = { bg: string; fg: string }
-const GRAY: Tone = { bg: '#F4F4F5', fg: '#3F3F46' }
-const MUTED: Tone = { bg: '#E8E8EA', fg: '#71717A' }
-const BLUE: Tone = { bg: '#E8F7FC', fg: '#075670' }
-const NAVY: Tone = { bg: '#E9EAF2', fg: '#141627' }
-const PURPLE: Tone = { bg: '#EEE9FF', fg: '#3D2F99' }
-const TEAL: Tone = { bg: '#E4F3F8', fg: '#1A6480' }
-const AMBER: Tone = { bg: '#FEF4E4', fg: '#8B5E00' }
-const GREEN: Tone = { bg: '#E7F7EF', fg: '#005E3B' }
-const RED: Tone = { bg: '#FDECEC', fg: '#9F1D1D' }
+export type { Tone } from './palette'
+const GRAY = TONE.gray
+const MUTED = TONE.muted
+const BLUE = TONE.blue
+const NAVY = TONE.indigo
+const PURPLE = TONE.purple
+const TEAL = TONE.teal
+const AMBER = TONE.orange
+const GREEN = TONE.green
+const RED = TONE.red
 
 export const CAMPAIGN_TONE: Record<CampaignStatus, Tone> = { DRAFT: GRAY, ACTIVE: BLUE, COMPLETED: GREEN, CANCELLED: RED, ARCHIVED: MUTED }
 export const STAGE_TONE: Record<DisplayStage, Tone> = {
