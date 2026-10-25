@@ -86,6 +86,10 @@ Spring Boot · PostgreSQL (data **and** search) · React · Docker Compose local
 ## Frontend implementation notes
 - Icons: `lucide-react`.
 - Tables sit in `overflow-x:auto` wrappers so action columns stay reachable at narrow widths.
-- Design tokens: `frontend/src/styles/tokens.css` (`--iq-*` variables). Since 2026-10-07 the palette (cyan, navy, lime) and font
-  (Manrope) follow the agency's own brand, because the tool is theirs; don't name the agency in the repo. Fonts are open-licensed only
-  (Manrope, JetBrains Mono), loaded from fontsource. Never copy font files or design-system code from any website into this repo.
+- Design (since 2026-10-25): **Apple-style**, a Mac app with apple.com's polish; see "Design language" in
+  `docs/design/UI_SPEC.md` (keep it in sync). Tokens in `frontend/src/styles/tokens.css` (`--iq-*`), tag colours in
+  `frontend/src/lib/palette.ts` (contrast-checked; check new pairs too). System font (San Francisco), Inter fallback from
+  fontsource; never copy font files or design-system code from any website into this repo.
+- Motion: springs, interruptible, enter and leave the same way; drawers and dialogs go through `components/Overlay.tsx`
+  (parents wrap them in `<AnimatePresence>`); Motion's code is loaded deferred (`lib/motionFeatures.ts`), keep it that way.
+  Every animation needs a Reduce-motion fallback. Loading states use skeletons (`components/Skeletons.tsx`), not "Loading…".

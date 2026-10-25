@@ -1,43 +1,38 @@
 # InfluenceIQ UI spec
 
 ## Overview
-An internal CRM for a campaign team to discover Instagram influencers (India-focused), shortlist them into campaigns, and maintain the influencer database. Four screens: **Search & Browse**, **Influencer Profile**, **Campaigns**, **Manage Data** — plus an **Add/Edit Influencer** drawer and an **Add to Campaign** modal.
+An internal CRM for a campaign team to discover Instagram influencers (India-focused), run them through campaigns, and
+maintain the influencer database. Four screens: **Search & Browse**, **Influencer Profile**, **Campaigns** (list and
+detail), **Manage Data**; plus drawers (add/edit influencer, campaign form, campaign member, niches & languages) and
+dialogs (add to campaign, confirmations).
 
 ## About this document
-How each screen looks and behaves, written down when the UI was first designed. The React app in `frontend/` is the source of
-truth now; keep this in sync when behaviour changes. Design tokens live in `frontend/src/styles/tokens.css` (`--iq-*`).
+How each screen looks and behaves. The React app in `frontend/` is the source of truth; keep this in sync when looks or
+behaviour change. Design tokens live in `frontend/src/styles/tokens.css` (`--iq-*`), tag colours in
+`frontend/src/lib/palette.ts`. The data model is in [docs/DATA_MODEL.md](../DATA_MODEL.md).
 
 ---
 
-## Data Model
+## Design language (since 2026-10-25)
+The look of a Mac app (Mail, Notes, Finder) with apple.com's polish, applying Apple's fluid-interface principles:
+respond on press, move on springs, enter and leave along the same path, follow the finger, respect accessibility settings.
 
-```ts
-type Influencer = {
-  id: number;
-  name: string;
-  handle: string;            // stored with leading "@"
-  cities: string[];          // 0..n — each city belongs to exactly one state
-  states: string[];          // state-only entries (city unknown). Never duplicates a state already implied by a city
-  cats: string[];            // niches, ≥1
-  langs: string[];
-  followers: number;         // required, > 0
-  eng: number;               // engagement rate %
-  likes: number; comments: number;
-  bio: string; email: string; phone: string;
-  tags: string[];            // hashtags, stored with "#"
-  pricing: { story: string; reel: string; post: string };   // current = rates[0]
-  rates: { date: number; story: string; reel: string; post: string }[]; // newest first, never overwritten
-  updatedAt: number;         // epoch ms — when metrics were last edited
-  camps: { name; brand; date; del; status: 'Completed'|'Ongoing' }[];
-  av: string;                // initials
-};
-
-type Campaign = { id: number; name: string; created: string; iids: number[] }; // iids is a SET (unique)
-
-type Location = { state: string; cities: string[] }[];  // built-in India list, see "Locations"
-```
-
-Derived: `statesOf(inf) = unique(cities.map(stateOf) ∪ inf.states)`.
+- **Type:** the system font: San Francisco on Apple devices, Inter (open licence, from fontsource) elsewhere. Numbers
+  use tabular figures in the same font, not a code font. Large titles are bold with tight tracking (26–28px, −0.022em);
+  body 13px near 0 tracking; labels are sentence case, never ALL CAPS. Nothing below 11px (10px only in "Soon" pills).
+- **Surfaces:** page `#F5F5F7`; white cards, radius 14, no border, soft shadow (`--iq-shadow-1`); sheets and dialogs radius 16.
+- **Colour:** Apple blue `#0071E3` for primary buttons, selection and focus; links `#0066CC`. Status and tags use Apple's
+  system colours as soft tints with darker text (every pair ≥ 4.5:1). Dark pill (`#1D1D1F`, white text) for selected
+  multi-select filters.
+- **Materials:** frosted toolbars and sidebar (`backdrop-filter: saturate(180%) blur(20px)`); content scrolls underneath
+  and a hairline appears only once it does.
+- **Controls:** pill buttons (blue primary, grey secondary, plain); App Store-style tinted button for "+ Shortlist";
+  segmented controls (grey track, white thumb that slides on a spring) for single-choice filters; grey-filled search
+  fields with a round clear button; macOS focus halo (`--iq-focus`).
+- **Motion:** critically damped springs (no bounce) for anything opened by a click; a little bounce only after a flick.
+  Pressed states show on pointer-down (buttons scale to 97%).
+- **Accessibility settings:** Reduce motion (no slides or scaling; cross-fades; still skeletons), Reduce transparency
+  (frosted surfaces become solid), Increase contrast (cards get defined edges).
 
 ---
 
@@ -49,12 +44,12 @@ Derived: `statesOf(inf) = unique(cities.map(stateOf) ∪ inf.states)`.
 4. **Metrics freshness:** `updatedAt` changes **only** when a save changes followers / eng / likes / comments (or on create). There is intentionally **no** manual "mark as refreshed".
 5. **Rate history:** if story/reel/post changed on save, prepend a new `rates` entry dated now; old entries stay. Unchanged prices keep the history as-is.
 6. **Freshness tiers** (from `updatedAt`, also applied to `rates[0].date`):
-   | Age | Tier | Label | Pill bg / fg / dot |
+   | Age | Tier | Label | Pill (tone / dot) |
    |---|---|---|---|
-   | ≤ 30 days | fresh | "Updated today" / "Updated yesterday" / "Updated N days ago" (short "Nd ago") | #E7F7EF / #005E3B / #12A363 |
-   | 31–90 days | ageing | "Updated in Mon YYYY" | #FEF4E4 / #8B5E00 / #D97706 |
-   | > 90 days | stale | "Stale · last updated Mon YYYY" (short "Stale · Mon YYYY") | #FDECEC / #9F1D1D / #DC2626 |
-7. **Delete influencer** requires inline confirm (Delete? No / Yes) and removes them from all campaigns.
+   | ≤ 30 days | fresh | "Updated today" / "Updated yesterday" / "Updated N days ago" (short "Nd ago") | green / `#34C759` |
+   | 31–90 days | ageing | "Updated in Mon YYYY" | orange / `#FF9500` |
+   | > 90 days | stale | "Stale · last updated Mon YYYY" (short "Stale · Mon YYYY") | red / `#FF3B30` |
+7. **Removing an influencer:** demo mode deletes (inline confirm "Delete? No / Yes"); API mode never deletes, it archives (hidden from search, history kept).
 8. **Instagram links:** every handle links to `https://www.instagram.com/<handle-without-@>/`, `target=_blank rel=noopener`; clicks inside cards/rows must `stopPropagation` so the card doesn't also open the profile.
 9. **Number format:** `<1000` raw; `≥1000` → K; `≥1e6` → M; one decimal below 100 (e.g. 8.4K, 1.2M, 120K). Prices in INR with Indian grouping: `₹2,000`.
 
@@ -63,82 +58,86 @@ Derived: `statesOf(inf) = unique(cities.map(stateOf) ∪ inf.states)`.
 ## Screens
 
 ### App shell
-- Full-height flex row: **Sidebar** + content. Body bg `--iq-gray-50`, base font 13px Manrope, text `--iq-fg-1`.
-- **Sidebar** (dark `#0E0E10`, right border `#2A2A2F`): width **216px open / 52px collapsed**, transition `width 280ms cubic-bezier(0.32,0.72,0,1)`. Labels fade: opacity 1→0 in 120ms on close; 0→1 in 200ms with 90ms delay on open. Content is clipped (`overflow:hidden; white-space:nowrap`), not unmounted.
-  - Header (min-height 58px, bottom border): brand "InfluenceIQ" (Manrope 800, 16px, white, -0.02em) + "INFLUENCER CRM" (10px, 500, uppercase, 0.08em, `#71717A`). Toggle button **on the right** when open (32×32, radius 6, icon `panel-left` 17px, `#A6A6AE`); when collapsed only the toggle shows. Tooltip "Close sidebar (Ctrl+.)" / "Open sidebar (Ctrl+.)". **Ctrl/Cmd + .** toggles. Persist in `localStorage['iiq-sb']`.
-  - Nav items (padding 7×10, radius 6, 13px, gap 9, icon 14px): Search & Browse (`search`), Campaigns (`megaphone`, badge = campaign count), Manage Data (`database`, no badge). Active: bg `rgba(255,255,255,0.1)`, white, 600, left border 2px `#5F6CF2`. Inactive `#A6A6AE`, 400. Hover bg `rgba(255,255,255,0.07)`. Badge: 11px, bg `rgba(255,255,255,0.13)`, pill. Collapsed: `title` = label.
-  - Divider, then "COMING SOON" (10px uppercase) + disabled Analytics (`bar-chart-3`) and Outreach (`send`) at 50% opacity.
-  - Footer: 28px avatar circle `--iq-brand-500` "AK", "Aisha Khan" 12/500, "Campaign Manager" 11px, settings icon.
+- Full-height row: **Sidebar** + content. Page `#F5F5F7`, base 13px.
+- **Sidebar**: light frosted source list, **216px open / 52px collapsed**, `width 280ms cubic-bezier(0.32,0.72,0,1)`. Labels fade (out 120ms on close; in 200ms after 90ms on open); content is clipped, not unmounted. **Ctrl/Cmd + .** toggles; state persisted in `localStorage['iiq-sb']`.
+  - Header: 26px app icon (the favicon) + "InfluenceIQ" (15/700) + "Influencer CRM" (11px grey). Toggle on the right; when collapsed only the toggle shows.
+  - Items (32px high, radius 8, 13/500, icons 16px in Apple blue): Search & Browse, Campaigns (grey count of open campaigns, hidden until loaded), Manage Data. Active: grey fill, 600.
+  - "Coming Soon" section header, then disabled Analytics and Outreach.
+  - Footer: avatar (Google photo, or grey Contacts-style monogram) + name + email/role; sign-out button in API mode.
+- **Phones (≤ 768px):** frosted top bar (menu button, "InfluenceIQ"); the sidebar becomes a 280px off-canvas menu that slides in on a spring; swipe left to close (the dim layer fades with the finger).
 
 ### 1. Search & Browse
-Two columns: **Filter panel** (220px, white, right border, padding 14, gap 14) + **Results**.
+Two columns: **Filters** (236px, on the page colour) + **Results**.
 
-Section labels: 10px/600 uppercase, 0.06em, `--iq-fg-3`. "Clear all" link appears when any filter is active.
-
-- **Location** — combobox, bg `--iq-gray-50`, map-pin icon, placeholder "City or state".
-  - Typing shows a dropdown (max 8) of states ("Whole state · any city", 600 weight) and cities (sub = state). Ranking: starts-with → contains → cities whose state matches; states before cities on ties.
-  - Keyboard: ↑/↓ (wrap, keeps active option scrolled into view), Home/End, Enter adds the highlighted option, Esc closes the list (a second Esc clears the text), Backspace on empty input removes the last tag. Hover syncs the highlight. Blur closes the list after 120ms and keeps the text.
+- Filters header "Filters" (h3) with "Clear all" when any filter is active.
+- **Location** — white combobox, map-pin icon, placeholder "City or state".
+  - Typing shows a menu (max 8) of states ("Whole state · any city", 600) and cities (sub = state). Ranking: starts-with → contains → cities whose state matches; states before cities on ties. The keyboard-highlighted option is white on blue, like a macOS menu.
+  - Keyboard: ↑/↓ (wrap, keeps the active option in view), Home/End, Enter adds, Esc closes the menu (a second Esc clears the text), Backspace on empty removes the last tag. Hover syncs the highlight. Blur closes after 120ms and keeps the text.
   - ARIA: `role=combobox`, `aria-expanded`, `aria-controls`, `aria-activedescendant`; `role=listbox` / `role=option` / `aria-selected`.
-  - Picked items render as blue pills (`--iq-brand-500`, white) "Punjab (state)" / "Pune", each with a real `<button aria-label="Remove X filter">×</button>`.
-  - Matching: a state filter matches anyone whose `statesOf` includes it (including state-only influencers); a city filter matches `cities` only; multiple = OR.
-- **Category** — chips (padding 3×9, 12/500, pill). Inactive `--iq-gray-100` / `--iq-fg-2`; active uses the category color pair + 1px border in its fg. Show the **first 4** plus any selected, then a dashed "+N more" / "Show less" button (`aria-expanded`).
-- **Followers** — one dual-thumb slider, **1K → 10M, log scale** (position 0–1000 ↦ 10^(3+4p/1000), snapped to 2 significant digits). The thumbs cannot cross (min gap 10 steps). Min at the left end = no minimum; max at the right end = "10M+", no maximum. Header value: "Any" or "5K – 1.2M". Ticks: 1K · 10K · 100K · 1M · 10M. Track 3px `--iq-border`, fill `--iq-brand-500`, thumbs 14px blue with a 2px white border and shadow. Each thumb has `aria-label` and `aria-valuetext`.
-- **Min Eng. Rate** — segmented chips Any / 3%+ / 5%+ / 7%+ (active `--iq-gray-800` / white).
-- **Language** — chips, OR match.
+  - Picked items are blue pills "Punjab (state)" / "Pune", each with a real `<button aria-label="Remove X filter">×</button>`.
+  - Matching: a state matches anyone whose states include it (including state-only influencers); a city matches `cities` only; multiple = OR.
+- **Category** — white pills; selected uses the category tint with a 1.5px inset ring in its text colour. Shows the **first 4** plus any selected, then a "+N more" / "Show less" link (`aria-expanded`).
+- **Followers** — one dual-thumb slider, **1K → 10M, log scale** (position 0–1000 ↦ 10^(3+4p/1000), 2 significant digits); thumbs can't cross. Left end = no minimum, right end = "10M+". Header "Any" or "5K – 1.2M". macOS look: 4px track, blue fill, 20px white thumbs with a shadow. Each thumb has `aria-label` and `aria-valuetext`.
+- **Minimum engagement** — segmented control Any / 3%+ / 5%+ / 7%+ (full width).
+- **Language** — white pills (selected: dark pill), OR match.
 
-**Results header** (white, padding 12×16): search input (name, bio, hashtag, handle; clear ×) · "N influencers" · Grid/List toggle.
+**Results**: a frosted toolbar pinned at the top (search field 14px with round clear button; "Add all to campaign"; grid/list segmented control), results scroll underneath. Then the heading **"Influencers"** with "N results".
 
-**Grid** — `repeat(auto-fill, minmax(252px, 1fr))`, gap 10. Card: white, 1px border, radius 8, hover `shadow-3` and translateY(-1px).
-- Top: 38px avatar (initials, color by id from `#0B7FA3,#573EBB,#141627,#007B4D,#D97706,#7C2D12,#4D6B1F`), name 13/600 with a **7px freshness dot** on the right (title = label), line "@handle (blue link) · cities/states", category badges.
-- Middle: 3-column stats — Followers / Eng. Rate (`--iq-success` #00A96B) / Avg Likes (mono 13/600, labels 9px uppercase).
-- Bottom: 2 hashtag chips (blue on `--iq-brand-50`), "+ Shortlist" button → Add to Campaign modal.
+**Grid** — `repeat(auto-fill, minmax(280px, 1fr))`, gap 16. Card: white, radius 14, soft shadow; hover lifts 2px with a larger shadow; press scales to 99%.
+- Top: 44px avatar (initials on a system colour, `AVATAR` in `palette.ts`, with a soft top light), name 15/600 with a 7px freshness dot (title = label), "@handle · cities/states", category tags.
+- Stats tile (grey, radius 10): Followers · Eng. Rate (green) · Avg Likes, numbers 15/600, labels 11px.
+- Footer: up to 2 hashtags as blue text, **"+ Shortlist"** tinted pill → Add to campaign dialog.
 
-**List** — table: Influencer (avatar, name, handle link) · Location (cities, then states in `--iq-fg-3`) · Category · Followers · Eng. Rate · Language · "+ Shortlist". The wrapper is `overflow-x:auto`.
+**List** — table: Influencer · Location · Category · Followers · Eng. Rate · Language · "+ Shortlist", in an `overflow-x:auto` wrapper.
 
-Empty state: search-x icon, "No influencers match" / "Try adjusting the filters".
+**Phones**: the toolbar wraps; a "Filters" button opens the filters as a full-screen sheet that springs up from the bottom, with an iPhone grab handle. Swipe down to close: from the header always, inside the list only when it's scrolled to the top (otherwise it scrolls). "Show N influencers" closes it.
+
+Empty state: "No influencers match" / "Try adjusting the filters".
 
 ### 2. Influencer Profile
-Breadcrumb bar: "← Search Results › Name". Content max-width 1080, padding 16×20, gap 12.
-- **Header card** (radius 10, padding 20×22):
-  - Left: 58px avatar, name 19/600, @handle link. Location line: "City, State · State (city not known)", plus languages. Category badges.
-  - Buttons: Edit (opens drawer) · View on Instagram (link) · **Add to Campaign** (primary).
-  - Stats strip, 4 columns: Followers · Eng. Rate · Avg Likes · Avg Comments (mono 20/700).
-  - Under it: "Metrics" + freshness pill + exact date (mono).
+Frosted breadcrumb bar "← Search Results › Name". Content max-width 1080.
+- **Header card**: 58px avatar, name (24/700), @handle link; location line ("City, State · State (city not known)") and languages; category tags. Buttons: Edit · View on Instagram · **Add to Campaign** (primary). Status (API mode): Active / On hold / Banned / Archived; anything but Active asks for a reason.
+- **Stats**: four soft grey tiles — Followers · Eng. Rate · Avg Likes · Avg Comments (24/700). Under them: "Metrics" + freshness pill + exact date.
 - **Two columns** `1fr 300px`:
-  - Left: About (bio), Campaign History table (Campaign · Brand · Date · Deliverable · Status pill: Completed `#E7F7EF/#005E3B`, Ongoing `#FEF4E4/#8B5E00`).
-  - Right: Contact (mail, phone) · **Pricing (INR)** with "as of Mon YYYY" colored by the rate freshness tier; Story / Reel / Post rows. If there's earlier history, a "Show rate history (N earlier)" toggle opens a table (From · Story · Reel · Post), current row first ("Mon YYYY · now"). · Top Hashtags · Notes (inline edit with Cancel/Save).
+  - Left: About (bio); Campaign history (campaigns in InfluenceIQ, with stage and campaign status; then "Earlier collaborations (before InfluenceIQ)").
+  - Right: Contact · **Pricing (INR)** with "as of Mon YYYY" coloured by rate freshness; Story / Reel / Post; "Show rate history (N earlier)" · Top hashtags · Notes (inline edit).
 
 ### 3. Campaigns
-- **Left list** (252px): header "Campaigns" + "New". Items show name, "N influencers · created date"; active item bg `--iq-brand-50` + 2px left border blue. Pinned at the bottom: **Previous campaigns** — disabled, dashed border, history icon, "SOON" pill, `cursor:not-allowed`.
-- **Right:** header with name + count/date, Share, **Export CSV** (primary). Table: # · Influencer (name opens profile, handle link) · Location · Category · Followers · Eng. Rate · Languages · Remove (red).
-- **CSV columns:** Name, Handle, Instagram URL, Cities, States, Categories, Followers, Eng Rate, Languages, Reel Rate (de-duplicated rows). Filename `<campaign>.csv`.
-- Empty state: "Campaign is empty" / "Add influencers from Search".
+- **List**: large title "Campaigns" + "N active · N draft", **New campaign**. Toolbar: search (campaign or brand), status segmented control (All · Draft · Active · Completed · Cancelled · Archived, with counts), brand menu. Cards (white, radius 14): name + status pill, brand and dates, influencers and posts progress, drafts to review and unpaid counts, budget bar.
+- **Detail**: breadcrumb; header card with name, status, brand and dates, actions (status changes, Edit, Duplicate, CSV); **Targets vs actual** bars (influencers confirmed, reels/stories/posts posted, budget committed, paid for posted content); brief. Stage filter (All · Shortlisted · Contacted · Negotiating · In production · Completed · Declined) and "Add influencers"; members table (Influencer · Stage · Deliverables · Fee · Payment). A row opens the **member drawer** (terms, deliverables and drafts, payments, notes).
+- Status changes that aren't allowed yet open a dialog listing every reason.
 
 ### 4. Manage Data
-Header: "Manage data" + "N influencers · N with stale metrics". Buttons: **Import CSV** (disabled, dashed, "SOON" pill, tooltip "CSV import is coming soon") and **Add influencer** (primary, `user-plus`).
-- Toolbar: search (name/handle) + freshness filter chips "All N · Fresh N · Ageing N · Stale N", each with a colored dot; active chip `--iq-gray-800`.
-- Table: Influencer · Cities ("Not known" in `--iq-fg-3` if none) · States · Niches · Languages · Followers · **Last updated** (pill with short label + "Rates: Mon YYYY") · actions (edit pencil, red trash → inline confirm).
+Large title "Manage data" + "N influencers · N with stale metrics". Buttons: **Import CSV** (disabled, "Soon"), **Niches & languages** (drawer), **Add influencer** (primary).
+- Toolbar: search (name/handle) + freshness segmented control "All · Fresh · Ageing · Stale" with dots and counts.
+- Table: Influencer · Cities ("Not known" if none) · States · Niches · Languages · Followers · **Last updated** (pill) · actions (edit; archive in API mode / delete in demo mode, with inline confirm).
 
-### Add / Edit Influencer drawer
-Right-side drawer, 560px, full height, overlay `rgba(0,0,0,0.38)` (click outside closes). Title "Add influencer" / "Edit influencer". Footer: error text · Cancel · primary "Add influencer" / "Save changes". Section labels 10px uppercase.
+### Drawers and dialogs
+- One shared overlay (`components/Overlay.tsx`): a dim layer that fades (`rgba(0,0,0,0.24)`, click to close) and the panel above it.
+- **Drawers**: floating sheets inset 8px from the window edges, radius 16, full screen on phones. Title 17/700, round grey close button, footer on a faint grey. They spring in from the right and leave the same way; Esc, ✕ or clicking outside closes. **On touch screens, swipe right to close**: the drawer follows the finger; a flick closes even if short, a slow short drag springs back.
+- **Dialogs**: centered, radius 16, scale up from 95% on a spring and fade out quickly.
+- Focus moves into the panel when it opens and back to whatever opened it when it closes. Closing mid-animation reverses smoothly.
 
-Placeholders are **generic**, never real data: "Full name", "handle", "Email address", "Phone number", "0", "0.0", "₹", "#hashtag, #hashtag".
+**Add / Edit influencer drawer** (560px). Placeholders are **generic**, never real data: "Full name", "handle", "Email address", "Phone number", "0", "0.0", "₹", "#hashtag, #hashtag".
+- **Basics** (2 columns): Full name *, Instagram handle * ("@" prefix), Email, Phone.
+- **Location *** — "Search a city or a state. If you only know the state, pick the state on its own." Tags "Pune Maharashtra ×" / "Punjab any city ×". On focus a nested list opens: each state a bold row on a shaded background with "Select whole state" / "N selected" / "✓ Whole state", its cities indented underneath. Typing filters it; fewer than 3 matches and no exact one offers "Can't find 'X'? Add it under a state". Enter picks the top match; Esc closes.
+- **Niches *** and **Languages** — pills + "Add a new …" field.
+- **Metrics** (4 columns): Followers *, Eng. rate %, Avg likes, Avg comments; header shows the freshness label ("Will be dated today" for new).
+- **Pricing (INR)** (3 columns): Story, Reel, Post; edits save as a new dated rate.
+- **Profile**: Bio, Top hashtags (comma separated; "#" auto-added).
 
-- **Basics** (2-column grid): Full name *, Instagram handle * (with "@" prefix adornment), Email, Phone.
-- **Location *** — "Search a city or a state. If you only know the state, pick the state on its own."
-  - Selected items show as tags: "Pune Maharashtra ×" / "Punjab any city ×".
-  - On **focus** (before typing) a nested list opens: each state is a bold row on a shaded bg (`--iq-gray-25`), hint "Select whole state" / "N selected" / "✓ Whole state". Its cities are indented 28px underneath, with ✓ and a blue-50 bg when picked. Clicking toggles and keeps the list open (use `onMouseDown` + `preventDefault`).
-  - Typing filters it: a matching state keeps all its cities; otherwise only matching cities show.
-  - When there are fewer than 3 matches and no exact one: "Can't find 'X'? Add it under a state:" + state `<select>` + "Add city".
-  - Enter picks the top match; Esc closes.
-- **Niches *** — category chips (toggle) + "Add a new niche" input.
-- **Languages** — chips + "Add a new language".
-- **Metrics** (4 columns, mono inputs): Followers *, Eng. rate %, Avg likes, Avg comments. The section header shows the current freshness label ("Will be dated today" for new).
-- **Pricing (INR)** (3 columns): Story, Reel, Post. Header: "Current since Mon YYYY · edits save as a new rate".
-- **Profile:** Bio (textarea), Top hashtags (comma separated; "#" auto-added).
+**Add to campaign dialog** (420px): one row per open campaign (name, brand, count, status); "Add" / "✓ Added" (click to undo while still untouched) / "In campaign · Stage". "Manage campaigns" link, "Done".
 
-### Add to Campaign modal
-360px centered, radius 10, `shadow-4`. Title "Add to Campaign" + influencer name. One row per campaign (name, "N influencers"); pill "✓ Added" (blue on blue-50) or "Add" (outlined). Clicking toggles membership. "Done" closes. Clicking the overlay closes.
+### Loading
+**Skeleton screens** (`components/Skeletons.tsx`) instead of "Loading…" text: grey shapes in the layout of the real content
+(search cards and rows, profile, campaign list and detail, Manage, small lists in dialogs) with a soft shimmer. They
+reuse each screen's layout so content lands where the shapes were, appear only after ~160ms (no flash on fast loads),
+stay still with Reduce motion, and screen readers hear one "Loading …" message. Later loads keep the current content,
+dimmed, instead of blanking it.
+
+### Sign-in (API mode)
+Centred white card (radius 22) on a soft gradient: 72px app icon, "Sign in to InfluenceIQ", "Use your company Google
+account.", Google's sign-in button. The card fades up gently on load.
 
 ---
 
@@ -146,42 +145,22 @@ Placeholders are **generic**, never real data: "Full name", "handle", "Email add
 The built-in list covers all 28 states + 8 UTs of India with ~230 major cities (see `GEO` in `frontend/src/data/seed.ts`). State names are official: "Delhi", "Chandigarh", "Jammu and Kashmir", etc. When a city and its state share a name (Chandigarh, Delhi, Puducherry), don't print it twice.
 **Production:** replace this with a real source (e.g. India Post pincode data / GeoNames / a Places API), keeping the same `{ state, cities[] }` interface and the one-city-one-state rule.
 
-## State (client)
-Screen and selected influencer id; search query; `locF[]`, `cF[]`, `lF[]`, `fMin`, `fMax`, `eMin`; category "show more"; grid/list view; the active campaign; modal influencer id; form draft + error; Manage search, freshness filter and pending-delete id; sidebar open; rate-history open; profile note draft.
-
 ## Design Tokens
-Colors:
-- Brand cyan: 50 `#E8F7FC` · 400 `#11A6D2` (the brand cyan: accents, chart fills, focus) · **500 `#0B7FA3` (primary: buttons, links; white text passes WCAG AA)** · 600 `#096A88` (primary hover)
-- Navy `#141627` (sidebar, mobile bar, selected chips) · Accent lime `#8CC641` (small highlights such as the active nav marker; never text on white)
-- Gray: 0 `#FFFFFF` · 25 `#FAFAFA` · 50 `#F4F4F5` · 100 `#E8E8EA` · 200 `#D4D4D8` · 300 `#A6A6AE` · 400 `#71717A` · 600 `#3F3F46` · 800 `#18181B` · 900 `#0E0E10`
-- Text: fg-1 `#0E0E10` · fg-2 `#3F3F46` · fg-3 `#71717A`
-- Border `#E8E8EA`
-- Dark (on navy): border `#262A42` · fg-1 `#F4F5FA` · fg-2 `#A9AEC7` · fg-3 `#737896`
-- Success `#00A96B` · Danger `#E5484D`
-
-Category pairs (bg / fg):
-- Jewellery `#E9EAF2`/`#141627`
-- Fashion `#EEE9FF`/`#3D2F99`
-- Beauty `#FEF4E4`/`#8B5E00`
-- Food `#E7F7EF`/`#005E3B`
-- Fitness `#E4F3F8`/`#1A6480`
-- Travel `#E4F5F4`/`#1A7070`
-- Lifestyle and any custom niche `#F4F4F5`/`#3F3F46`
-
-Typography: Sans **Manrope** (the wordmark uses Manrope 800); Mono **JetBrains Mono** (all numbers and prices). Sizes in use: 9, 10, 11, 12, 13 (base), 14, 16, 19, 20.
-
-Radius: 4 (small buttons and tags) · 6 (buttons, inputs) · 8 (cards, tables) · 10 (profile header, modal) · 999 (pills).
-
-Shadows:
-- shadow-3 `0 8px 24px rgba(14,14,16,.08), 0 2px 6px rgba(14,14,16,.04)` (card hover, dropdowns)
-- shadow-4 `0 24px 64px rgba(14,14,16,.14), 0 4px 12px rgba(14,14,16,.06)` (modal, drawer)
-
-Motion: ease-out `cubic-bezier(0.22,1,0.36,1)` for card hover (180ms); sidebar `cubic-bezier(0.32,0.72,0,1)` 280ms.
+In `frontend/src/styles/tokens.css`:
+- **Accent**: brand-500 `#0071E3` (buttons, selection, focus) · 600 `#0077ED` (hover) · 700 `#006EDB` (pressed) · 50 `#EEF5FE` (tints) · link `#0066CC`.
+- **Neutrals**: page `#F5F5F7` · fill `#E8E8ED` · `#D2D2D7` · `#AEAEB2` · `#86868B` · text `#1D1D1F` / `#424245` / `#6E6E73` · hairline `#E5E5EA` · grey fills `rgba(118,118,128,0.12)`.
+- **Status**: success `#1C7F38` · warning `#C25400` · danger `#D70015`.
+- **Tag tones** (`lib/palette.ts`, soft tint / text): gray, muted, blue, indigo, purple, teal, orange, green, red, pink. Categories: Jewellery indigo · Fashion purple · Beauty pink · Food orange · Fitness green · Travel teal · Lifestyle and custom niches gray.
+- **Shape**: radius 6 (dense tags) · 8 (inputs) · 14 (cards, tables) · 16 (sheets, dialogs) · 999 (pills and buttons).
+- **Elevation**: `--iq-shadow-1` (cards) · `--iq-shadow-3` (hover, menus) · `--iq-shadow-4` (sheets, dialogs) · `--iq-focus` (focus halo).
+- **Materials**: `--iq-material-bar`, `--iq-material-side`, `--iq-blur`.
+- **Motion**: `--iq-ease-out`; `--iq-spring` (a critically damped spring sampled for CSS, used with 450ms). Drawers and dialogs use Motion springs (`bounce: 0`); swipe releases carry the finger's velocity.
 
 ## Assets
-- Icons: Lucide (`lucide-react` in production). Used: search, megaphone, database, bar-chart-3, send, settings, panel-left, layout-grid, list, x, search-x, plus, arrow-left, chevron-right, map-pin, languages, pencil, external-link, bookmark-plus, mail, phone, share-2, download, trash-2, bookmark, history, upload, user-plus, check, refresh-cw.
-- Fonts: Manrope and JetBrains Mono (SIL Open Font License), loaded from the fontsource packages on jsdelivr.
-- No imagery. Avatars are initials.
+- Icons: Lucide (`lucide-react`).
+- Fonts: the system font; Inter (SIL Open Font License) from fontsource as the fallback. Never copy font files or design-system code from other websites into this repo.
+- App icon: `frontend/public/favicon.svg` (rounded square, blue gradient, "IQ"), also used in the sidebar and on sign-in.
+- No imagery. Avatars are initials (or the Google photo for the signed-in user).
 
 ## Out of scope / Coming soon
-CSV import · Previous campaigns · Analytics · Outreach · "New" campaign and "Share" buttons (visual only). Backend, auth and persistence are not designed.
+CSV import · Previous campaigns · Analytics · Outreach · dark mode (#48).
