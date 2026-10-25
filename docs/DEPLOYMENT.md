@@ -164,6 +164,17 @@ default SNS key would stop CloudWatch from publishing), except UptimeRobot, whic
 | CloudWatch alarm `influenceiq-prod-cpu-credits-low` | CPU credit balance (t4g bursts on credits; Standard mode throttles to 10% at zero instead of billing) | minimum < 50 for 3 of 3 five-minute periods | email only; normal deploys use ~25-30 of the 288 maximum |
 | AWS Budget `influenceiq-monthly-usage-20` | monthly **usage** cost, credits and refunds excluded | actual > 90% (\$18) or forecast > 100% (\$20) | email via the SNS topic (the topic policy allows `budgets.amazonaws.com`, this account only). Direct email recipients can't be verified: the AWS Organization blocks `notifications-contacts:*` |
 | UptimeRobot keyword monitor (external) | the whole user path: CloudFront -> EC2 -> app -> DB | `/actuator/health` doesn't contain `"readiness"],"status":"UP"` | email on down and on recovery; checks every 5 min |
+| CloudWatch dashboard `influenceiq-prod` (ap-southeast-2) | one screen: alarm states; CPU, CPU credits, requests, 5xx now; CloudFront requests, 4xx/5xx error rate, data served; EC2 CPU, credits (with the alarm line), status checks, network | (not an alarm) | look at it after deploys, restarts and alarm emails. Free: within the 3 free dashboards, basic metrics only |
+
+**Dashboard as code:** `deploy/cloudwatch/dashboard.json` is a template (account and resource IDs are placeholders: the
+repo is public). To create or rebuild it: `ACCOUNT_ID=… INSTANCE_ID=i-… DISTRIBUTION_ID=E… deploy/cloudwatch/render-dashboard.sh | pbcopy`,
+then CloudWatch -> Dashboards -> Create dashboard `influenceiq-prod` -> close the widget picker -> Actions -> View/edit
+source -> paste -> Update -> Save. CloudFront metrics only exist in us-east-1; the template's widgets ask for that region
+themselves. Not shown: memory and disk (need the CloudWatch Agent, #18), and the bill (billing metrics only reach the
+Organization's payer account; the budget alerts cover cost).
+How to read it: a gap with no data = the server was stopped; CPU-credit balance restarts near 0 after more than 7 days
+stopped and climbs ~12/hour; a CPU peak plus a big Network In spike together = a deploy (downloads are free); with little
+traffic a few errors show as a large %, so judge 5xx by when and how long, not the peak.
 
 Tested: the alarm chain (a faked ALARM on the system check ran a **real recovery**, which worked unattended: data disk
 remounted, Docker restarted app + DB), and the uptime monitor (stopped the app container -> Down, started -> Up).

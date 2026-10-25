@@ -1,0 +1,398 @@
+{
+  "start": "-PT24H",
+  "periodOverride": "auto",
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "## InfluenceIQ (prod)\n[App](https://main.d360lwuskrbgul.amplifyapp.com) \u00b7 [Client demo](https://kaustaav.github.io/instaiq) \u00b7 [Runbook](https://github.com/kaustaav/instaiq/blob/main/docs/DEPLOYMENT.md) \u00b7 CloudFront graphs are global (reported in us-east-1); server graphs are this region. Memory and disk aren't shown: they need the CloudWatch Agent (issue #18)."
+      }
+    },
+    {
+      "type": "alarm",
+      "x": 0,
+      "y": 2,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "title": "Alarms",
+        "alarms": [
+          "arn:aws:cloudwatch:${REGION}:${ACCOUNT_ID}:alarm:influenceiq-prod-system-check",
+          "arn:aws:cloudwatch:${REGION}:${ACCOUNT_ID}:alarm:influenceiq-prod-instance-check",
+          "arn:aws:cloudwatch:${REGION}:${ACCOUNT_ID}:alarm:influenceiq-prod-cpu-credits-low"
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 4,
+      "width": 6,
+      "height": 4,
+      "properties": {
+        "title": "CPU now (%)",
+        "view": "singleValue",
+        "region": "${REGION}",
+        "stat": "Average",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "${INSTANCE_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 6,
+      "y": 4,
+      "width": 6,
+      "height": 4,
+      "properties": {
+        "title": "CPU credits left (max 288)",
+        "view": "singleValue",
+        "region": "${REGION}",
+        "stat": "Minimum",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUCreditBalance",
+            "InstanceId",
+            "${INSTANCE_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 4,
+      "width": 6,
+      "height": 4,
+      "properties": {
+        "title": "Requests (time range)",
+        "view": "singleValue",
+        "region": "us-east-1",
+        "stat": "Sum",
+        "period": 86400,
+        "setPeriodToTimeRange": true,
+        "metrics": [
+          [
+            "AWS/CloudFront",
+            "Requests",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 18,
+      "y": 4,
+      "width": 6,
+      "height": 4,
+      "properties": {
+        "title": "Server errors (5xx %)",
+        "view": "singleValue",
+        "region": "us-east-1",
+        "stat": "Average",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/CloudFront",
+            "5xxErrorRate",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 8,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "### What users see (CloudFront)"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 9,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Requests",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "stat": "Sum",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/CloudFront",
+            "Requests",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 9,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Error rate (%): 5xx = we failed them",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "stat": "Average",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/CloudFront",
+            "5xxErrorRate",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}",
+            {
+              "label": "5xx (server errors)",
+              "color": "#d62728"
+            }
+          ],
+          [
+            "AWS/CloudFront",
+            "4xxErrorRate",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}",
+            {
+              "label": "4xx (e.g. not signed in)",
+              "color": "#ff7f0e"
+            }
+          ]
+        ],
+        "yAxis": {
+          "left": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 9,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Data served (bytes)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "stat": "Sum",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/CloudFront",
+            "BytesDownloaded",
+            "Region",
+            "Global",
+            "DistributionId",
+            "${DISTRIBUTION_ID}"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 15,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "### The server (EC2 t4g.micro)"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 16,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "CPU (%)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${REGION}",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "stat": "Average",
+              "label": "Average"
+            }
+          ],
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "stat": "Maximum",
+              "label": "Peak"
+            }
+          ]
+        ],
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 16,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "CPU credits (alarm below 50)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${REGION}",
+        "stat": "Minimum",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUCreditBalance",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "label": "Balance"
+            }
+          ]
+        ],
+        "yAxis": {
+          "left": {
+            "min": 0
+          }
+        },
+        "annotations": {
+          "horizontal": [
+            {
+              "label": "Alarm: below 50",
+              "value": 50,
+              "color": "#d62728"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 16,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Status checks (1 = failing)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${REGION}",
+        "stat": "Maximum",
+        "period": 60,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "StatusCheckFailed_System",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "label": "AWS host (system)"
+            }
+          ],
+          [
+            "AWS/EC2",
+            "StatusCheckFailed_Instance",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "label": "Our OS (instance)"
+            }
+          ]
+        ],
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 22,
+      "width": 24,
+      "height": 5,
+      "properties": {
+        "title": "Network (bytes)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${REGION}",
+        "stat": "Sum",
+        "period": 300,
+        "metrics": [
+          [
+            "AWS/EC2",
+            "NetworkIn",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "label": "In"
+            }
+          ],
+          [
+            "AWS/EC2",
+            "NetworkOut",
+            "InstanceId",
+            "${INSTANCE_ID}",
+            {
+              "label": "Out"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
